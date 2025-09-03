@@ -86,7 +86,7 @@ export default function CanvasRow({
           type="text"
           value={node.label}
           onChange={(e) => onInputChange(e.target.value)}
-          className="flex-1 border-none shadow-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-auto py-0 font-normal"
+          className="flex-1 border-none shadow-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-auto py-0 font-normal text-lg"
 
           onKeyDown={(e) => {
             const target = e.target as HTMLInputElement;

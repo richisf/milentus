@@ -74,7 +74,7 @@ export default function RepositorySettings({ repository, onRepositoryRemoved }: 
           e.stopPropagation(); // Prevent card click
           setIsOpen(!isOpen);
         }}
-        className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-gray-600 cursor-pointer hover:bg-gray-50 transition-colors border border-gray-300"
+        className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors border border-gray-300"
         title="Repository Settings"
       >
         <Cog6ToothIcon className="w-4 h-4" />

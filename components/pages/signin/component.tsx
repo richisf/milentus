@@ -51,19 +51,13 @@ export function SignIn() {
         <Button type="submit" className="w-full">
           {flow === "signIn" ? "Sign in" : "Sign up"}
         </Button>
-        <div className="flex flex-row gap-2">
-          <span>
-            {flow === "signIn"
-              ? "Don't have an account?"
-              : "Already have an account?"}
-          </span>
-          <span
-            className="text-foreground underline hover:no-underline cursor-pointer"
+        <Button
+            variant="link"
+            className="text-foreground underline border-none hover:no-underline"
             onClick={() => setFlow(flow === "signIn" ? "signUp" : "signIn")}
           >
             {flow === "signIn" ? "Sign up instead" : "Sign in instead"}
-          </span>
-        </div>
+          </Button>
         {error && (
           <Alert variant="destructive">
             <AlertDescription>
