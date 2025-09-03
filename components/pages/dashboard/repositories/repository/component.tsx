@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Cog6ToothIcon } from "@heroicons/react/24/outline";
 import { RemoveRepository } from "@/components/pages/dashboard/repositories/repository/remove/component";
 import { MachineStatus } from "@/components/pages/dashboard/repositories/repository/state/component";
+import { FetchFiles } from "@/components/pages/dashboard/repositories/repository/files/component";
 import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 
@@ -92,6 +93,12 @@ export default function RepositorySettings({ repository, onRepositoryRemoved }: 
               />
             )}
 
+            {/* Fetch Files */}
+            <FetchFiles
+              repositoryId={repository._id}
+              repositoryName={repository.name}
+            />
+
             {/* Remove Repository */}
             <RemoveRepository
               repositoryId={repository._id}
@@ -102,6 +109,8 @@ export default function RepositorySettings({ repository, onRepositoryRemoved }: 
           </div>
         </div>
       )}
+
+
     </div>
   );
 }

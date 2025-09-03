@@ -32,6 +32,12 @@ import type * as githubAccount_repository_document_action_create from "../github
 import type * as githubAccount_repository_document_action_services_response from "../githubAccount/repository/document/action/services/response.js";
 import type * as githubAccount_repository_document_mutation_create from "../githubAccount/repository/document/mutation/create.js";
 import type * as githubAccount_repository_document_query_by_repository from "../githubAccount/repository/document/query/by_repository.js";
+import type * as githubAccount_repository_files_action_create from "../githubAccount/repository/files/action/create.js";
+import type * as githubAccount_repository_files_action_services_content from "../githubAccount/repository/files/action/services/content.js";
+import type * as githubAccount_repository_files_action_services_paths from "../githubAccount/repository/files/action/services/paths.js";
+import type * as githubAccount_repository_files_action_services_traversion from "../githubAccount/repository/files/action/services/traversion.js";
+import type * as githubAccount_repository_files_mutation_create from "../githubAccount/repository/files/mutation/create.js";
+import type * as githubAccount_repository_files_query_by_repository from "../githubAccount/repository/files/query/by_repository.js";
 import type * as githubAccount_repository_machine_action_create from "../githubAccount/repository/machine/action/create.js";
 import type * as githubAccount_repository_machine_action_remove from "../githubAccount/repository/machine/action/remove.js";
 import type * as githubAccount_repository_machine_action_services_create_devServer_convexProject from "../githubAccount/repository/machine/action/services/create/devServer/convexProject.js";
@@ -97,6 +103,12 @@ declare const fullApi: ApiFromModules<{
   "githubAccount/repository/document/action/services/response": typeof githubAccount_repository_document_action_services_response;
   "githubAccount/repository/document/mutation/create": typeof githubAccount_repository_document_mutation_create;
   "githubAccount/repository/document/query/by_repository": typeof githubAccount_repository_document_query_by_repository;
+  "githubAccount/repository/files/action/create": typeof githubAccount_repository_files_action_create;
+  "githubAccount/repository/files/action/services/content": typeof githubAccount_repository_files_action_services_content;
+  "githubAccount/repository/files/action/services/paths": typeof githubAccount_repository_files_action_services_paths;
+  "githubAccount/repository/files/action/services/traversion": typeof githubAccount_repository_files_action_services_traversion;
+  "githubAccount/repository/files/mutation/create": typeof githubAccount_repository_files_mutation_create;
+  "githubAccount/repository/files/query/by_repository": typeof githubAccount_repository_files_query_by_repository;
   "githubAccount/repository/machine/action/create": typeof githubAccount_repository_machine_action_create;
   "githubAccount/repository/machine/action/remove": typeof githubAccount_repository_machine_action_remove;
   "githubAccount/repository/machine/action/services/create/devServer/convexProject": typeof githubAccount_repository_machine_action_services_create_devServer_convexProject;

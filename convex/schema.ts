@@ -48,6 +48,13 @@ export default defineSchema({
           collapsed: v.optional(v.boolean())
         }))
       })
-        .index("by_repository", ["repositoryId"]) // Unique: one document per repository
+        .index("by_repository", ["repositoryId"]), // Unique: one document per repository
+
+      files: defineTable({
+        repositoryId: v.id("repository"), // File belongs to a repository
+        path: v.string(), // File path within the repository
+        content: v.string(), // File content
+      })
+        .index("by_repository", ["repositoryId"])
 
   });
