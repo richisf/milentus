@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Id } from "@/convex/_generated/dataModel";
 import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import RepositoriesAvatarComponent from "../avatar/component";
 import RepositorySettings from "./repository/component";
 import { CreateRepository } from "./create/component";
@@ -50,12 +51,7 @@ export default function RepositoriesView({ repositories, onSelectRepository, cur
   if (repositories === undefined) {
     return (
       <div className="flex items-center justify-center min-h-screen p-4">
-        <Card className="w-full max-w-md text-center">
-          <CardContent className="pt-6">
-            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading repositories...</p>
-          </CardContent>
-        </Card>
+        
       </div>
     );
   }
@@ -70,7 +66,6 @@ export default function RepositoriesView({ repositories, onSelectRepository, cur
       {/* Create repository section at top */}
       <div className="pt-20 pb-8">
         <div className="max-w-2xl mx-auto">
-          <h2 className="text-2xl font-bold mb-6 text-center">Your Repositories</h2>
 
           {/* Create repository component */}
           <div className="mb-8">
@@ -86,9 +81,13 @@ export default function RepositoriesView({ repositories, onSelectRepository, cur
       {/* Repository grid - centered with margins */}
       <div className="flex justify-center">
         <div className="max-w-6xl w-full px-8">
+          {/* Repository subtitle */}
+          <div className="mb-6">
+            <Label className="text-lg font-medium">Your Repositories</Label>
+          </div>
+
           {repositories.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-600">No repositories found. Create your first repository above!</p>
+            <div className="">
             </div>
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

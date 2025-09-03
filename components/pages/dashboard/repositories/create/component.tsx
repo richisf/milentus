@@ -79,7 +79,8 @@ export function CreateRepository({ currentUser, isCreating, setIsCreating }: Cre
         <div className="flex-1">
           <Input
             type="text"
-            placeholder="Enter repository name..."
+            placeholder=""
+            className="placeholder:text-gray-400 placeholder:text-sm"
             value={repoName}
             onChange={(e) => setRepoName(e.target.value)}
             disabled={isCreating}

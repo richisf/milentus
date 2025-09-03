@@ -32,18 +32,22 @@ export function Dashboard() {
   // Show loading state while checking auth
   if (currentUser === undefined) {
     return (
-      <div className="flex items-center justify-center min-h-screen p-4">
-        <Card className="w-full max-w-md text-center">
-          <CardContent className="pt-6">
-            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading...</p>
-          </CardContent>
-        </Card>
-      </div>
+      <div
+      className="min-h-screen"
+      style={{ backgroundColor: '#F7F8F4', padding: '12px' }}
+    >
+      <Card
+        className="h-full"
+        style={{
+          height: 'calc(100vh - 32px)',
+          overflow: 'hidden'
+        }}
+      >
+      </Card>
+    </div>
     );
   }
 
-  // Don't render anything if user is not authenticated (will redirect)
   if (currentUser === null) {
     return null;
   }
