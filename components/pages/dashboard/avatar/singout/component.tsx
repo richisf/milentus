@@ -18,7 +18,7 @@ export function SignOut() {
     <Button
       variant="ghost"
       size="sm"
-      className="text-xs px-3 py-2 h-8 flex items-center w-full justify-start bg-[#F7F8F4] hover:bg-[#E8E9E4]"
+      className="text-xs px-3 py-2 h-8 flex items-center w-full justify-start bg-white"
       onClick={handleSignOut}
     >
       Sign Out

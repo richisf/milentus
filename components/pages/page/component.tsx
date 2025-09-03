@@ -19,10 +19,7 @@ export function Page() {
   // Show loading while redirecting authenticated users
   if (isAuthenticated) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-8">
-        <div className="text-center">
-          <p className="text-lg">Redirecting to dashboard...</p>
-        </div>
+      <div className="flex flex-col">
       </div>
     );
   }

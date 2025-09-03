@@ -5,6 +5,7 @@ import { Cog6ToothIcon } from "@heroicons/react/24/outline";
 import { RemoveRepository } from "./remove/component";
 import { MachineStatus } from "./state/component";
 import { Id } from "@/convex/_generated/dataModel";
+import { Button } from "@/components/ui/button";
 
 interface Repository {
   _id: Id<"repository">;
@@ -68,7 +69,7 @@ export default function RepositorySettings({ repository, onRepositoryRemoved }: 
   return (
     <div ref={dropdownRef} className="relative">
       {/* Settings Button */}
-      <button
+      <Button
         onClick={(e) => {
           e.stopPropagation(); // Prevent card click
           setIsOpen(!isOpen);
@@ -77,7 +78,7 @@ export default function RepositorySettings({ repository, onRepositoryRemoved }: 
         title="Repository Settings"
       >
         <Cog6ToothIcon className="w-4 h-4" />
-      </button>
+      </Button>
 
       {/* Dropdown Menu */}
       {isOpen && (
