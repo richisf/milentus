@@ -4,9 +4,9 @@ import { useState } from "react";
 import { Id } from "@/convex/_generated/dataModel";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import RepositoriesAvatarComponent from "../avatar/component";
-import RepositorySettings from "./repository/component";
-import { CreateRepository } from "./create/component";
+import RepositoriesAvatarComponent from "@/components/pages/dashboard/avatar/component";
+import RepositorySettings from "@/components/pages/dashboard/repositories/repository/component";
+import { CreateRepository } from "@/components/pages/dashboard/repositories/create/component";  
 
 interface RepositoriesViewProps {
   repositories: Array<{

@@ -4,11 +4,11 @@ import React from "react";
 import { Cog6ToothIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import JsonExportComponent from "./canvas/json/export/component";
-import JsonImportComponent from "./canvas/json/import/component";
-import JsonExtensionComponent from "./canvas/view/extension/component";
-import JsonNestingComponent from "./canvas/json/nesting/component";
-import JsonExpandComponent from "./canvas/view/expand/component";
+import JsonExportComponent from "@/components/pages/dashboard/repositories/canvas/avatar/canvas/json/export/component";
+import JsonImportComponent from "@/components/pages/dashboard/repositories/canvas/avatar/canvas/json/import/component";
+import JsonExtensionComponent from "@/components/pages/dashboard/repositories/canvas/avatar/canvas/view/extension/component";
+import JsonNestingComponent from "@/components/pages/dashboard/repositories/canvas/avatar/canvas/json/nesting/component";
+import JsonExpandComponent from "@/components/pages/dashboard/repositories/canvas/avatar/canvas/view/expand/component";
 
 type Node = {
   id: string;

@@ -4,7 +4,7 @@ import { internalAction } from "@/convex/_generated/server";
 import { v } from "convex/values";
 import { internal } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { VMCreateResult } from "./services/create";
+import { VMCreateResult } from "@/convex/githubAccount/repository/machine/action/services/create";
 import { machine as createMachine } from "@/convex/githubAccount/repository/machine/action/services/create"
 
 export const machine = internalAction({

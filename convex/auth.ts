@@ -1,6 +1,6 @@
 import { Password } from "@convex-dev/auth/providers/Password";
 import { convexAuth } from "@convex-dev/auth/server";
-import { query } from "./_generated/server";
+import { query } from "@/convex/_generated/server";
 import { v } from "convex/values";
 
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({

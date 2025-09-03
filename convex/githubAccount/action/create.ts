@@ -3,8 +3,8 @@
 import { action } from "@/convex/_generated/server";
 import { v } from "convex/values";
 import { internal } from "@/convex/_generated/api";
-import { codeForToken } from "./services/exchange";
-import { githubAccount as fetchGithubAccount } from "./services/fetch"; 
+import { codeForToken } from "@/convex/githubAccount/action/services/exchange";
+import { githubAccount as fetchGithubAccount } from "@/convex/githubAccount/action/services/fetch";   
 
 export const githubAccount = action({
   args: {

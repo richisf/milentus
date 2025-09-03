@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useAction, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { DefaultRepositoryCreator } from "./default/component";
+import { DefaultRepositoryCreator } from "@/components/pages/github/callback/default/component";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 

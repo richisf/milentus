@@ -6,10 +6,10 @@ import { useEffect, useState } from "react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Card, CardContent } from "@/components/ui/card";
-import RepositoriesView from "./repositories/component";
-import CanvasComponent from "./repositories/canvas/component";
+import RepositoriesView from "@/components/pages/dashboard/repositories/component";
+import CanvasComponent from "@/components/pages/dashboard/repositories/canvas/component";
 
-export function Dashboard() {
+export function Dashboard() { 
   const currentUser = useQuery(api.auth.currentUser);
   const router = useRouter();
   const [selectedRepositoryId, setSelectedRepositoryId] = useState<Id<"repository"> | null>(null);

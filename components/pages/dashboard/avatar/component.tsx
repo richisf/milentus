@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Cog6ToothIcon } from "@heroicons/react/24/outline";
-import { SignOut } from "./singout/component";
+import { SignOut } from "@/components/pages/dashboard/avatar/singout/component";  
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
