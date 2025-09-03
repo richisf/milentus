@@ -1,0 +1,85 @@
+"use client";
+
+import { useQuery } from "convex/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
+import { Card, CardContent } from "@/components/ui/card";
+import RepositoriesView from "./repositories/component";
+import CanvasComponent from "./repositories/canvas/component";
+
+export function Dashboard() {
+  const currentUser = useQuery(api.auth.currentUser);
+  const router = useRouter();
+  const [selectedRepositoryId, setSelectedRepositoryId] = useState<Id<"repository"> | null>(null);
+
+  // Get repositories (this already includes document data via the by_user query)
+  // Extract the first part of the subject (before the first pipe) to match database format
+  const userId = currentUser?.subject?.split('|')[0];
+  const repositories = useQuery(api.githubAccount.repository.query.by_user.repositories, {
+    userId: userId || undefined,
+    fallbackToDefault: false,
+  });
+
+  // Redirect to signin if not authenticated
+  useEffect(() => {
+    if (currentUser === null) {
+      router.push("/signin");
+    }
+  }, [currentUser, router]);
+
+  // Show loading state while checking auth
+  if (currentUser === undefined) {
+    return (
+      <div className="flex items-center justify-center min-h-screen p-4">
+        <Card className="w-full max-w-md text-center">
+          <CardContent className="pt-6">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Don't render anything if user is not authenticated (will redirect)
+  if (currentUser === null) {
+    return null;
+  }
+
+  // Find the selected repository to get its document data
+  const selectedRepository = selectedRepositoryId
+    ? repositories?.find(repo => repo._id === selectedRepositoryId)
+    : null;
+
+  return (
+    <div
+      className="min-h-screen"
+      style={{ backgroundColor: '#F7F8F4', padding: '12px' }}
+    >
+      <Card
+        className="h-full"
+        style={{
+          height: 'calc(100vh - 32px)',
+          overflow: 'hidden'
+        }}
+      >
+        <CardContent className="h-full overflow-y-auto">
+          {selectedRepositoryId && selectedRepository ? (
+            <CanvasComponent
+              documentData={selectedRepository.document}
+              onBack={() => setSelectedRepositoryId(null)}
+            />
+                  ) : (
+          <RepositoriesView
+            repositories={repositories}
+            onSelectRepository={setSelectedRepositoryId}
+            currentUser={currentUser}
+          />
+        )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

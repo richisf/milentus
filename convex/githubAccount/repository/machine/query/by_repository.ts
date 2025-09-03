@@ -1,0 +1,30 @@
+import { internalQuery } from "@/convex/_generated/server";
+import { v } from "convex/values";
+
+export const machine = internalQuery({
+  args: {
+    repositoryId: v.id("repository"),
+  },
+  returns: v.union(
+    v.object({
+      _id: v.id("machine"),
+      _creationTime: v.number(),
+      repositoryId: v.id("repository"),
+      name: v.string(),
+      zone: v.string(),
+      state: v.string(),
+      ipAddress: v.optional(v.string()),
+      domain: v.optional(v.string()),
+      convexUrl: v.optional(v.string()),
+      convexProjectId: v.optional(v.number()),
+    }),
+    v.null()
+  ),
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("machine")
+      .withIndex("by_repository", (q) => q.eq("repositoryId", args.repositoryId))
+      .unique(); // Only one machine per repository
+  },
+});
+

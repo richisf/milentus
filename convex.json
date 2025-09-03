@@ -1,0 +1,12 @@
+{
+  "generateCommonJSApi": true,
+  "node": {
+    "polyfill": true,
+    "externalPackages": [
+      "@google-cloud/compute",
+      "node-ssh",
+      "ssh2",
+      "cpu-features"
+    ]
+  }
+}
