@@ -30,7 +30,7 @@ export default function JsonExportComponent({ nodesData }: JsonExportProps) {
       onClick={handleExport}
       variant="ghost"
       size="sm"
-      className="w-full justify-start text-xs bg-[#F7F8F4] hover:bg-[#F7F8F4]/80"
+      className="w-full justify-start text-xs bg-white hover:bg-gray-50"
       title="Export nodes as JSON"
     >
       Export

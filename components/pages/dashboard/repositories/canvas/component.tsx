@@ -6,15 +6,15 @@ import { HomeIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
 import CanvasRow from "./row/component";
 import AvatarComponent from "./avatar/component";
-import { useEnterKey } from "./keyboard/enter/hook";
-import { useTabStart } from "./keyboard/tab/start/hook";
-import { useTabEnd } from "./keyboard/tab/end/hook";
-import { useDeleteEmpty } from "./keyboard/delete/emtpy/hook";
-import { useDeleteContent } from "./keyboard/delete/content/hook";
-import { useArrowUp } from "./keyboard/arrows/up/hook";
-import { useArrowDown } from "./keyboard/arrows/down/hook";
-import { useArrowLeft } from "./keyboard/arrows/left/hook";
-import { useArrowRight } from "./keyboard/arrows/right/hook";
+import { useEnterKey } from "./row/keyboard/enter/hook";
+import { useTabStart } from "./row/keyboard/tab/start/hook";
+import { useTabEnd } from "./row/keyboard/tab/end/hook";
+import { useDeleteEmpty } from "./row/keyboard/delete/emtpy/hook";
+import { useDeleteContent } from "./row/keyboard/delete/content/hook";
+import { useArrowUp } from "./row/keyboard/arrows/up/hook";
+import { useArrowDown } from "./row/keyboard/arrows/down/hook";
+import { useArrowLeft } from "./row/keyboard/arrows/left/hook";
+import { useArrowRight } from "./row/keyboard/arrows/right/hook";
 import { useJsonImport } from "./avatar/canvas/json/import/hook";
 import { useJsonNest } from "./avatar/canvas/json/nesting/hook";
 import { useJsonExpand } from "./avatar/canvas/view/expand/hook";
@@ -164,7 +164,7 @@ export default function CanvasComponent({ documentData, onBack }: CanvasComponen
           <Button
             onClick={onBack}
             variant="ghost"
-            className="w-10 h-10 rounded-full p-0"
+            className="w-10 h-10 rounded-full p-0 bg-[#F7F8F4] hover:bg-[#E8E9E4]"
             title="Back to repositories"
           >
             <HomeIcon className="w-6 h-6" />

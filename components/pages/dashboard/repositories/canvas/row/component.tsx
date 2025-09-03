@@ -73,7 +73,7 @@ export default function CanvasRow({
             onClick={onToggle}
             variant="ghost"
             size="sm"
-            className="w-4 h-4 p-0 text-muted-foreground hover:text-foreground"
+            className="w-5 h-5 p-0 text-muted-foreground hover:text-foreground text-xs"
             aria-label={node.collapsed ? "Expand" : "Collapse"}
           >
             {node.collapsed ? "▶" : "▼"}
@@ -86,7 +86,7 @@ export default function CanvasRow({
           type="text"
           value={node.label}
           onChange={(e) => onInputChange(e.target.value)}
-          className="flex-1 border-none shadow-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-auto py-0 font-normal text-base"
+          className="flex-1 border-none shadow-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-auto py-0 font-normal"
 
           onKeyDown={(e) => {
             const target = e.target as HTMLInputElement;

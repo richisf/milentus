@@ -12,13 +12,13 @@ export default function RepositoriesAvatarComponent() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="w-10 h-10 rounded-full p-0"
+          className="w-10 h-10 rounded-full p-0 bg-[#F7F8F4] hover:bg-[#E8E9E4]"
           title="User Menu"
         >
           <Cog6ToothIcon className="w-6 h-6" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-56">
+      <DropdownMenuContent align="end" className="min-w-56 bg-[#F7F8F4]">
         <SignOut />
       </DropdownMenuContent>
     </DropdownMenu>

@@ -73,7 +73,7 @@ export default function RepositorySettings({ repository, onRepositoryRemoved }: 
           e.stopPropagation(); // Prevent card click
           setIsOpen(!isOpen);
         }}
-        className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-gray-600 cursor-pointer hover:bg-gray-50 transition-colors border border-gray-300"
+        className="w-8 h-8 bg-[#F7F8F4] rounded-full flex items-center justify-center text-gray-600 cursor-pointer hover:bg-[#E8E9E4] transition-colors border border-gray-300"
         title="Repository Settings"
       >
         <Cog6ToothIcon className="w-4 h-4" />
@@ -81,7 +81,7 @@ export default function RepositorySettings({ repository, onRepositoryRemoved }: 
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute top-10 right-0 rounded-lg shadow-lg border border-gray-300 p-2 min-w-40 z-50 bg-white">
+        <div className="absolute top-10 right-0 rounded-lg shadow-lg border border-gray-300 p-2 min-w-40 z-[60] bg-[#F7F8F4]">
           <div className="flex flex-col gap-1">
             {/* Machine Status - simplified */}
             {repository.machine && (
@@ -94,6 +94,8 @@ export default function RepositorySettings({ repository, onRepositoryRemoved }: 
             {/* Remove Repository */}
             <RemoveRepository
               repositoryId={repository._id}
+              repositoryName={repository.name}
+              repositoryDisplayName={repository.displayName}
               onRemoveSuccess={onRepositoryRemoved}
             />
           </div>

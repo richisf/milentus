@@ -75,21 +75,21 @@ export default function JsonImportComponent({ onImport }: JsonImportProps) {
           value={jsonInput}
           onChange={(e) => setJsonInput(e.target.value)}
           placeholder="Import"
-          className="flex-1 text-xs min-h-8 resize-none"
+          className="w-64 text-xs h-8 min-h-8 resize-none bg-white border-gray-300 focus-visible:ring-0 focus-visible:border-gray-300 px-3 py-2 text-gray-600 placeholder:text-gray-400"
         />
         <Button
           onClick={handleImport}
           variant="ghost"
           size="sm"
           disabled={!jsonInput.trim()}
-          className="bg-[#F7F8F4] hover:bg-[#F7F8F4]/80"
+          className="bg-white hover:bg-gray-50"
           title="Import JSON"
         >
           <PaperAirplaneIcon className="w-4 h-4" />
         </Button>
       </div>
       {error && (
-        <Alert variant="destructive" className="mt-2">
+        <Alert variant="destructive" className="mt-0.5 py-1">
           <AlertDescription className="text-xs">
             {error}
           </AlertDescription>

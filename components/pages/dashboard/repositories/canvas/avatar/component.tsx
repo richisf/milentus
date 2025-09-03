@@ -35,13 +35,13 @@ export default function AvatarComponent({ nodesData, onImport, onExtend, onNest,
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="w-10 h-10 rounded-full p-0"
+          className="w-10 h-10 rounded-full p-0 bg-[#F7F8F4] hover:bg-[#E8E9E4]"
           title="Canvas Menu"
         >
           <Cog6ToothIcon className="w-6 h-6" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-56 bg-white">
+      <DropdownMenuContent align="end" className="min-w-56 bg-[#F7F8F4]">
         <div className="flex flex-col gap-1">
           <JsonExportComponent nodesData={nodesData} />
           <JsonImportComponent onImport={onImport} />

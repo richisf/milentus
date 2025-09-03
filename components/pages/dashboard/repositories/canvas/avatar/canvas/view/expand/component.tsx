@@ -55,12 +55,12 @@ export default function JsonExpandComponent({ nodesData, onExpand }: JsonExpandP
   return (
     <div className="flex gap-2">
       <Select value={level.toString()} onValueChange={(value) => setLevel(Number(value))}>
-        <SelectTrigger className="flex-1 text-xs">
-          <SelectValue placeholder="Select level" />
+        <SelectTrigger size="sm" className="flex-1 text-xs bg-white border-gray-300 focus-visible:ring-0 focus-visible:border-gray-300">
+          <SelectValue placeholder="Select level" className="text-xs" />
         </SelectTrigger>
         <SelectContent>
           {availableLevels.map(lvl => (
-            <SelectItem key={lvl} value={lvl.toString()}>
+            <SelectItem key={lvl} value={lvl.toString()} className="text-xs">
               Expand Level {lvl}+
             </SelectItem>
           ))}
@@ -70,7 +70,7 @@ export default function JsonExpandComponent({ nodesData, onExpand }: JsonExpandP
         onClick={handleExpand}
         variant="ghost"
         size="sm"
-        className="bg-[#F7F8F4] hover:bg-[#F7F8F4]/80"
+        className="bg-white hover:bg-gray-50"
         title="Expand nodes at selected level and below"
       >
         <ArrowDownIcon className="w-4 h-4" />
