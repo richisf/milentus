@@ -54,7 +54,9 @@ export default defineSchema({
         repositoryId: v.id("repository"), // File belongs to a repository
         path: v.string(), // File path within the repository
         content: v.string(), // File content
+        imports: v.optional(v.array(v.id("files"))), // Files that this file imports
       })
         .index("by_repository", ["repositoryId"])
+        .index("by_repository_and_path", ["repositoryId", "path"]) // Unique constraint: one file per path per repository
 
   });

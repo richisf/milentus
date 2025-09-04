@@ -18,11 +18,23 @@ export function extractDependencies(
       importPath = importPath.substring(2);
     }
 
+    // Add .ts extension if the path doesn't have an extension
+    // This handles cases like 'path/to/file' -> 'path/to/file.ts'
+    if (!importPath.includes('.') && !importPath.endsWith('/')) {
+      importPath = importPath + '.ts';
+    }
+
     // Filter by target path if provided
     if (!targetPath || importPath.includes(targetPath)) {
       dependencies.push(importPath);
     }
   }
 
-  return [...new Set(dependencies)]; // Remove duplicates
+  const uniqueDeps = [...new Set(dependencies)]; // Remove duplicates
+
+  if (uniqueDeps.length > 0) {
+    console.log(`🔗 Extracted ${uniqueDeps.length} unique dependencies:`, uniqueDeps);
+  }
+
+  return uniqueDeps;
 }

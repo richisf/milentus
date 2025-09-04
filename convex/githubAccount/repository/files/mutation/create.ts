@@ -7,6 +7,7 @@ export const file = internalMutation({
     repositoryId: v.id("repository"),
     path: v.string(),
     content: v.string(),
+    imports: v.optional(v.array(v.id("files"))),
   },
   returns: v.id("files"),
   handler: async (ctx, args): Promise<Id<"files">> => {
@@ -14,6 +15,7 @@ export const file = internalMutation({
       repositoryId: args.repositoryId,
       path: args.path,
       content: args.content,
+      imports: args.imports,
     });
   },
 });

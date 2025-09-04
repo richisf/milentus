@@ -3,6 +3,7 @@
 import { action } from "@/convex/_generated/server";
 import { v } from "convex/values";
 import { internal } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 import { getAllFilePaths } from "@/convex/githubAccount/repository/files/action/services/files";
 import { getMatchingFilesWithContent } from "@/convex/githubAccount/repository/files/action/services/file";
 import { recursive } from "@/convex/githubAccount/repository/files/action/services/recurive";
@@ -47,6 +48,7 @@ export const files = action({
       );
 
       // Get initial matching files and recursively collect all dependencies
+      console.log(`🔍 Searching for files matching path pattern: "${args.path}"`);
       const initialFiles = await getMatchingFilesWithContent(
         githubAccount.token,
         githubAccount.username,
@@ -54,7 +56,9 @@ export const files = action({
         allPaths,
         args.path
       );
+      console.log(`📁 Found ${initialFiles.length} initial files:`, initialFiles.map(f => f.path));
 
+      console.log(`🔗 Recursively collecting dependencies with pattern: "${args.dependencyPath}"`);
       const allCollectedFiles = await recursive(
         githubAccount.token,
         githubAccount.username,
@@ -62,13 +66,33 @@ export const files = action({
         initialFiles,
         args.dependencyPath
       );
+      console.log(`📦 Total collected files: ${allCollectedFiles.length}`, allCollectedFiles.map(f => f.path));
 
-      for (const file of allCollectedFiles) {
-        await ctx.runMutation(internal.githubAccount.repository.files.mutation.create.file, {
+      const reversedFiles = [...allCollectedFiles].reverse();
+      console.log(`🔄 Creating files in reverse order (dependencies first)...`);
+
+      const pathToFileId = new Map<string, string>();
+      
+      for (const file of reversedFiles) {
+        console.log(`📝 Creating file: ${file.path}`);
+        
+        const importFileIds: Id<"files">[] = [];
+        for (const depPath of file.dependencies) {
+          const depFileId = pathToFileId.get(depPath);
+          if (depFileId) {
+            importFileIds.push(depFileId as Id<"files">);
+            console.log(`  📎 ${file.path} imports ${depPath}`);
+          }
+        }
+
+        const fileId = await ctx.runMutation(internal.githubAccount.repository.files.mutation.create.file, {
           repositoryId: args.repositoryId,
           path: file.path,
           content: file.content,
+          imports: importFileIds.length > 0 ? importFileIds : undefined,
         });
+        
+        pathToFileId.set(file.path, fileId);
       }
 
       return {
