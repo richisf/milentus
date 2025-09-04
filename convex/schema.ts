@@ -45,18 +45,20 @@ export default defineSchema({
           id: v.string(),
           parentId: v.string(),
           label: v.string(),
-          collapsed: v.optional(v.boolean())
+          collapsed: v.optional(v.boolean()),
+
+          fileId: v.optional(v.id("files")) // Optional link to a file - makes this node represent a file
         }))
       })
         .index("by_repository", ["repositoryId"]), // Unique: one document per repository
 
-      files: defineTable({
-        repositoryId: v.id("repository"), // File belongs to a repository
-        path: v.string(), // File path within the repository
-        content: v.string(), // File content
-        imports: v.optional(v.array(v.id("files"))), // Files that this file imports
-      })
-        .index("by_repository", ["repositoryId"])
-        .index("by_repository_and_path", ["repositoryId", "path"]) // Unique constraint: one file per path per repository
+        files: defineTable({
+          repositoryId: v.id("repository"), // File belongs to a repository
+          path: v.string(), // File path within the repository
+          content: v.string(), // File content
+          imports: v.optional(v.array(v.id("files"))), // Files that this file imports
+        })
+          .index("by_repository", ["repositoryId"])
+          .index("by_repository_and_path", ["repositoryId", "path"]) // Unique constraint: one file per path per repository
 
   });
