@@ -14,7 +14,7 @@ interface FetchFilesProps {
 }
 
 export function FetchFiles({ repositoryId, repositoryName }: FetchFilesProps) {
-  const fetchFilesAction = useAction(api.githubAccount.repository.files.action.create.files);
+  const createDocumentAction = useAction(api.githubAccount.repository.document.action.create.document);
 
   const [isFetching, setIsFetching] = useState(false);
   const [fetchResponse, setFetchResponse] = useState<string | null>(null);
@@ -32,19 +32,19 @@ export function FetchFiles({ repositoryId, repositoryName }: FetchFilesProps) {
     setFetchResponse(null);
 
     try {
-      const result = await fetchFilesAction({
+      const result = await createDocumentAction({
         repositoryId: repositoryId,
         path: path.trim(),
         dependencyPath: dependencyPath.trim() || "",
       });
 
       if (result.success) {
-        setFetchResponse(`✅ Successfully fetched and stored files!`);
+        setFetchResponse(`✅ Successfully created document with ${result.processedFiles || 0} files analyzed!`);
         setShowForm(false); // Hide form after success
         setPath(""); // Reset inputs
         setDependencyPath("");
       } else {
-        setFetchResponse(`❌ Failed to fetch files: ${result.error}`);
+        setFetchResponse(`❌ Failed to create document: ${result.error}`);
       }
     } catch (error) {
       setFetchResponse(`❌ Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -73,7 +73,7 @@ export function FetchFiles({ repositoryId, repositoryName }: FetchFilesProps) {
           size="sm"
           className="text-xs px-3 py-2 h-8 flex items-center w-full justify-start bg-[#F7F8F4] hover:bg-[#E8E9E4]"
         >
-          {isFetching ? "Fetching..." : "Fetch Repository Files"}
+          {isFetching ? "Creating..." : "Create Document"}
         </Button>
       ) : (
         <div
@@ -81,7 +81,7 @@ export function FetchFiles({ repositoryId, repositoryName }: FetchFilesProps) {
           onClick={(e) => e.stopPropagation()} // Prevent triggering repository card click
         >
           <div className="text-xs text-blue-700 font-medium">
-            Fetch files from repository:
+            Create document with AI analysis:
           </div>
           <div className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded font-mono">
             {repositoryName}
@@ -126,7 +126,7 @@ export function FetchFiles({ repositoryId, repositoryName }: FetchFilesProps) {
               variant="default"
               className="text-xs h-7 px-2 bg-blue-600 hover:bg-blue-700"
             >
-              {isFetching ? "Fetching..." : "Fetch Files"}
+              {isFetching ? "Creating..." : "Create Document"}
             </Button>
             <Button
               onClick={(e) => {

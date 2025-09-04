@@ -1,6 +1,6 @@
 import { SchemaType } from "@google/generative-ai";
 
-export const NodeHierarchySchema = {
+export const Schema = {
   type: SchemaType.OBJECT,
   properties: {
     nodes: {

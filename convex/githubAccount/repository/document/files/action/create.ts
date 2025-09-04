@@ -1,14 +1,14 @@
 "use node";
 
-import { action } from "@/convex/_generated/server";
+import { internalAction } from "@/convex/_generated/server";
 import { v } from "convex/values";
 import { internal } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { getAllFilePaths } from "@/convex/githubAccount/repository/files/action/services/files";
-import { getMatchingFilesWithContent } from "@/convex/githubAccount/repository/files/action/services/file";
-import { recursive } from "@/convex/githubAccount/repository/files/action/services/recurive";
+import { getAllFilePaths } from "@/convex/githubAccount/repository/document/files/action/services/files";
+import { getMatchingFilesWithContent } from "@/convex/githubAccount/repository/document/files/action/services/file";
+import { dependencies } from "@/convex/githubAccount/repository/document/files/action/services/dependencies";
 
-export const files = action({
+export const files = internalAction({
   args: {
     repositoryId: v.id("repository"),
     path: v.string(),
@@ -59,7 +59,7 @@ export const files = action({
       console.log(`📁 Found ${initialFiles.length} initial files:`, initialFiles.map(f => f.path));
 
       console.log(`🔗 Recursively collecting dependencies with pattern: "${args.dependencyPath}"`);
-      const allCollectedFiles = await recursive(
+      const allCollectedFiles = await dependencies(
         githubAccount.token,
         githubAccount.username,
         repository.name,
@@ -85,7 +85,7 @@ export const files = action({
           }
         }
 
-        const fileId = await ctx.runMutation(internal.githubAccount.repository.files.mutation.create.file, {
+        const fileId = await ctx.runMutation(internal.githubAccount.repository.document.files.mutation.create.file, {
           repositoryId: args.repositoryId,
           path: file.path,
           content: file.content,

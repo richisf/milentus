@@ -1,6 +1,6 @@
 "use node";
 
-import { fetchRepositoryPath } from "@/convex/githubAccount/repository/files/action/services/github/paths";
+import { fetchRepositoryPath } from "@/convex/githubAccount/repository/document/files/action/services/github/paths";
 
 export interface TraversalResult {
   path: string;

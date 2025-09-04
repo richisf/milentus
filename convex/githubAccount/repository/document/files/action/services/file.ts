@@ -1,5 +1,5 @@
-import { fetchFileContent } from "@/convex/githubAccount/repository/files/action/services/github/content";
-import { TraversalResult } from "@/convex/githubAccount/repository/files/action/services/files";
+import { fetchFileContent } from "@/convex/githubAccount/repository/document/files/action/services/github/content";
+import { TraversalResult } from "@/convex/githubAccount/repository/document/files/action/services/files";
 
 export async function getMatchingFilesWithContent(
   accessToken: string,

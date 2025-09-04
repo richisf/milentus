@@ -10,7 +10,8 @@ export const document = internalMutation({
       id: v.string(),
       parentId: v.string(),
       label: v.string(),
-      collapsed: v.optional(v.boolean())
+      collapsed: v.optional(v.boolean()),
+      fileId: v.optional(v.id("files"))
     }))
   },
   returns: v.id("document"),
