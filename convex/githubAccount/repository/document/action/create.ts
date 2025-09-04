@@ -28,6 +28,7 @@ export const document = action({
       repositoryId: v.id("repository"),
       path: v.string(),
       content: v.string(),
+      imports: v.optional(v.array(v.id("files")))
     }))),
     processedFiles: v.optional(v.number()),
     error: v.optional(v.string()),
@@ -41,6 +42,7 @@ export const document = action({
       repositoryId: Id<"repository">;
       path: string;
       content: string;
+      imports?: Id<"files">[];
     }[],
     processedFiles?: number,
     error?: string
@@ -75,10 +77,8 @@ export const document = action({
 
         console.log(`✅ Files created successfully`);
 
-        // Now get the files that were just created
-        const files = await ctx.runQuery(internal.githubAccount.repository.document.files.query.by_repository.files, {
-          repositoryId: args.repositoryId,
-        });
+        // Use the files returned directly from the creation action (no extra query needed!)
+        const files = fileCreationResult.files || [];
 
         if (files.length === 0) {
           return {
@@ -89,15 +89,15 @@ export const document = action({
 
         console.log(`📂 Processing ${files.length} files through Gemini...`);
 
-        // Convert files to the format expected by dependencies
-        const filesWithDeps = files.map(file => ({
-          path: file.path,
-          content: file.content,
-          dependencies: [] // We'll calculate these from the files data
-        }));
+        // Use files directly - they already have import relationships from creation
+        // Create ID to path mapping for dependency resolution
+        const idToPathMap = new Map<string, string>();
+        files.forEach(file => {
+          idToPathMap.set(file._id, file.path);
+        });
 
-        // Get processing order based on dependencies
-        const processingOrder = getProcessingOrder(filesWithDeps);
+        // Get processing order using existing import data
+        const processingOrder = getProcessingOrder(files, idToPathMap) as typeof files;
         console.log(`📋 Processing order:`, processingOrder.map(f => f.path));
 
         // Process files sequentially through Gemini

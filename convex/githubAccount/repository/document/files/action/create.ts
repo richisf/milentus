@@ -16,10 +16,26 @@ export const files = internalAction({
   },
   returns: v.object({
     success: v.boolean(),
+    files: v.optional(v.array(v.object({
+      _id: v.id("files"),
+      _creationTime: v.number(),
+      repositoryId: v.id("repository"),
+      path: v.string(),
+      content: v.string(),
+      imports: v.optional(v.array(v.id("files")))
+    }))),
     error: v.optional(v.string()),
   }),
   handler: async (ctx, args): Promise<{
     success: boolean;
+    files?: {
+      _id: Id<"files">;
+      _creationTime: number;
+      repositoryId: Id<"repository">;
+      path: string;
+      content: string;
+      imports?: Id<"files">[];
+    }[];
     error?: string;
   }> => {
     try {
@@ -72,10 +88,18 @@ export const files = internalAction({
       console.log(`🔄 Creating files in reverse order (dependencies first)...`);
 
       const pathToFileId = new Map<string, string>();
-      
+      const createdFiles: {
+        _id: Id<"files">;
+        _creationTime: number;
+        repositoryId: Id<"repository">;
+        path: string;
+        content: string;
+        imports?: Id<"files">[];
+      }[] = [];
+
       for (const file of reversedFiles) {
         console.log(`📝 Creating file: ${file.path}`);
-        
+
         const importFileIds: Id<"files">[] = [];
         for (const depPath of file.dependencies) {
           const depFileId = pathToFileId.get(depPath);
@@ -91,12 +115,23 @@ export const files = internalAction({
           content: file.content,
           imports: importFileIds.length > 0 ? importFileIds : undefined,
         });
-        
+
         pathToFileId.set(file.path, fileId);
+
+        // Store the created file data
+        createdFiles.push({
+          _id: fileId,
+          repositoryId: args.repositoryId,
+          path: file.path,
+          content: file.content,
+          imports: importFileIds.length > 0 ? importFileIds : undefined,
+          _creationTime: Date.now() // Approximate creation time
+        });
       }
 
       return {
         success: true,
+        files: createdFiles
       };
     } catch (error) {
       console.error("❌ File fetch error:", error);

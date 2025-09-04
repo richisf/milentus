@@ -1,37 +1,46 @@
-import { FileWithDependencies } from "@/convex/githubAccount/repository/document/files/action/services/dependencies";
+import { Id } from "@/convex/_generated/dataModel";
+
+export interface FileWithId {
+  _id: Id<"files">;
+  repositoryId: Id<"repository">;
+  path: string;
+  content: string;
+  imports?: Id<"files">[];
+  _creationTime: number;
+}
 
 /**
- * Get files in processing order based on dependencies
- * Files with no dependencies come first, followed by files that depend on them, etc.
+ * Get files in processing order based on their import relationships
+ * Files with no imports come first, followed by files that import them, etc.
  */
-export function getProcessingOrder(files: FileWithDependencies[]): FileWithDependencies[] {
-  const fileMap = new Map<string, FileWithDependencies>();
-  const result: FileWithDependencies[] = [];
+export function getProcessingOrder(files: FileWithId[], idToPathMap?: Map<string, string>): FileWithId[] {
+  const result: FileWithId[] = [];
   const processed = new Set<string>();
+  const idToPath = idToPathMap || new Map<string, string>();
 
-  // Create file lookup map
+  // Build ID to path mapping
   files.forEach(file => {
-    fileMap.set(file.path, file);
+    idToPath.set(file._id, file.path);
   });
 
   // Process files level by level using topological sort
   let currentLevel = 0;
   let hasUnprocessedFiles = true;
 
-  while (hasUnprocessedFiles && currentLevel < 100) { // Prevent infinite loops
+  while (hasUnprocessedFiles && currentLevel < 100) {
     hasUnprocessedFiles = false;
-    const levelFiles: FileWithDependencies[] = [];
+    const levelFiles: FileWithId[] = [];
 
-    // Find files that can be processed at current level
     files.forEach(file => {
       if (processed.has(file.path)) return;
 
       hasUnprocessedFiles = true;
 
+      // Convert import IDs to paths
+      const dependencies = (file.imports || []).map(importId => idToPath.get(importId) || importId);
+
       // Check if all dependencies are already processed
-      const canProcess = file.dependencies.every(depPath => {
-        return processed.has(depPath);
-      });
+      const canProcess = dependencies.every(depPath => processed.has(depPath));
 
       if (canProcess) {
         levelFiles.push(file);
@@ -39,7 +48,7 @@ export function getProcessingOrder(files: FileWithDependencies[]): FileWithDepen
     });
 
     // Sort files within this level by number of dependencies (fewer first)
-    levelFiles.sort((a, b) => a.dependencies.length - b.dependencies.length);
+    levelFiles.sort((a, b) => (a.imports?.length || 0) - (b.imports?.length || 0));
 
     // Add to result and mark as processed
     levelFiles.forEach(file => {
