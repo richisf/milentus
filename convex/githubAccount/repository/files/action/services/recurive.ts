@@ -1,5 +1,5 @@
-import { extractDependencies } from "./dependencies";
-import { getMatchingFilesWithContent } from "./file";
+import { extractDependencies } from "@/convex/githubAccount/repository/files/action/services/dependencies";
+import { getMatchingFilesWithContent } from "@/convex/githubAccount/repository/files/action/services/file";
 
 export interface FileWithDependencies {
   path: string;
