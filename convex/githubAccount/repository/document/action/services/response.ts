@@ -13,18 +13,20 @@ export async function sendMessageToGemini<T>(
 ): Promise<T> {
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-  const formattedConversation = conversation.map(msg => ({
-    role: msg.role === 'assistant' ? 'model' : msg.role,
-    parts: [
-      { text: msg.content },
-      ...(msg.imageBase64 ? [{
-        inlineData: {
-          data: msg.imageBase64,
-          mimeType: "image/png"
-        }
-      }] : [])
-    ]
-  }));
+  const formattedConversation = conversation
+    .filter(msg => msg.role !== 'system') // System messages handled separately via systemInstruction
+    .map(msg => ({
+      role: msg.role === 'assistant' ? 'model' : msg.role,
+      parts: [
+        { text: msg.content },
+        ...(msg.imageBase64 ? [{
+          inlineData: {
+            data: msg.imageBase64,
+            mimeType: "image/png"
+          }
+        }] : [])
+      ]
+    }));
 
   try {
     const response = await ai.models.generateContent({

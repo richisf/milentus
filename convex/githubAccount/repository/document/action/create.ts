@@ -2,10 +2,10 @@ import { action } from "@/convex/_generated/server";
 import { v } from "convex/values";
 import { internal } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { getProcessingOrder } from "./services/dependencies";
-import { sendMessageToGemini } from "./services/response";
-import { Schema } from "./services/model/schema";
-import { Intruction } from "./services/model/system";
+import { getProcessingOrder } from "@/convex/githubAccount/repository/document/action/services/dependencies";
+import { sendMessageToGemini } from "@/convex/githubAccount/repository/document/action/services/response";
+import { Schema } from "@/convex/githubAccount/repository/document/action/services/model/schema";
+import { Intruction } from "@/convex/githubAccount/repository/document/action/services/model/system";
 
 export const document = action({
   args: {
