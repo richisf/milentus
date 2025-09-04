@@ -9,9 +9,6 @@ interface GithubFile {
   url: string;
 }
 
-/**
- * Fetch contents of a specific directory or file in a repository
- */
 export async function fetchRepositoryPath(
   accessToken: string,
   owner: string,

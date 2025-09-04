@@ -1,8 +1,5 @@
 "use node";
 
-/**
- * Fetch raw text content of a file in a repository
- */
 export async function fetchFileContent(
   accessToken: string,
   owner: string,

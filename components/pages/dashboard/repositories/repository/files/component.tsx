@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface FetchFilesProps {
   repositoryId: Id<"repository">;
@@ -17,23 +18,31 @@ export function FetchFiles({ repositoryId, repositoryName }: FetchFilesProps) {
 
   const [isFetching, setIsFetching] = useState(false);
   const [fetchResponse, setFetchResponse] = useState<string | null>(null);
-  const [showFilterInput, setShowFilterInput] = useState(false);
-  const [filterPattern, setFilterPattern] = useState<string>("");
+  const [showForm, setShowForm] = useState(false);
+  const [path, setPath] = useState<string>("");
+  const [dependencyPath, setDependencyPath] = useState<string>("");
 
   const handleFetchFiles = async () => {
+    if (!path.trim()) {
+      setFetchResponse("❌ Please enter a file path");
+      return;
+    }
+
     setIsFetching(true);
     setFetchResponse(null);
 
     try {
       const result = await fetchFilesAction({
         repositoryId: repositoryId,
-        filterCode: filterPattern || undefined,
+        path: path.trim(),
+        dependencyPath: dependencyPath.trim() || "",
       });
 
       if (result.success) {
-        setFetchResponse(`✅ Successfully fetched and stored ${result.fileCount || 0} files!`);
-        setShowFilterInput(false); // Hide input after success
-        setFilterPattern(""); // Reset filter
+        setFetchResponse(`✅ Successfully fetched and stored files!`);
+        setShowForm(false); // Hide form after success
+        setPath(""); // Reset inputs
+        setDependencyPath("");
       } else {
         setFetchResponse(`❌ Failed to fetch files: ${result.error}`);
       }
@@ -45,18 +54,19 @@ export function FetchFiles({ repositoryId, repositoryName }: FetchFilesProps) {
   };
 
   const handleCancel = () => {
-    setShowFilterInput(false);
-    setFilterPattern("");
+    setShowForm(false);
+    setPath("");
+    setDependencyPath("");
     setFetchResponse(null);
   };
 
   return (
     <div className="flex flex-col gap-1">
-      {!showFilterInput ? (
+      {!showForm ? (
         <Button
           onClick={(e) => {
             e.stopPropagation(); // Prevent triggering repository card click
-            setShowFilterInput(true);
+            setShowForm(true);
           }}
           disabled={isFetching}
           variant="ghost"
@@ -67,7 +77,7 @@ export function FetchFiles({ repositoryId, repositoryName }: FetchFilesProps) {
         </Button>
       ) : (
         <div
-          className="flex flex-col gap-2 p-3 rounded border border-blue-200 bg-blue-50"
+          className="flex flex-col gap-3 p-3 rounded border border-blue-200 bg-blue-50"
           onClick={(e) => e.stopPropagation()} // Prevent triggering repository card click
         >
           <div className="text-xs text-blue-700 font-medium">
@@ -76,16 +86,35 @@ export function FetchFiles({ repositoryId, repositoryName }: FetchFilesProps) {
           <div className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded font-mono">
             {repositoryName}
           </div>
-          <div className="text-xs text-blue-600">
-            Optional: Filter files containing text in path
+
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="file-path" className="text-xs text-blue-700">
+              File Path Pattern *
+            </Label>
+            <Input
+              id="file-path"
+              value={path}
+              onChange={(e) => setPath(e.target.value)}
+              placeholder="e.g., src/, *.ts, components/..."
+              className="text-xs h-8 bg-white border-gray-300 focus-visible:ring-0 focus-visible:border-gray-300"
+              disabled={isFetching}
+            />
           </div>
-          <Input
-            value={filterPattern}
-            onChange={(e) => setFilterPattern(e.target.value)}
-            placeholder="e.g., /action/, create, convex..."
-            className="text-xs h-8 bg-white border-gray-300 focus-visible:ring-0 focus-visible:border-gray-300"
-            disabled={isFetching}
-          />
+
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="dependency-path" className="text-xs text-blue-700">
+              Dependency Path Pattern (Optional)
+            </Label>
+            <Input
+              id="dependency-path"
+              value={dependencyPath}
+              onChange={(e) => setDependencyPath(e.target.value)}
+              placeholder="e.g., node_modules/, package.json"
+              className="text-xs h-8 bg-white border-gray-300 focus-visible:ring-0 focus-visible:border-gray-300"
+              disabled={isFetching}
+            />
+          </div>
+
           <div className="flex gap-2">
             <Button
               onClick={(e) => {

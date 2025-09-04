@@ -3,25 +3,25 @@
 import { action } from "@/convex/_generated/server";
 import { v } from "convex/values";
 import { internal } from "@/convex/_generated/api";
-import { fetchAllFiles } from "./services/traversion";
+import { getAllFilePaths } from "@/convex/githubAccount/repository/files/action/services/files";
+import { getMatchingFilesWithContent } from "@/convex/githubAccount/repository/files/action/services/file";
+import { recursive } from "@/convex/githubAccount/repository/files/action/services/recurive";
 
 export const files = action({
   args: {
     repositoryId: v.id("repository"),
-    filterCode: v.optional(v.string()), // JavaScript code for the filter function
+    path: v.string(),
+    dependencyPath: v.string(),
   },
   returns: v.object({
     success: v.boolean(),
     error: v.optional(v.string()),
-    fileCount: v.optional(v.number()),
   }),
   handler: async (ctx, args): Promise<{
     success: boolean;
     error?: string;
-    fileCount?: number;
   }> => {
     try {
-
       const repository = await ctx.runQuery(internal.githubAccount.repository.query.by_id.repository, {
         repositoryId: args.repositoryId,
       });
@@ -40,29 +40,39 @@ export const files = action({
         throw new Error(`GitHub account not found. Please make sure you have a GitHub account linked or a default account is configured.`);
       }
 
-      const allFiles = await fetchAllFiles(
+      const allPaths = await getAllFilePaths(
+        githubAccount.token,
+        githubAccount.username,
+        repository.name
+      );
+
+      // Get initial matching files and recursively collect all dependencies
+      const initialFiles = await getMatchingFilesWithContent(
         githubAccount.token,
         githubAccount.username,
         repository.name,
-        args.filterCode
+        allPaths,
+        args.path
       );
 
-      // Store each file in database
-      let storedCount = 0;
-      for (const file of allFiles) {
+      const allCollectedFiles = await recursive(
+        githubAccount.token,
+        githubAccount.username,
+        repository.name,
+        initialFiles,
+        args.dependencyPath
+      );
+
+      for (const file of allCollectedFiles) {
         await ctx.runMutation(internal.githubAccount.repository.files.mutation.create.file, {
           repositoryId: args.repositoryId,
           path: file.path,
           content: file.content,
         });
-        storedCount++;
       }
-
-      console.log(`✅ Successfully fetched and stored ${storedCount} files for ${repository.name}`);
 
       return {
         success: true,
-        fileCount: storedCount,
       };
     } catch (error) {
       console.error("❌ File fetch error:", error);
