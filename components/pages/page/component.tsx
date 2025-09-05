@@ -3,7 +3,9 @@
 import { useConvexAuth } from "convex/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import { Card } from "@/components/ui/card";
+import { SignIn } from "./signin/component";
 
 export function Page() {
   const { isAuthenticated } = useConvexAuth();
@@ -25,11 +27,35 @@ export function Page() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-8 gap-4">
-      <div className="flex flex-col items-center gap-4">
-        <Button onClick={() => router.push("/signin")}>
-          Sign in
-        </Button>
+    <div
+      className="min-h-screen"
+      style={{ backgroundColor: '#F7F8F4', padding: '12px' }}
+    >
+      <div className="flex justify-center">
+        <Card
+          className="h-full w-full max-w-none"
+          style={{
+            height: 'calc(100vh - 32px)',
+            overflow: 'hidden'
+          }}
+        >
+          <div className="flex items-center justify-center h-full">
+            <div className="flex items-start gap-28">
+              <div className="h-56 flex items-start justify-center">
+                <Image
+                  src="/name.svg"
+                  alt="White Node Logo"
+                  width={2827}
+                  height={1040}
+                  className="h-full w-auto object-contain"
+                />
+              </div>
+              <div className="h-56 max-w-md flex flex-col justify-between">
+                <SignIn />
+              </div>
+            </div>
+          </div>
+        </Card>
       </div>
     </div>
   );

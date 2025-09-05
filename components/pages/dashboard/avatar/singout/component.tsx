@@ -10,7 +10,7 @@ export function SignOut() {
 
   const handleSignOut = () => {
     void signOut().then(() => {
-      router.push("/signin");
+      router.push("/");
     });
   };
 

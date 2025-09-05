@@ -22,10 +22,10 @@ export function Dashboard() {
     fallbackToDefault: false,
   });
 
-  // Redirect to signin if not authenticated
+  // Redirect to main page if not authenticated
   useEffect(() => {
     if (currentUser === null) {
-      router.push("/signin");
+      router.push("/");
     }
   }, [currentUser, router]);
 
@@ -72,8 +72,14 @@ export function Dashboard() {
         <CardContent className="h-full overflow-y-auto">
           {selectedRepositoryId && selectedRepository ? (
             <CanvasComponent
+              repositoryId={selectedRepositoryId}
               documentData={selectedRepository.document}
               onBack={() => setSelectedRepositoryId(null)}
+              onDocumentCreated={(documentId) => {
+                console.log("Document created:", documentId);
+                // Force a refresh of the repositories data to get the new document
+                window.location.reload();
+              }}
             />
                   ) : (
           <RepositoriesView

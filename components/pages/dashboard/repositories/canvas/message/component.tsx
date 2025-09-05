@@ -1,87 +1,80 @@
 "use client";
 
-import { useAction } from "convex/react";
-import { api } from "@/convex/_generated/api";
 import { useState } from "react";
-import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { PaperAirplaneIcon } from "@heroicons/react/24/outline";
+import { useAction } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 
-interface MessageProps {
-  currentUser: { subject: string; issuer: string; tokenIdentifier?: string; email?: string; name?: string } | null;
+type MessageInputProps = {
   repositoryId: Id<"repository">;
-}
+  onDocumentCreated?: (documentId: Id<"document">) => void;
+};
 
-export function Message({ currentUser, repositoryId }: MessageProps) {
-  const sendClaudeAction = useAction(api.githubAccount.repository.machine.conversation.message.action.create.message); 
+export default function MessageInput({ repositoryId, onDocumentCreated }: MessageInputProps) {
+  const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  // State for Claude message
-  const [claudeMessage, setClaudeMessage] = useState("");
-  const [isSendingClaude, setIsSendingClaude] = useState(false);
-  const [claudeMessageResponse, setClaudeMessageResponse] = useState<string | null>(null);
+  const createDocument = useAction(api.githubAccount.repository.document.action.create.document);
 
-  const handleSendClaudeMessage = async () => {
-    if (!currentUser?.subject || !claudeMessage.trim()) {
-      setClaudeMessageResponse("Please enter a message and ensure you're signed in");
-      return;
-    }
+  const handleSend = async () => {
+    if (!message.trim()) return;
 
-    setIsSendingClaude(true);
-    setClaudeMessageResponse(null);
-
+    setIsLoading(true);
     try {
-      const result = await sendClaudeAction({
-        repositoryId: repositoryId,
-        message: claudeMessage.trim()
+      const result = await createDocument({
+        repositoryId,
+        message: message.trim()
       });
 
-      if (result.success) {
-        setClaudeMessageResponse("✅ Message sent successfully!");
-        setClaudeMessage("");
+      if (result.success && result.documentId) {
+        console.log("✅ Document created from message:", result.documentId);
+        onDocumentCreated?.(result.documentId);
+        setMessage(""); // Clear the input after successful creation
       } else {
-        setClaudeMessageResponse(`❌ Failed to send message: ${result.error}`);
+        console.error("❌ Failed to create document:", result.error);
+        alert(`Failed to create document: ${result.error || "Unknown error"}`);
       }
     } catch (error) {
-      setClaudeMessageResponse(`❌ Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error("❌ Error creating document:", error);
+      alert("Failed to create document. Please try again.");
     } finally {
-      setIsSendingClaude(false);
+      setIsLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
     }
   };
 
   return (
-    <div className="flex flex-col gap-3 w-full">
-      {/* Message Input and Send Button */}
-      <div className="flex gap-2 w-full">
-        <Input
-          type="text"
-          value={claudeMessage}
-          onChange={(e) => setClaudeMessage(e.target.value)}
-          placeholder="Type your message..."
-          disabled={isSendingClaude}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && !isSendingClaude && claudeMessage.trim()) {
-              handleSendClaudeMessage();
-            }
-          }}
-        />
-
-        <Button
-          onClick={handleSendClaudeMessage}
-          disabled={isSendingClaude || !claudeMessage.trim() || !currentUser?.subject}
-          className="w-20"
-        >
-          {isSendingClaude ? "Sending..." : "Send"}
-        </Button>
-      </div>
-
-      {claudeMessageResponse && (
-        <Alert>
-          <AlertDescription className="text-xs text-center">
-            {claudeMessageResponse}
-          </AlertDescription>
-        </Alert>
-      )}
+    <div className="flex items-center gap-3 px-4 py-3">
+      <Input
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        onKeyPress={handleKeyPress}
+        placeholder="Describe what you want to plan..."
+        className="flex-1 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700 placeholder:text-gray-400"
+        disabled={isLoading}
+      />
+      <Button
+        onClick={handleSend}
+        disabled={!message.trim() || isLoading}
+        size="sm"
+        variant="ghost"
+        className="p-2 hover:bg-gray-100 rounded-full"
+      >
+        {isLoading ? (
+          <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+        ) : (
+          <PaperAirplaneIcon className="w-4 h-4 text-gray-500 hover:text-gray-700" />
+        )}
+      </Button>
     </div>
   );
 }

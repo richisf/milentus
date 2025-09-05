@@ -19,6 +19,7 @@ import { useJsonImport } from "@/components/pages/dashboard/repositories/canvas/
 import { useJsonNest } from "@/components/pages/dashboard/repositories/canvas/avatar/canvas/json/nesting/hook";
 import { useJsonExpand } from "@/components/pages/dashboard/repositories/canvas/avatar/canvas/view/expand/hook";
 import { useJsonExtend } from "@/components/pages/dashboard/repositories/canvas/avatar/canvas/view/extension/hook";
+import MessageInput from "@/components/pages/dashboard/repositories/canvas/message/component";
 
 type Node = {
   id: string;
@@ -37,6 +38,7 @@ const getChildren = (nodes: Node[], parentId: string): Node[] => {
 };
 
 type CanvasComponentProps = {
+  repositoryId: Id<"repository">;
   documentData?: {
     _id: Id<"document">;
     _creationTime: number;
@@ -49,9 +51,10 @@ type CanvasComponentProps = {
     }>;
   } | null;
   onBack?: () => void;
+  onDocumentCreated?: (documentId: Id<"document">) => void;
 };
 
-export default function CanvasComponent({ documentData, onBack }: CanvasComponentProps) {
+export default function CanvasComponent({ repositoryId, documentData, onBack, onDocumentCreated }: CanvasComponentProps) {
   const [nodesData, setNodesData] = useState<NodesData>({
     nodes: [
       {
@@ -175,9 +178,17 @@ export default function CanvasComponent({ documentData, onBack }: CanvasComponen
         <AvatarComponent nodesData={nodesData} onImport={handleJsonImport} onExtend={handleJsonExtend} onNest={handleJsonNest} onExpand={handleJsonExpand} />
       </div>
 
-      {/* Canvas content - full height */}
-      <div className="h-full p-2">
+      {/* Canvas content - full height with bottom padding for input */}
+      <div className="h-full pb-16 p-2 overflow-y-auto">
         {rootNodes.map((node, index) => renderNode(node, index === 0))}
+      </div>
+
+      {/* Message input at bottom */}
+      <div className="absolute bottom-0 left-0 right-0 z-50">
+        <MessageInput
+          repositoryId={repositoryId}
+          onDocumentCreated={onDocumentCreated}
+        />
       </div>
     </div>
   );
