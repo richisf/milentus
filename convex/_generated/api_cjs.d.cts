@@ -29,7 +29,6 @@ import type * as githubAccount_repository_action_services_delete from "../github
 import type * as githubAccount_repository_action_services_fetch_repositories from "../githubAccount/repository/action/services/fetch/repositories.js";
 import type * as githubAccount_repository_action_services_fetch_repository from "../githubAccount/repository/action/services/fetch/repository.js";
 import type * as githubAccount_repository_document_action_create from "../githubAccount/repository/document/action/create.js";
-import type * as githubAccount_repository_document_action_services_dependencies from "../githubAccount/repository/document/action/services/dependencies.js";
 import type * as githubAccount_repository_document_action_services_model_system from "../githubAccount/repository/document/action/services/model/system.js";
 import type * as githubAccount_repository_document_action_services_response from "../githubAccount/repository/document/action/services/response.js";
 import type * as githubAccount_repository_document_files_action_create from "../githubAccount/repository/document/files/action/create.js";
@@ -105,7 +104,6 @@ declare const fullApi: ApiFromModules<{
   "githubAccount/repository/action/services/fetch/repositories": typeof githubAccount_repository_action_services_fetch_repositories;
   "githubAccount/repository/action/services/fetch/repository": typeof githubAccount_repository_action_services_fetch_repository;
   "githubAccount/repository/document/action/create": typeof githubAccount_repository_document_action_create;
-  "githubAccount/repository/document/action/services/dependencies": typeof githubAccount_repository_document_action_services_dependencies;
   "githubAccount/repository/document/action/services/model/system": typeof githubAccount_repository_document_action_services_model_system;
   "githubAccount/repository/document/action/services/response": typeof githubAccount_repository_document_action_services_response;
   "githubAccount/repository/document/files/action/create": typeof githubAccount_repository_document_files_action_create;

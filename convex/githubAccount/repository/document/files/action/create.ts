@@ -24,6 +24,7 @@ export const files = internalAction({
       content: v.string(),
       imports: v.optional(v.array(v.id("files")))
     }))),
+    processingOrder: v.optional(v.array(v.string())), // File paths in processing order
     error: v.optional(v.string()),
   }),
   handler: async (ctx, args): Promise<{
@@ -36,6 +37,7 @@ export const files = internalAction({
       content: string;
       imports?: Id<"files">[];
     }[];
+    processingOrder?: string[];
     error?: string;
   }> => {
     try {
@@ -97,6 +99,8 @@ export const files = internalAction({
         imports?: Id<"files">[];
       }[] = [];
 
+      const processingOrder: string[] = [...allCollectedFiles].map(file => file.path);
+
       for (const file of reversedFiles) {
         console.log(`📝 Creating file: ${file.path}`);
 
@@ -118,20 +122,20 @@ export const files = internalAction({
 
         pathToFileId.set(file.path, fileId);
 
-        // Store the created file data
         createdFiles.push({
           _id: fileId,
           repositoryId: args.repositoryId,
           path: file.path,
           content: file.content,
           imports: importFileIds.length > 0 ? importFileIds : undefined,
-          _creationTime: Date.now() // Approximate creation time
+          _creationTime: Date.now() 
         });
       }
 
       return {
         success: true,
-        files: createdFiles
+        files: createdFiles,
+        processingOrder: processingOrder
       };
     } catch (error) {
       console.error("❌ File fetch error:", error);

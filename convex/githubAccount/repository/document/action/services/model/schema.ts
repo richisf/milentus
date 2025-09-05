@@ -11,7 +11,7 @@ export const Schema = {
         properties: {
           id: {
             type: SchemaType.STRING,
-            description: "Unique identifier for this node"
+            description: "Unique sequential number (e.g., '1', '2', '3'). Continue from the highest existing ID."
           },
           parentId: {
             type: SchemaType.STRING,
@@ -19,7 +19,11 @@ export const Schema = {
           },
           label: {
             type: SchemaType.STRING,
-            description: "Human-readable label for the node"
+            description: "Human-readable label describing what we do in this step"
+          },
+          collapsed: {
+            type: SchemaType.BOOLEAN,
+            description: "Whether this node should be collapsed in the UI. Set to true for most nodes."
           }
         },
         required: ["id", "parentId", "label"]

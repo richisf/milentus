@@ -2,7 +2,6 @@ import { action } from "@/convex/_generated/server";
 import { v } from "convex/values";
 import { internal } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { getProcessingOrder } from "@/convex/githubAccount/repository/document/action/services/dependencies";
 import { sendMessageToGemini } from "@/convex/githubAccount/repository/document/action/services/response";
 import { Schema } from "@/convex/githubAccount/repository/document/action/services/model/schema";
 import { Intruction } from "@/convex/githubAccount/repository/document/action/services/model/system";
@@ -89,18 +88,19 @@ export const document = action({
 
         console.log(`📂 Processing ${files.length} files through Gemini...`);
 
-        // Use files directly - they already have import relationships from creation
-        // Create ID to path mapping for dependency resolution
-        const idToPathMap = new Map<string, string>();
+        const processingOrderPaths = fileCreationResult.processingOrder || [];
+
+        const pathToFile = new Map<string, typeof files[0]>();
         files.forEach(file => {
-          idToPathMap.set(file._id, file.path);
+          pathToFile.set(file.path, file);
         });
 
-        // Get processing order using existing import data
-        const processingOrder = getProcessingOrder(files, idToPathMap) as typeof files;
-        console.log(`📋 Processing order:`, processingOrder.map(f => f.path));
+        const processingOrder = processingOrderPaths
+          .map(path => pathToFile.get(path))
+          .filter((file): file is typeof files[0] => file !== undefined);
 
-        // Process files sequentially through Gemini
+        console.log(`📋 Using pre-calculated processing order:`, processingOrder.map(f => f.path));
+
         let accumulatedNodes: Array<{
           id: string;
           parentId: string;
@@ -125,10 +125,23 @@ export const document = action({
             content: Intruction
           });
 
-          // First message: Include previous results as context + current file
-          const messageContent = accumulatedNodes.length > 0
-            ? `Previous analysis results:\n${JSON.stringify({ nodes: accumulatedNodes }, null, 2)}\n\n---\n\nNow analyze this file:\nFile: ${file.path}\n\n${file.content}`
-            : `Analyze this file:\nFile: ${file.path}\n\n${file.content}`;
+          // Calculate the highest existing ID for proper numbering
+          const highestId = accumulatedNodes.length > 0 
+            ? Math.max(...accumulatedNodes.map(node => parseInt(node.id) || 0))
+            : 0;
+
+          // Create unified message content
+          const existingNodesContext = accumulatedNodes.length > 0 
+            ? `Existing documentation tree:\n${JSON.stringify({ nodes: accumulatedNodes }, null, 2)}\n\n`
+            : '';
+
+          const messageContent = `${existingNodesContext}Analyze this code file:
+
+          File: ${file.path}
+
+          ${file.content}
+
+          ${highestId > 0 ? `Continue numbering from ${highestId + 1}.` : ''}`;
 
           conversation.push({
             role: "user",
@@ -145,9 +158,19 @@ export const document = action({
 
             console.log(`✅ Gemini response for ${file.path}:`, response);
 
-            // Accumulate the nodes from this response
+            // Validate and accumulate the nodes from this response
             if (response && response.nodes && Array.isArray(response.nodes)) {
-              accumulatedNodes = [...accumulatedNodes, ...response.nodes];
+              // Filter out any nodes that might have duplicate IDs
+              const newNodes = response.nodes.filter(newNode => 
+                !accumulatedNodes.some(existingNode => existingNode.id === newNode.id)
+              );
+              
+              if (newNodes.length > 0) {
+                accumulatedNodes = [...accumulatedNodes, ...newNodes];
+                console.log(`📝 Added ${newNodes.length} new nodes from ${file.path}`);
+              } else {
+                console.log(`⚠️ No new unique nodes from ${file.path} - may be duplicate functionality`);
+              }
             }
 
           } catch (error) {
