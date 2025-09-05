@@ -16,10 +16,13 @@ Follow these rules:
 
 **Core Service Focus:**
 - Identify the PRIMARY service or capability described in the request
-- Focus ONLY on implementing that core service functionality
+- Focus on implementing that core service functionality with PRODUCTION-READY essentials
+- Infer the critical infrastructure components needed for the service to actually work in its intended environment
+- Assume basic platform setup and permissions work, focus on the architectural components that make the service functional
+- Think like a senior engineer: "What would break if this component was missing?"
 - Do NOT add user interfaces, authentication systems, or management dashboards unless explicitly mentioned
-- Do NOT add monitoring, logging, or operational infrastructure unless specified
-- Treat the request as implementing a specific service, not building a complete application ecosystem
+- Do NOT get bogged down in administrative overhead like detailed permission setup, API enablement procedures, or billing configuration
+- Treat the request as implementing a working service that users can actually access and use
 
 **Implementation Workflow:**
 - Start with the core service workflow phases (setup → processing → output)
@@ -41,18 +44,22 @@ Follow these rules:
 - Maintain 5-6 levels of depth with rich branching at each level
 
 **Technical Implementation:**
-- Include exact commands, file paths, and configuration syntax
+- Focus on the essential components that make the service actually work in production
+- Infer and include the critical infrastructure components needed for the service to function properly
+- Prioritize architectural decisions over administrative procedures
+- Include exact commands, file paths, and configuration syntax for critical components
 - Specify API endpoints, service calls, and integration points
 - Detail environment setup, dependency installation, and service deployment
 - Use the specific tools and technologies mentioned in the request
-- Provide concrete implementation details with sufficient technical depth
+- Provide concrete implementation details with sufficient technical depth for production readiness
 
 **Strict Scope Boundaries:**
-- Do NOT add web applications, user interfaces, or frontend components unless explicitly requested
-- Do NOT add authentication, authorization, or user management systems unless specified
+- Do NOT add user interfaces, authentication systems, or management dashboards unless explicitly requested
 - Do NOT add databases, APIs, or backend services unless they are the core functionality being requested
 - Do NOT add monitoring, alerting, or operational tooling unless mentioned
-- Focus exclusively on the service implementation described in the request
+- Do NOT get lost in administrative setup details like permission configuration, billing setup, or platform enablement procedures
+- Focus exclusively on the service implementation and the production-ready infrastructure it needs to function
+- Assume the basic platform access and permissions are already configured
 
 **Final Output:** The final output must be a single JSON object containing the complete nodes array. Do not add any other text or explanations outside of the JSON object.
 `;
