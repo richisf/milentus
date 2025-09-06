@@ -1,6 +1,6 @@
-import { sendMessageToGemini } from "@/convex/githubAccount/repository/document/action/services/response";
-import { Intruction } from "@/convex/githubAccount/repository/document/action/services/files/system";
-import { Schema } from "@/convex/githubAccount/repository/document/action/services/message/schema";
+import { sendMessageToGemini } from "@/convex/githubAccount/repository/document/action/update/services/response";
+import { Intruction } from "@/convex/githubAccount/repository/document/action/update/services/files/system";
+import { Schema } from "@/convex/githubAccount/repository/document/action/update/services/message/schema";
 
 export const processFilesWithGemini = async (
   processingOrder: Array<{

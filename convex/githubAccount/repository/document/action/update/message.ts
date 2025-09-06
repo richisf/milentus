@@ -1,12 +1,12 @@
 import { internalAction } from "@/convex/_generated/server";
 import { v } from "convex/values";
-import { processMessageWithGemini } from "@/convex/githubAccount/repository/document/action/services/message/update";
+import { processMessageWithGemini } from "@/convex/githubAccount/repository/document/action/update/services/message";
 
 export const processMessage = internalAction({
   args: {
     message: v.string()
   },
-  returns: v.object({
+  returns: v.object({ 
     success: v.boolean(),
     nodes: v.array(v.object({
       id: v.string(),

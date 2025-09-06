@@ -1,7 +1,7 @@
 import { internalAction } from "@/convex/_generated/server";
 import { v } from "convex/values";
 import { internal } from "@/convex/_generated/api";
-import { processFilesWithGemini } from "@/convex/githubAccount/repository/document/action/services/files/update";
+import { processFilesWithGemini } from "@/convex/githubAccount/repository/document/action/update/services/files";
 
 export const document = internalAction({
   args: {

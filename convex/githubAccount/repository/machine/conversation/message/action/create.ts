@@ -3,7 +3,7 @@
 import { action } from "@/convex/_generated/server";
 import { v } from "convex/values";
 import { internal } from "@/convex/_generated/api";
-import { claude } from "@/convex/githubAccount/repository/machine/conversation/message/action/services/execute";
+import { claude } from "@/convex/githubAccount/repository/machine/conversation/message/action/services/create";
 
 export const message = action({  
   args: {

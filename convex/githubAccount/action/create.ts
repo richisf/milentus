@@ -3,8 +3,7 @@
 import { action } from "@/convex/_generated/server";
 import { v } from "convex/values";
 import { internal } from "@/convex/_generated/api";
-import { codeForToken } from "@/convex/githubAccount/action/services/exchange";
-import { githubAccount as fetchGithubAccount } from "@/convex/githubAccount/action/services/fetch";   
+import { createGithubAccount } from "@/convex/githubAccount/action/services/create";   
 
 export const githubAccount = action({
   args: {
@@ -18,21 +17,18 @@ export const githubAccount = action({
   }),
   handler: async (ctx, args) => {
     try {
-
-      const tokenData = await codeForToken(args.code);
-
-      const userData = await fetchGithubAccount(tokenData.access_token);
+      const accountData = await createGithubAccount(args.code);
 
       await ctx.runMutation(internal.githubAccount.mutation.create.githubAccount, {
         userId: args.userId,
-        token: tokenData.access_token,
-        username: userData.login,
+        token: accountData.token,
+        username: accountData.userData.login,
         isDefault: !args.userId, // Set as default if no userId provided
       });
 
       return {
         success: true,
-        username: userData.login,
+        username: accountData.userData.login,
       };
     } catch (error) {
       return {

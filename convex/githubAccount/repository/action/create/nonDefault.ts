@@ -4,7 +4,7 @@ import { internalAction } from "@/convex/_generated/server";
 import { v } from "convex/values";
 import { internal } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { repository as createRepository } from "@/convex/githubAccount/repository/action/services/create";
+import { repository as createRepository } from "@/convex/githubAccount/repository/action/create/services/nonDefault";
 
 export const repository = internalAction({
   args: {

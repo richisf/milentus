@@ -3,7 +3,7 @@
 import { action } from "@/convex/_generated/server";
 import { v } from "convex/values";
 import { internal } from "@/convex/_generated/api";
-import { repository as deleteRepository } from "@/convex/githubAccount/repository/action/services/delete";
+import { repository as deleteRepository } from "@/convex/githubAccount/repository/action/services/remove";
 export const repository = action({
   args: {
     repositoryId: v.id("repository"),
