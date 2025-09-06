@@ -14,11 +14,23 @@ export const document = action({
   returns: v.object({
     success: v.boolean(),
     documentId: v.optional(v.id("document")),
+    nodes: v.optional(v.array(v.object({
+      id: v.string(),
+      parentId: v.string(),
+      label: v.string(),
+      collapsed: v.optional(v.boolean())
+    }))),
     error: v.optional(v.string()),
   }),
   handler: async (ctx, args): Promise<{
     success: boolean,
     documentId?: Id<"document">,
+    nodes?: Array<{
+      id: string;
+      parentId: string;
+      label: string;
+      collapsed?: boolean;
+    }>,
     error?: string
   }> => {
     try {
@@ -35,7 +47,8 @@ export const document = action({
         console.log(`💬 Starting message-based document update for document: ${args.documentId}`);
 
         const messageProcessingResult = await ctx.runAction(internal.githubAccount.repository.document.action.update.message.processMessage, {
-          message: args.message
+          message: args.message,
+          documentId: args.documentId
         });
 
         if (!messageProcessingResult.success) {
@@ -73,9 +86,15 @@ export const document = action({
         nodes: nodes
       });
 
+      // Get the updated document to return the combined nodes
+      const updatedDocument = await ctx.runQuery(internal.githubAccount.repository.document.query.by_id.document, {
+        documentId: updatedDocumentId
+      });
+
       return {
         success: true,
-        documentId: updatedDocumentId
+        documentId: updatedDocumentId,
+        nodes: updatedDocument?.nodes || []
       };
     } catch (error) {
       console.error("❌ Document update error:", error);

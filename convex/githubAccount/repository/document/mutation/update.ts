@@ -21,9 +21,13 @@ export const document = internalMutation({
       throw new Error("Document not found");
     }
 
-    // Update the document with new nodes
+    // Get existing nodes and combine with new ones
+    const existingNodes = existingDocument.nodes || [];
+    const combinedNodes = [...existingNodes, ...args.nodes];
+
+    // Update the document with combined nodes
     await ctx.db.patch(args.documentId, {
-      nodes: args.nodes
+      nodes: combinedNodes
     });
 
     return args.documentId;

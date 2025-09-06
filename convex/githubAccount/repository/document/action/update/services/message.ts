@@ -3,7 +3,13 @@ import { Schema } from "@/convex/githubAccount/repository/document/action/update
 import { Intruction } from "@/convex/githubAccount/repository/document/action/update/services/message/system";
 
 export const processMessageWithGemini = async (
-  message: string
+  message: string,
+  existingNodes: Array<{
+    id: string;
+    parentId: string;
+    label: string;
+    collapsed?: boolean;
+  }> = []
 ): Promise<{
   success: boolean;
   nodes: Array<{
@@ -29,6 +35,15 @@ export const processMessageWithGemini = async (
       role: "system",
       content: Intruction
     });
+
+    // Add existing nodes context if any exist
+    if (existingNodes.length > 0) {
+      const highestId = Math.max(...existingNodes.map(n => parseInt(n.id)));
+      conversation.push({
+        role: "system",
+        content: `The document already has nodes with IDs up to ${highestId}. ONLY output NEW nodes starting from ID ${highestId + 1}. Do NOT include any existing nodes in your response - only the new nodes being added.`
+      });
+    }
 
     // Add user message
     conversation.push({

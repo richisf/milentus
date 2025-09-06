@@ -11,7 +11,12 @@ import { Id } from "@/convex/_generated/dataModel";
 type MessageInputProps = {
   repositoryId: Id<"repository">;
   documentId: Id<"document">;
-  onDocumentUpdated?: (documentId: Id<"document">) => void;
+  onDocumentUpdated?: (documentId: Id<"document">, nodes?: Array<{
+    id: string;
+    parentId: string;
+    label: string;
+    collapsed?: boolean;
+  }>) => void;
 };
 
 export default function MessageInput({ repositoryId, documentId, onDocumentUpdated }: MessageInputProps) {
@@ -33,7 +38,7 @@ export default function MessageInput({ repositoryId, documentId, onDocumentUpdat
 
       if (result.success && result.documentId) {
         console.log("✅ Document updated from message:", result.documentId);
-        onDocumentUpdated?.(result.documentId);
+        onDocumentUpdated?.(result.documentId, result.nodes);
         setMessage(""); // Clear the input after successful update
       } else {
         console.error("❌ Failed to update document:", result.error);

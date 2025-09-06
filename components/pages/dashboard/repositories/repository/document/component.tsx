@@ -209,7 +209,15 @@ export default function CanvasComponent({ documentData, onBack }: CanvasComponen
           <MessageInput
             repositoryId={documentData.repositoryId}
             documentId={documentData._id}
-            onDocumentUpdated={() => {}}
+            onDocumentUpdated={(updatedDocumentId, nodes) => {
+              console.log("Document updated:", updatedDocumentId, "with nodes:", nodes?.length);
+
+              // Update local state immediately with the returned nodes
+              if (nodes && nodes.length > 0) {
+                setNodesData({ nodes });
+                setFocusTargetId(nodes[0]?.id || "1");
+              }
+            }}
           />
         </div>
       )}
