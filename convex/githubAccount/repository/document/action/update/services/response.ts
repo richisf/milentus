@@ -1,31 +1,21 @@
 import { GoogleGenAI } from "@google/genai";
 
-interface MessageWithImage {
+interface Message {
   content: string;
   role: 'user' | 'assistant' | 'system';
-  imageBase64?: string;
 }
 
 export async function sendMessageToGemini<T>(
   systemInstruction: string | object,
   responseSchema: object,
-  conversation: MessageWithImage[],
+  conversation: Message[],
 ): Promise<T> {
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
   const formattedConversation = conversation
-    .filter(msg => msg.role !== 'system') // System messages handled separately via systemInstruction
     .map(msg => ({
       role: msg.role === 'assistant' ? 'model' : msg.role,
-      parts: [
-        { text: msg.content },
-        ...(msg.imageBase64 ? [{
-          inlineData: {
-            data: msg.imageBase64,
-            mimeType: "image/png"
-          }
-        }] : [])
-      ]
+      parts: [{ text: msg.content }]
     }));
 
   try {

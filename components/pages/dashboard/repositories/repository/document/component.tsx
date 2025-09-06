@@ -53,7 +53,7 @@ type CanvasComponentProps = {
   onBack?: () => void;
 };
 
-export default function CanvasComponent({ documentData, onBack }: CanvasComponentProps) {
+export default function Document({ documentData, onBack }: CanvasComponentProps) {
   const [nodesData, setNodesData] = useState<NodesData>({
     nodes: [
       {
@@ -200,7 +200,6 @@ export default function CanvasComponent({ documentData, onBack }: CanvasComponen
           <div className="px-4 py-2 bg-white">
             <FetchFiles
               repositoryId={documentData.repositoryId}
-              repositoryName="Current Repository" // You might want to pass the actual repository name
               documentId={documentData._id}
             />
           </div>
@@ -210,9 +209,6 @@ export default function CanvasComponent({ documentData, onBack }: CanvasComponen
             repositoryId={documentData.repositoryId}
             documentId={documentData._id}
             onDocumentUpdated={(updatedDocumentId, nodes) => {
-              console.log("Document updated:", updatedDocumentId, "with nodes:", nodes?.length);
-
-              // Update local state immediately with the returned nodes
               if (nodes && nodes.length > 0) {
                 setNodesData({ nodes });
                 setFocusTargetId(nodes[0]?.id || "1");

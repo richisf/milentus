@@ -36,23 +36,15 @@ export const processFilesWithGemini = async (
 
       // Create NEW conversation for this file (fresh context)
       const conversation: Array<{
-        role: 'user' | 'assistant' | 'system';
+        role: 'user' | 'assistant';
         content: string;
         imageBase64?: string;
       }> = [];
 
-      // Add system instruction (always first)
-      conversation.push({
-        role: "system",
-        content: Intruction
-      });
-
-      // Calculate the highest existing ID for proper numbering
       const highestId = accumulatedNodes.length > 0
         ? Math.max(...accumulatedNodes.map(node => parseInt(node.id) || 0))
         : 0;
 
-      // Create unified message content
       const existingNodesContext = accumulatedNodes.length > 0
         ? `Existing documentation tree:\n${JSON.stringify({ nodes: accumulatedNodes }, null, 2)}\n\n`
         : '';
@@ -81,18 +73,13 @@ export const processFilesWithGemini = async (
 
         console.log(`✅ Gemini response for ${file.path}:`, response);
 
-        // Validate and accumulate the nodes from this response
+        // Add the incremental nodes from this response
         if (response && response.nodes && Array.isArray(response.nodes)) {
-          // Filter out any nodes that might have duplicate IDs
-          const newNodes = response.nodes.filter(newNode =>
-            !accumulatedNodes.some(existingNode => existingNode.id === newNode.id)
-          );
-
-          if (newNodes.length > 0) {
-            accumulatedNodes = [...accumulatedNodes, ...newNodes];
-            console.log(`📝 Added ${newNodes.length} new nodes from ${file.path}`);
+          if (response.nodes.length > 0) {
+            accumulatedNodes = [...accumulatedNodes, ...response.nodes];
+            console.log(`📝 Added ${response.nodes.length} new nodes from ${file.path}`);
           } else {
-            console.log(`⚠️ No new unique nodes from ${file.path} - may be duplicate functionality`);
+            console.log(`⚠️ No new nodes from ${file.path}`);
           }
         }
 

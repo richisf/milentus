@@ -7,7 +7,7 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Card, CardContent } from "@/components/ui/card";
 import RepositoriesView from "@/components/pages/dashboard/repositories/component";
-import CanvasComponent from "@/components/pages/dashboard/repositories/repository/document/component";
+import Document from "@/components/pages/dashboard/repositories/repository/document/component";
 
 export function Dashboard() {
   const currentUser = useQuery(api.auth.currentUser);
@@ -72,7 +72,7 @@ export function Dashboard() {
       >
         <CardContent className="h-full overflow-y-auto">
           {selectedRepositoryId && selectedRepository ? (
-            <CanvasComponent
+            <Document
               documentData={selectedRepository.document}
               onBack={() => setSelectedRepositoryId(null)}
             />

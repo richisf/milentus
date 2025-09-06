@@ -5,7 +5,7 @@ export const Schema = {
   properties: {
     nodes: {
       type: SchemaType.ARRAY,
-      description: "Array of nodes forming a hierarchical tree structure",
+      description: "Array of NEW nodes to be added to the existing hierarchical tree structure",
       items: {
         type: SchemaType.OBJECT,
         properties: {
@@ -20,10 +20,6 @@ export const Schema = {
           label: {
             type: SchemaType.STRING,
             description: "Human-readable label describing what we do in this step"
-          },
-          collapsed: {
-            type: SchemaType.BOOLEAN,
-            description: "Whether this node should be collapsed in the UI. Set to true for most nodes."
           }
         },
         required: ["id", "parentId", "label"]

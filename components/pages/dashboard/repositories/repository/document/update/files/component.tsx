@@ -10,11 +10,10 @@ import { Label } from "@/components/ui/label";
 
 interface FetchFilesProps {
   repositoryId: Id<"repository">;
-  repositoryName: string;
   documentId: Id<"document">; // Required for updating existing documents
 }
 
-export function FetchFiles({ repositoryId, repositoryName, documentId }: FetchFilesProps) {
+export function FetchFiles({ repositoryId, documentId }: FetchFilesProps) {
   const updateDocumentAction = useAction(api.githubAccount.repository.document.action.update.document);
 
   const [isFetching, setIsFetching] = useState(false);
@@ -85,9 +84,6 @@ export function FetchFiles({ repositoryId, repositoryName, documentId }: FetchFi
         >
           <div className="text-xs text-blue-700 font-medium">
             Update document with AI analysis:
-          </div>
-          <div className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded font-mono">
-            {repositoryName}
           </div>
 
           <div className="flex flex-col gap-2">

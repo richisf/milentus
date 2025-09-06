@@ -25,30 +25,33 @@ export const processMessageWithGemini = async (
 
     // Create conversation for Gemini
     const conversation: Array<{
-      role: 'user' | 'assistant' | 'system';
+      role: 'user' | 'assistant';
       content: string;
       imageBase64?: string;
     }> = [];
 
-    // Add system instruction
-    conversation.push({
-      role: "system",
-      content: Intruction
-    });
+    // Build user message with existing nodes context
+    let userMessage = `Create a detailed project plan for: ${message}`;
 
-    // Add existing nodes context if any exist
     if (existingNodes.length > 0) {
       const highestId = Math.max(...existingNodes.map(n => parseInt(n.id)));
-      conversation.push({
-        role: "system",
-        content: `The document already has nodes with IDs up to ${highestId}. ONLY output NEW nodes starting from ID ${highestId + 1}. Do NOT include any existing nodes in your response - only the new nodes being added.`
-      });
+
+      userMessage = `
+      Current document nodes: ${JSON.stringify(existingNodes)}
+
+      The document already has nodes with IDs up to ${highestId}. 
+      
+      ONLY output NEW nodes starting from ID ${highestId + 1}. 
+      
+      Do NOT include any existing nodes in your response - only the new nodes being added.
+
+      Create a detailed project plan for: ${message}`;
     }
 
     // Add user message
     conversation.push({
       role: "user",
-      content: `Create a detailed project plan for: ${message}`
+      content: userMessage
     });
 
     // Send to Gemini
