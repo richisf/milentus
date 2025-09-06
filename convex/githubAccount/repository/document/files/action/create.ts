@@ -4,9 +4,7 @@ import { internalAction } from "@/convex/_generated/server";
 import { v } from "convex/values";
 import { internal } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { getAllFilePaths } from "@/convex/githubAccount/repository/document/files/action/services/files";
-import { getMatchingFilesWithContent } from "@/convex/githubAccount/repository/document/files/action/services/file";
-import { dependencies } from "@/convex/githubAccount/repository/document/files/action/services/dependencies";
+import { createFilesService } from "@/convex/githubAccount/repository/document/files/action/services/create";
 
 export const files = internalAction({
   args: {
@@ -25,6 +23,7 @@ export const files = internalAction({
       imports: v.optional(v.array(v.id("files")))
     }))),
     processingOrder: v.optional(v.array(v.string())), // File paths in processing order
+    processedFiles: v.number(), // Number of files processed
     error: v.optional(v.string()),
   }),
   handler: async (ctx, args): Promise<{
@@ -38,6 +37,7 @@ export const files = internalAction({
       imports?: Id<"files">[];
     }[];
     processingOrder?: string[];
+    processedFiles: number;
     error?: string;
   }> => {
     try {
@@ -59,36 +59,25 @@ export const files = internalAction({
         throw new Error(`GitHub account not found. Please make sure you have a GitHub account linked or a default account is configured.`);
       }
 
-      const allPaths = await getAllFilePaths(
-        githubAccount.token,
-        githubAccount.username,
-        repository.name
-      );
+      // Call the service function to get files that need to be created
+      const serviceResult = await createFilesService({
+        path: args.path,
+        dependencyPath: args.dependencyPath,
+        token: githubAccount.token,
+        username: githubAccount.username,
+        repositoryName: repository.name,
+      });
 
-      // Get initial matching files and recursively collect all dependencies
-      console.log(`🔍 Searching for files matching path pattern: "${args.path}"`);
-      const initialFiles = await getMatchingFilesWithContent(
-        githubAccount.token,
-        githubAccount.username,
-        repository.name,
-        allPaths,
-        args.path
-      );
-      console.log(`📁 Found ${initialFiles.length} initial files:`, initialFiles.map(f => f.path));
+      if (!serviceResult.success || !serviceResult.files) {
+        return {
+          success: false,
+          error: serviceResult.error || "Failed to process files",
+          processedFiles: 0,
+        };
+      }
 
-      console.log(`🔗 Recursively collecting dependencies with pattern: "${args.dependencyPath}"`);
-      const allCollectedFiles = await dependencies(
-        githubAccount.token,
-        githubAccount.username,
-        repository.name,
-        initialFiles,
-        args.dependencyPath
-      );
-      console.log(`📦 Total collected files: ${allCollectedFiles.length}`, allCollectedFiles.map(f => f.path));
-
-      const reversedFiles = [...allCollectedFiles].reverse();
-      console.log(`🔄 Creating files in reverse order (dependencies first)...`);
-
+      // Create files in reverse order (dependencies first)
+      const reversedFiles = [...serviceResult.files].reverse();
       const pathToFileId = new Map<string, string>();
       const createdFiles: {
         _id: Id<"files">;
@@ -98,8 +87,6 @@ export const files = internalAction({
         content: string;
         imports?: Id<"files">[];
       }[] = [];
-
-      const processingOrder: string[] = [...allCollectedFiles].map(file => file.path);
 
       for (const file of reversedFiles) {
         console.log(`📝 Creating file: ${file.path}`);
@@ -128,20 +115,25 @@ export const files = internalAction({
           path: file.path,
           content: file.content,
           imports: importFileIds.length > 0 ? importFileIds : undefined,
-          _creationTime: Date.now() 
+          _creationTime: Date.now()
         });
       }
+
+      // Return files without creating document
+      console.log(`📁 Returning ${createdFiles.length} files for processing...`);
 
       return {
         success: true,
         files: createdFiles,
-        processingOrder: processingOrder
+        processingOrder: serviceResult.processingOrder,
+        processedFiles: createdFiles.length
       };
     } catch (error) {
       console.error("❌ File fetch error:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "Failed to fetch files",
+        processedFiles: 0,
       };
     }
   },

@@ -10,36 +10,38 @@ import { Id } from "@/convex/_generated/dataModel";
 
 type MessageInputProps = {
   repositoryId: Id<"repository">;
-  onDocumentCreated?: (documentId: Id<"document">) => void;
+  documentId: Id<"document">;
+  onDocumentUpdated?: (documentId: Id<"document">) => void;
 };
 
-export default function MessageInput({ repositoryId, onDocumentCreated }: MessageInputProps) {
+export default function MessageInput({ repositoryId, documentId, onDocumentUpdated }: MessageInputProps) {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const createDocument = useAction(api.githubAccount.repository.document.action.create.document);
+  const updateDocument = useAction(api.githubAccount.repository.document.action.update.document);
 
   const handleSend = async () => {
     if (!message.trim()) return;
 
     setIsLoading(true);
     try {
-      const result = await createDocument({
-        repositoryId,
+      const result = await updateDocument({
+        documentId,
+        repositoryId: repositoryId, // Pass repositoryId for consistency
         message: message.trim()
       });
 
       if (result.success && result.documentId) {
-        console.log("✅ Document created from message:", result.documentId);
-        onDocumentCreated?.(result.documentId);
-        setMessage(""); // Clear the input after successful creation
+        console.log("✅ Document updated from message:", result.documentId);
+        onDocumentUpdated?.(result.documentId);
+        setMessage(""); // Clear the input after successful update
       } else {
-        console.error("❌ Failed to create document:", result.error);
-        alert(`Failed to create document: ${result.error || "Unknown error"}`);
+        console.error("❌ Failed to update document:", result.error);
+        alert(`Failed to update document: ${result.error || "Unknown error"}`);
       }
     } catch (error) {
-      console.error("❌ Error creating document:", error);
-      alert("Failed to create document. Please try again.");
+      console.error("❌ Error updating document:", error);
+      alert("Failed to update document. Please try again.");
     } finally {
       setIsLoading(false);
     }

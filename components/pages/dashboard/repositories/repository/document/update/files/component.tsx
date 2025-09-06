@@ -11,10 +11,11 @@ import { Label } from "@/components/ui/label";
 interface FetchFilesProps {
   repositoryId: Id<"repository">;
   repositoryName: string;
+  documentId: Id<"document">; // Required for updating existing documents
 }
 
-export function FetchFiles({ repositoryId, repositoryName }: FetchFilesProps) {
-  const createDocumentAction = useAction(api.githubAccount.repository.document.action.create.document);
+export function FetchFiles({ repositoryId, repositoryName, documentId }: FetchFilesProps) {
+  const updateDocumentAction = useAction(api.githubAccount.repository.document.action.update.document);
 
   const [isFetching, setIsFetching] = useState(false);
   const [fetchResponse, setFetchResponse] = useState<string | null>(null);
@@ -32,19 +33,21 @@ export function FetchFiles({ repositoryId, repositoryName }: FetchFilesProps) {
     setFetchResponse(null);
 
     try {
-      const result = await createDocumentAction({
-        repositoryId: repositoryId,
+      // Update existing document
+      const result = await updateDocumentAction({
+        documentId,
+        repositoryId,
         path: path.trim(),
         dependencyPath: dependencyPath.trim() || "",
       });
 
       if (result.success) {
-        setFetchResponse(`✅ Successfully created document with ${result.processedFiles || 0} files analyzed!`);
+        setFetchResponse(`✅ Successfully updated document with files!`);
         setShowForm(false); // Hide form after success
         setPath(""); // Reset inputs
         setDependencyPath("");
       } else {
-        setFetchResponse(`❌ Failed to create document: ${result.error}`);
+        setFetchResponse(`❌ Failed to update document: ${result.error}`);
       }
     } catch (error) {
       setFetchResponse(`❌ Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -73,7 +76,7 @@ export function FetchFiles({ repositoryId, repositoryName }: FetchFilesProps) {
           size="sm"
           className="text-xs px-3 py-2 h-8 flex items-center w-full justify-start bg-[#F7F8F4] hover:bg-[#E8E9E4]"
         >
-          {isFetching ? "Creating..." : "Create Document"}
+          {isFetching ? "Processing..." : "Update with Files"}
         </Button>
       ) : (
         <div
@@ -81,7 +84,7 @@ export function FetchFiles({ repositoryId, repositoryName }: FetchFilesProps) {
           onClick={(e) => e.stopPropagation()} // Prevent triggering repository card click
         >
           <div className="text-xs text-blue-700 font-medium">
-            Create document with AI analysis:
+            Update document with AI analysis:
           </div>
           <div className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded font-mono">
             {repositoryName}
@@ -126,7 +129,7 @@ export function FetchFiles({ repositoryId, repositoryName }: FetchFilesProps) {
               variant="default"
               className="text-xs h-7 px-2 bg-blue-600 hover:bg-blue-700"
             >
-              {isFetching ? "Creating..." : "Create Document"}
+              {isFetching ? "Processing..." : "Update Document"}
             </Button>
             <Button
               onClick={(e) => {

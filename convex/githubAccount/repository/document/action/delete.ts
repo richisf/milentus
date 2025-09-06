@@ -5,7 +5,7 @@ import { Id } from "@/convex/_generated/dataModel";
 
 export const document = action({
   args: {
-    repositoryId: v.id("repository")
+    documentId: v.id("document")
   },
   returns: v.object({
     success: v.boolean(),
@@ -18,22 +18,23 @@ export const document = action({
     error?: string
   }> => {
     try {
-      console.log(`📄 Creating empty document for repository: ${args.repositoryId}`);
+      console.log(`🗑️ Deleting document: ${args.documentId}`);
 
-      const documentId = await ctx.runMutation(internal.githubAccount.repository.document.mutation.create.document, {
-        repositoryId: args.repositoryId,
-        nodes: []
+      const deletedDocumentId = await ctx.runMutation(internal.githubAccount.repository.document.mutation.delete.document, {
+        documentId: args.documentId
       });
+
+      console.log(`✅ Document deleted: ${deletedDocumentId}`);
 
       return {
         success: true,
-        documentId
+        documentId: deletedDocumentId
       };
     } catch (error) {
-      console.error("❌ Document creation error:", error);
+      console.error("❌ Document deletion error:", error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Failed to create document",
+        error: error instanceof Error ? error.message : "Failed to delete document",
       };
     }
   },

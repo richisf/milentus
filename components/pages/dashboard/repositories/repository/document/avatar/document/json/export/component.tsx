@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useJsonExport } from "@/components/pages/dashboard/repositories/canvas/avatar/canvas/json/export/hook";
+import { useJsonExport } from "@/components/pages/dashboard/repositories/repository/document/avatar/document/json/export/hook";
 import { Button } from "@/components/ui/button";  
 
 type Node = {

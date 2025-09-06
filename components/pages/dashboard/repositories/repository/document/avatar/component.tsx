@@ -1,14 +1,16 @@
 "use client";
 
 import React from "react";
+import { Id } from "@/convex/_generated/dataModel";
 import { Cog6ToothIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import JsonExportComponent from "@/components/pages/dashboard/repositories/canvas/avatar/canvas/json/export/component";
-import JsonImportComponent from "@/components/pages/dashboard/repositories/canvas/avatar/canvas/json/import/component";
-import JsonExtensionComponent from "@/components/pages/dashboard/repositories/canvas/avatar/canvas/view/extension/component";
-import JsonNestingComponent from "@/components/pages/dashboard/repositories/canvas/avatar/canvas/json/nesting/component";
-import JsonExpandComponent from "@/components/pages/dashboard/repositories/canvas/avatar/canvas/view/expand/component";
+import JsonExportComponent from "@/components/pages/dashboard/repositories/repository/document/avatar/document/json/export/component";
+import JsonImportComponent from "@/components/pages/dashboard/repositories/repository/document/avatar/document/json/import/component";
+import JsonExtensionComponent from "@/components/pages/dashboard/repositories/repository/document/avatar/document/view/extension/component";
+import JsonNestingComponent from "@/components/pages/dashboard/repositories/repository/document/avatar/document/json/nesting/component";
+import JsonExpandComponent from "@/components/pages/dashboard/repositories/repository/document/avatar/document/view/expand/component";
+import RemoveComponent from "@/components/pages/dashboard/repositories/repository/document/avatar/document/remove";
 
 type Node = {
   id: string;
@@ -23,13 +25,15 @@ type NodesData = {
 
 interface AvatarProps {
   nodesData: NodesData;
+  documentId?: Id<"document">;
   onImport: (nodesData: NodesData) => void;
   onExtend: (nodesData: NodesData) => void;
   onNest: (level: number) => void;
   onExpand: (level: number) => void;
+  onDocumentDeleted?: (documentId: Id<"document">) => void;
 }
 
-export default function AvatarComponent({ nodesData, onImport, onExtend, onNest, onExpand }: AvatarProps) {
+export default function AvatarComponent({ nodesData, documentId, onImport, onExtend, onNest, onExpand, onDocumentDeleted }: AvatarProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -57,6 +61,12 @@ export default function AvatarComponent({ nodesData, onImport, onExtend, onNest,
             nodesData={nodesData}
             onExpand={onExpand}
           />
+          {documentId && (
+            <RemoveComponent
+              documentId={documentId}
+              onDocumentDeleted={onDocumentDeleted}
+            />
+          )}
         </div>
       </DropdownMenuContent>
     </DropdownMenu>

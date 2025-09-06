@@ -4,22 +4,23 @@ import { useState, useCallback, useEffect } from "react";
 import { Id } from "@/convex/_generated/dataModel";
 import { HomeIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
-import CanvasRow from "@/components/pages/dashboard/repositories/canvas/row/component";
-import AvatarComponent from "@/components/pages/dashboard/repositories/canvas/avatar/component";
-import { useEnterKey } from "@/components/pages/dashboard/repositories/canvas/row/keyboard/enter/hook";
-  import { useTabStart } from "@/components/pages/dashboard/repositories/canvas/row/keyboard/tab/start/hook";
-import { useTabEnd } from "@/components/pages/dashboard/repositories/canvas/row/keyboard/tab/end/hook";
-import { useDeleteEmpty } from "@/components/pages/dashboard/repositories/canvas/row/keyboard/delete/emtpy/hook";
-import { useDeleteContent } from "@/components/pages/dashboard/repositories/canvas/row/keyboard/delete/content/hook";
-import { useArrowUp } from "@/components/pages/dashboard/repositories/canvas/row/keyboard/arrows/up/hook";
-import { useArrowDown } from "@/components/pages/dashboard/repositories/canvas/row/keyboard/arrows/down/hook";
-import { useArrowLeft } from "@/components/pages/dashboard/repositories/canvas/row/keyboard/arrows/left/hook";
-import { useArrowRight } from "@/components/pages/dashboard/repositories/canvas/row/keyboard/arrows/right/hook";
-import { useJsonImport } from "@/components/pages/dashboard/repositories/canvas/avatar/canvas/json/import/hook";
-import { useJsonNest } from "@/components/pages/dashboard/repositories/canvas/avatar/canvas/json/nesting/hook";
-import { useJsonExpand } from "@/components/pages/dashboard/repositories/canvas/avatar/canvas/view/expand/hook";
-import { useJsonExtend } from "@/components/pages/dashboard/repositories/canvas/avatar/canvas/view/extension/hook";
-import MessageInput from "@/components/pages/dashboard/repositories/canvas/message/component";
+import CanvasRow from "@/components/pages/dashboard/repositories/repository/document/row/component";
+import AvatarComponent from "@/components/pages/dashboard/repositories/repository/document/avatar/component";
+import { useEnterKey } from "@/components/pages/dashboard/repositories/repository/document/row/keyboard/enter/hook";
+import { useTabStart } from "@/components/pages/dashboard/repositories/repository/document/row/keyboard/tab/start/hook";
+import { useTabEnd } from "@/components/pages/dashboard/repositories/repository/document/row/keyboard/tab/end/hook";
+import { useDeleteEmpty } from "@/components/pages/dashboard/repositories/repository/document/row/keyboard/delete/emtpy/hook";
+import { useDeleteContent } from "@/components/pages/dashboard/repositories/repository/document/row/keyboard/delete/content/hook";
+import { useArrowUp } from "@/components/pages/dashboard/repositories/repository/document/row/keyboard/arrows/up/hook";
+import { useArrowDown } from "@/components/pages/dashboard/repositories/repository/document/row/keyboard/arrows/down/hook";
+import { useArrowLeft } from "@/components/pages/dashboard/repositories/repository/document/row/keyboard/arrows/left/hook";
+import { useArrowRight } from "@/components/pages/dashboard/repositories/repository/document/row/keyboard/arrows/right/hook";
+import { useJsonImport } from "@/components/pages/dashboard/repositories/repository/document/avatar/document/json/import/hook";
+import { useJsonNest } from "@/components/pages/dashboard/repositories/repository/document/avatar/document/json/nesting/hook";
+import { useJsonExpand } from "@/components/pages/dashboard/repositories/repository/document/avatar/document/view/expand/hook";
+import { useJsonExtend } from "@/components/pages/dashboard/repositories/repository/document/avatar/document/view/extension/hook";
+import MessageInput from "@/components/pages/dashboard/repositories/repository/document/update/message/component";
+import { FetchFiles } from "@/components/pages/dashboard/repositories/repository/document/update/files/component"; 
 
 type Node = {
   id: string;
@@ -38,7 +39,6 @@ const getChildren = (nodes: Node[], parentId: string): Node[] => {
 };
 
 type CanvasComponentProps = {
-  repositoryId: Id<"repository">;
   documentData?: {
     _id: Id<"document">;
     _creationTime: number;
@@ -51,10 +51,9 @@ type CanvasComponentProps = {
     }>;
   } | null;
   onBack?: () => void;
-  onDocumentCreated?: (documentId: Id<"document">) => void;
 };
 
-export default function CanvasComponent({ repositoryId, documentData, onBack, onDocumentCreated }: CanvasComponentProps) {
+export default function CanvasComponent({ documentData, onBack }: CanvasComponentProps) {
   const [nodesData, setNodesData] = useState<NodesData>({
     nodes: [
       {
@@ -175,21 +174,45 @@ export default function CanvasComponent({ repositoryId, documentData, onBack, on
         )}
 
         {/* Avatar component */}
-        <AvatarComponent nodesData={nodesData} onImport={handleJsonImport} onExtend={handleJsonExtend} onNest={handleJsonNest} onExpand={handleJsonExpand} />
+        <AvatarComponent
+          nodesData={nodesData}
+          documentId={documentData?._id}
+          onImport={handleJsonImport}
+          onExtend={handleJsonExtend}
+          onNest={handleJsonNest}
+          onExpand={handleJsonExpand}
+          onDocumentDeleted={() => {
+            console.log("Document deleted, navigating back");
+            onBack?.();
+          }}
+        />
       </div>
 
-      {/* Canvas content - full height with bottom padding for input */}
-      <div className="h-full pb-16 p-2 overflow-y-auto">
+      {/* Canvas content - full height with bottom padding for inputs */}
+      <div className="h-full pb-32 p-2 overflow-y-auto">
         {rootNodes.map((node, index) => renderNode(node, index === 0))}
       </div>
 
-      {/* Message input at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 z-50">
-        <MessageInput
-          repositoryId={repositoryId}
-          onDocumentCreated={onDocumentCreated}
-        />
-      </div>
+      {/* Files and Message inputs at bottom */}
+      {documentData && (
+        <div className="absolute bottom-0 left-0 right-0 z-50">
+          {/* Files input */}
+          <div className="px-4 py-2 bg-white">
+            <FetchFiles
+              repositoryId={documentData.repositoryId}
+              repositoryName="Current Repository" // You might want to pass the actual repository name
+              documentId={documentData._id}
+            />
+          </div>
+
+          {/* Message input */}
+          <MessageInput
+            repositoryId={documentData.repositoryId}
+            documentId={documentData._id}
+            onDocumentUpdated={() => {}}
+          />
+        </div>
+      )}
     </div>
   );
 }

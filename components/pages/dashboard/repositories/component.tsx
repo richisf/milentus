@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useAction } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -41,17 +43,41 @@ interface RepositoriesViewProps {
       }>;
     };
   }> | undefined;
-  onSelectRepository: (repositoryId: Id<"repository">) => void;
+  onRepositorySelected: (repositoryId: Id<"repository">) => void;
   currentUser: { subject: string; issuer: string; tokenIdentifier?: string; email?: string; name?: string };
 }
 
-export default function RepositoriesView({ repositories, onSelectRepository, currentUser }: RepositoriesViewProps) {
+export default function RepositoriesView({ repositories, onRepositorySelected, currentUser }: RepositoriesViewProps) {
   const [isCreating, setIsCreating] = useState(false);
+
+  const createDocument = useAction(api.githubAccount.repository.document.action.create.document);
+
+  // Handler to select a repository and ensure it has a document
+  const handleSelectRepository = async (repositoryId: Id<"repository">) => {
+    const repository = repositories?.find(repo => repo._id === repositoryId);
+    if (!repository) return;
+
+    // If repository doesn't have a document, create one in the background
+    if (!repository.document) {
+      createDocument({ repositoryId }).then((result) => {
+        if (result.success && result.documentId) {
+          console.log("Document created:", result.documentId);
+        } else {
+          console.error("Failed to create document:", result.error);
+        }
+      }).catch((error) => {
+        console.error("Error creating document:", error);
+      });
+    }
+
+    // Set the selected repository (this will trigger the canvas view immediately)
+    onRepositorySelected(repositoryId);
+  };
 
   if (repositories === undefined) {
     return (
       <div className="flex items-center justify-center min-h-screen p-4">
-        
+
       </div>
     );
   }
@@ -95,7 +121,7 @@ export default function RepositoriesView({ repositories, onSelectRepository, cur
                 <Card
                   key={repo._id}
                   className="cursor-pointer flex flex-col items-center justify-center text-center min-h-[140px] relative group border-gray-300 bg-[#F7F8F4]"
-                  onClick={() => onSelectRepository(repo._id)}
+                  onClick={() => handleSelectRepository(repo._id)}
                 >
                   <CardContent className="p-6">
                     {/* Settings button */}
