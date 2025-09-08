@@ -12,7 +12,6 @@ export const githubAccount = internalQuery({
     userId: v.optional(v.string()), // user subject string
     token: v.string(),
     username: v.string(),
-    isDefault: v.optional(v.boolean()),
   }), v.null()),
   handler: async (ctx, args) => {
     // If userId is provided, try to find a GitHub user for that specific user
@@ -31,7 +30,7 @@ export const githubAccount = internalQuery({
     if (args.fallbackToDefault) {
       const defaultGithubAccount = await ctx.db
         .query("githubAccount")
-        .withIndex("by_default", (q) => q.eq("isDefault", true))
+        .withIndex("by_user", (q) => q.eq("userId", undefined))
         .unique();
 
       return defaultGithubAccount;

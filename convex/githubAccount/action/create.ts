@@ -23,7 +23,6 @@ export const githubAccount = action({
         userId: args.userId,
         token: accountData.token,
         username: accountData.userData.login,
-        isDefault: !args.userId, // Set as default if no userId provided
       });
 
       return {

@@ -6,24 +6,19 @@ import { useEffect, useState } from "react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Card, CardContent } from "@/components/ui/card";
-import RepositoriesView from "@/components/pages/dashboard/repositories/component";
-import Document from "@/components/pages/dashboard/repositories/repository/document/component";
+import ApplicationsView from "@/components/pages/dashboard/applications/component";
+import Document from "@/components/pages/dashboard/applications/application/document/component";
 
 export function Dashboard() {
   const currentUser = useQuery(api.auth.currentUser);
   const router = useRouter();
-  const [selectedRepositoryId, setSelectedRepositoryId] = useState<Id<"repository"> | null>(null);
+  const [selectedApplicationId, setSelectedApplicationId] = useState<Id<"application"> | null>(null);
 
-  // Get repositories (this already includes document data via the by_user query)
-  // Extract the first part of the subject (before the first pipe) to match database format
   const userId = currentUser?.subject?.split('|')[0];
-  const repositories = useQuery(api.githubAccount.repository.query.by_user.repositories, {
+  const applications = useQuery(api.githubAccount.application.query.by_user.applications, {
     userId: userId || undefined,
-    fallbackToDefault: false,
   });
 
-
-  // Redirect to main page if not authenticated
   useEffect(() => {
     if (currentUser === null) {
       router.push("/");
@@ -53,9 +48,9 @@ export function Dashboard() {
     return null;
   }
 
-  // Find the selected repository to get its document data
-  const selectedRepository = selectedRepositoryId
-    ? repositories?.find(repo => repo._id === selectedRepositoryId)
+  // Find the selected application to get its document data
+  const selectedApplication = selectedApplicationId
+    ? applications?.find(app => app._id === selectedApplicationId)
     : null;
 
   return (
@@ -71,15 +66,20 @@ export function Dashboard() {
         }}
       >
         <CardContent className="h-full overflow-y-auto">
-          {selectedRepositoryId && selectedRepository ? (
+          {selectedApplicationId && selectedApplication && selectedApplication.document ? (
             <Document
-              documentData={selectedRepository.document}
-              onBack={() => setSelectedRepositoryId(null)}
+              documentData={{
+                _id: selectedApplication.document._id,
+                _creationTime: selectedApplication.document._creationTime,
+                applicationId: selectedApplication._id,
+                nodes: selectedApplication.document.nodes
+              }}
+              onBack={() => setSelectedApplicationId(null)}
             />
           ) : (
-            <RepositoriesView
-              repositories={repositories}
-              onRepositorySelected={setSelectedRepositoryId}
+            <ApplicationsView
+              applications={applications}
+              onApplicationSelected={setSelectedApplicationId}
               currentUser={currentUser}
             />
           )}

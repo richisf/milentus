@@ -6,59 +6,59 @@ export default defineSchema({
   ...authTables,
 
   githubAccount: defineTable({
-    userId: v.optional(v.string()), // user subject string or null for default/shared account
+    userId: v.optional(v.string()), // user subject string or null for default account
     token: v.string(),
     username: v.string(),
-    isDefault: v.optional(v.boolean()), // true = can be used as default for any repository
   })
     .index("by_user", ["userId"])
-    .index("by_default", ["isDefault"])
-    .index("by_user_and_username", ["userId", "username"]), // Unique constraint: user can't have duplicate GitHub usernames
+    .index("by_user_and_username", ["userId", "username"]),
+
+  application: defineTable({
+    userId: v.optional(v.string()), // user subject string or null for default application
+    name: v.string(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_and_name", ["userId", "name"]),   
 
     repository: defineTable({
-      userId: v.optional(v.string()), // user subject string or null for default repository
-      githubAccountId: v.id("githubAccount"), // repository must be linked to a GitHub user
-      name: v.string(), // actual GitHub repository name (may include template prefix)
-      displayName: v.string(), // user-friendly name for display
-      isDefault: v.optional(v.boolean()), // true = can be used as default repository
+      applicationId: v.id("application"),
+      githubAccountId: v.id("githubAccount"),
+      name: v.string(),
     })
-      .index("by_github_user", ["githubAccountId"])
-      .index("by_user_and_github_user", ["userId", "githubAccountId"])
-      .index("by_user_and_name", ["userId", "name"]) // Unique constraint: user can't have duplicate repository names
-      .index("by_default", ["isDefault"]), // Unique constraint: only one default repository
+      .index("by_application", ["applicationId"])
+      .index("by_github_user", ["githubAccountId"]),
 
-      machine: defineTable({
-        repositoryId: v.id("repository"), // Machine belongs to a repository (one-to-one)
-        name: v.string(), // Machine instance name in GCP
-        zone: v.string(), // GCP zone (needed to manage VM)
-        state: v.string(), // "running", "stopped", "pending", "terminated"
-        ipAddress: v.optional(v.string()), // Dynamic IP assigned by GCP (populated after VM creation)
-        domain: v.optional(v.string()), // Generated domain (populated during setup)
-        convexUrl: v.optional(v.string()), // Convex project URL (populated during dev server setup)
-        convexProjectId: v.optional(v.number()), // Convex project ID (populated during dev server setup)
+      files: defineTable({
+        repositoryId: v.id("repository"),
+        path: v.string(),
+        content: v.string(),
+        imports: v.optional(v.array(v.id("files"))),
       })
-        .index("by_repository", ["repositoryId"]), // Unique: one machine per repository
+        .index("by_repository", ["repositoryId"]),
 
-      document: defineTable({
-        repositoryId: v.id("repository"), // Document belongs to a repository (one-to-one)
-        nodes: v.array(v.object({
-          id: v.string(),
-          parentId: v.string(),
-          label: v.string(),
-          collapsed: v.optional(v.boolean()),
+    machine: defineTable({
+      applicationId: v.id("application"),
+      name: v.string(),
+      zone: v.string(),
+      state: v.string(),
+      ipAddress: v.optional(v.string()),
+      domain: v.optional(v.string()),
+      convexUrl: v.optional(v.string()),
+      convexProjectId: v.optional(v.number()),
+    })
+      .index("by_application", ["applicationId"]),
 
-          fileId: v.optional(v.id("files")) // Optional link to a file - makes this node represent a file
-        }))
-      })
-        .index("by_repository", ["repositoryId"]), // Unique: one document per repository
+    document: defineTable({
+      applicationId: v.id("application"),
+      nodes: v.array(v.object({
+        id: v.string(),
+        parentId: v.string(),
+        label: v.string(),
+        collapsed: v.optional(v.boolean()),
 
-        files: defineTable({
-          repositoryId: v.id("repository"), // File belongs to a repository
-          path: v.string(), // File path within the repository
-          content: v.string(), // File content
-          imports: v.optional(v.array(v.id("files"))), // Files that this file imports
-        })
-          .index("by_repository", ["repositoryId"])
-          .index("by_repository_and_path", ["repositoryId", "path"]) // Unique constraint: one file per path per repository
-
+        fileId: v.optional(v.id("files"))
+      }))
+    })
+      .index("by_application", ["applicationId"]),
+          
   });
