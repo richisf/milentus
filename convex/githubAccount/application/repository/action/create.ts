@@ -43,9 +43,9 @@ export const repository = internalAction({
       let name: string;
 
       if (!args.userId) {
-        name = `whitenode-template-${args.name}`;
-      } else {
         name = args.name;
+      } else {
+        name = `whitenode-template-${args.name}`;
       }
 
       if (args.userId) {
