@@ -11,11 +11,11 @@ type NodesData = {
   nodes: Node[];
 };
 
-export const useJsonExpand = (
+export const useJsonNest = (
   setNodesData: React.Dispatch<React.SetStateAction<NodesData>>,
   setFocusTargetId: React.Dispatch<React.SetStateAction<string | null>>
 ) => {
-  const handleJsonExpand = useCallback((level: number) => {
+  const handleJsonNest = useCallback((level: number) => {
     // Helper function to get the level of a node
     const getNodeLevel = (nodeId: string, allNodes: Node[]): number => {
       let currentNode = allNodes.find(n => n.id === nodeId);
@@ -29,14 +29,14 @@ export const useJsonExpand = (
       return nodeLevel;
     };
 
-    // Apply expand logic to get updated nodes
-    const applyExpansion = (nodes: Node[]): Node[] => {
+    // Apply nesting logic to get updated nodes
+    const applyNesting = (nodes: Node[]): Node[] => {
       return nodes.map(node => {
         const nodeLevel = getNodeLevel(node.id, nodes);
 
-        // If this node is at the selected level or higher, expand it
+        // If this node is at the selected level or higher, collapse it
         if (nodeLevel >= level) {
-          return { ...node, collapsed: false };
+          return { ...node, collapsed: true };
         }
 
         return node;
@@ -44,11 +44,11 @@ export const useJsonExpand = (
     };
 
     // Update local state for visual feedback (no database persistence needed)
-    setNodesData(prev => ({ nodes: applyExpansion(prev.nodes) }));
+    setNodesData(prev => ({ nodes: applyNesting(prev.nodes) }));
     setFocusTargetId(null);
 
-    console.log(`📈 Expanding view to level ${level} (visual only)`);
+    console.log(`📏 Nesting view to level ${level} (visual only)`);
   }, [setNodesData, setFocusTargetId]);
 
-  return { handleJsonExpand };
+  return { handleJsonNest };
 };

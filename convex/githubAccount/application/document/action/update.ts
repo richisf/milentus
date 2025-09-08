@@ -10,7 +10,14 @@ export const document = action({
     message: v.optional(v.string()),
     path: v.optional(v.string()),
     dependencyPath: v.optional(v.string()),
-    delete: v.optional(v.boolean())
+    delete: v.optional(v.boolean()),
+    replace: v.optional(v.boolean()),
+    nodes: v.optional(v.array(v.object({
+      id: v.string(),
+      parentId: v.string(),
+      label: v.string(),
+      collapsed: v.optional(v.boolean())
+    })))
   },
   returns: v.object({
     success: v.boolean(),
@@ -49,7 +56,6 @@ export const document = action({
 
         const updatedDocumentId = await ctx.runMutation(internal.githubAccount.application.document.mutation.update.document, {
           documentId: args.documentId,
-          nodes: [],
           delete: true
         });
 
@@ -57,6 +63,45 @@ export const document = action({
           success: true,
           documentId: updatedDocumentId,
           nodes: []
+        };
+      }
+
+      if (args.nodes && args.replace) {
+        // Handle replace operation - replace all nodes with new ones (for import)
+        console.log(`🔄 Replacing document content with ${args.nodes.length} nodes for document: ${args.documentId}`);
+
+        const updatedDocumentId = await ctx.runMutation(internal.githubAccount.application.document.mutation.update.document, {
+          documentId: args.documentId,
+          nodes: args.nodes,
+          replace: true
+        });
+
+        return {
+          success: true,
+          documentId: updatedDocumentId,
+          nodes: args.nodes
+        };
+      }
+
+      if (args.nodes && !args.replace) {
+        // Handle extend operation - add nodes to existing ones
+        console.log(`➕ Extending document with ${args.nodes.length} nodes for document: ${args.documentId}`);
+
+        const updatedDocumentId = await ctx.runMutation(internal.githubAccount.application.document.mutation.update.document, {
+          documentId: args.documentId,
+          nodes: args.nodes,
+          replace: false
+        });
+
+        // Get the updated document to return the combined nodes
+        const updatedDocument = await ctx.runQuery(internal.githubAccount.application.document.query.by_id.document, {
+          documentId: updatedDocumentId
+        });
+
+        return {
+          success: true,
+          documentId: updatedDocumentId,
+          nodes: updatedDocument?.nodes || []
         };
       }
 

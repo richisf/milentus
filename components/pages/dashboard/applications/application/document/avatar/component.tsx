@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import JsonExportComponent from "@/components/pages/dashboard/applications/application/document/avatar/document/json/export/component";
 import JsonImportComponent from "@/components/pages/dashboard/applications/application/document/avatar/document/json/import/component";
-import JsonExtensionComponent from "@/components/pages/dashboard/applications/application/document/avatar/document/view/extension/component";
-import JsonNestingComponent from "@/components/pages/dashboard/applications/application/document/avatar/document/json/nesting/component";
+import JsonExtensionComponent from "@/components/pages/dashboard/applications/application/document/avatar/document/json/extension/component";
+import JsonNestingComponent from "@/components/pages/dashboard/applications/application/document/avatar/document/view/nesting/component";
 import JsonExpandComponent from "@/components/pages/dashboard/applications/application/document/avatar/document/view/expand/component";
 import RemoveComponent from "@/components/pages/dashboard/applications/application/document/avatar/document/remove";
 

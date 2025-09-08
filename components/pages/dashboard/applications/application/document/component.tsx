@@ -16,9 +16,9 @@ import { useArrowDown } from "@/components/pages/dashboard/applications/applicat
 import { useArrowLeft } from "@/components/pages/dashboard/applications/application/document/row/keyboard/arrows/left/hook";
 import { useArrowRight } from "@/components/pages/dashboard/applications/application/document/row/keyboard/arrows/right/hook";
 import { useJsonImport } from "@/components/pages/dashboard/applications/application/document/avatar/document/json/import/hook";
-import { useJsonNest } from "@/components/pages/dashboard/applications/application/document/avatar/document/json/nesting/hook";
+import { useJsonNest } from "@/components/pages/dashboard/applications/application/document/avatar/document/view/nesting/hook";
 import { useJsonExpand } from "@/components/pages/dashboard/applications/application/document/avatar/document/view/expand/hook";
-import { useJsonExtend } from "@/components/pages/dashboard/applications/application/document/avatar/document/view/extension/hook";
+import { useJsonExtend } from "@/components/pages/dashboard/applications/application/document/avatar/document/json/extension/hook";
 import MessageInput from "@/components/pages/dashboard/applications/application/document/update/message/component";
 import { FetchFiles } from "@/components/pages/dashboard/applications/application/document/update/files/component";  
 
@@ -99,8 +99,8 @@ export default function Document({ documentData, onBack }: CanvasComponentProps)
   const { handleArrowRight } = useArrowRight(nodesData, setNodesData, setFocusTargetId);
   const { handleJsonExpand } = useJsonExpand(setNodesData, setFocusTargetId);
   const { handleJsonNest } = useJsonNest(setNodesData, setFocusTargetId);
-  const { handleJsonImport } = useJsonImport(setNodesData, setFocusTargetId);
-  const { handleJsonExtend } = useJsonExtend(setNodesData, setFocusTargetId);
+  const { handleJsonImport } = useJsonImport(setNodesData, setFocusTargetId, documentData?._id, documentData?.applicationId);
+  const { handleJsonExtend } = useJsonExtend(setNodesData, setFocusTargetId, documentData?._id, documentData?.applicationId);
 
   console.log('Canvas hooks initialized:', {
     handleEnterAtEnd: !!handleEnterAtEnd,

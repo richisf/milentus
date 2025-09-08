@@ -12,7 +12,8 @@ export const document = internalMutation({
       collapsed: v.optional(v.boolean()),
       fileId: v.optional(v.id("files"))
     }))),
-    delete: v.optional(v.boolean())
+    delete: v.optional(v.boolean()),
+    replace: v.optional(v.boolean())
   },
   returns: v.id("document"),
   handler: async (ctx, args): Promise<Id<"document">> => {
@@ -28,14 +29,21 @@ export const document = internalMutation({
         nodes: []
       });
     } else if (args.nodes) {
-      // Get existing nodes and combine with new ones
-      const existingNodes = existingDocument.nodes || [];
-      const combinedNodes = [...existingNodes, ...args.nodes];
+      if (args.replace) {
+        // Replace all nodes with the new ones (for import)
+        await ctx.db.patch(args.documentId, {
+          nodes: args.nodes
+        });
+      } else {
+        // Get existing nodes and combine with new ones (for extend/add)
+        const existingNodes = existingDocument.nodes || [];
+        const combinedNodes = [...existingNodes, ...args.nodes];
 
-      // Update the document with combined nodes
-      await ctx.db.patch(args.documentId, {
-        nodes: combinedNodes
-      });
+        // Update the document with combined nodes
+        await ctx.db.patch(args.documentId, {
+          nodes: combinedNodes
+        });
+      }
     }
 
     return args.documentId;

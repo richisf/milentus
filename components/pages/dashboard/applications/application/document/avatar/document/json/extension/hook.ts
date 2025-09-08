@@ -14,7 +14,7 @@ type NodesData = {
   nodes: Node[];
 };
 
-export const useJsonImport = (
+export const useJsonExtend = (
   setNodesData: React.Dispatch<React.SetStateAction<NodesData>>,
   setFocusTargetId: React.Dispatch<React.SetStateAction<string | null>>,
   documentId?: Id<"document">,
@@ -22,34 +22,35 @@ export const useJsonImport = (
 ) => {
   const updateDocument = useAction(api.githubAccount.application.document.action.update.document);
 
-  const handleJsonImport = useCallback(async (newNodesData: NodesData) => {
+  const handleJsonExtend = useCallback(async (extendedNodesData: NodesData) => {
     // Update local state immediately for UI feedback
-    setNodesData(newNodesData);
-    setFocusTargetId(newNodesData.nodes.length > 0 ? newNodesData.nodes[0]?.id : null);
+    setNodesData(extendedNodesData);
+    setFocusTargetId(null);
 
     // If we have document and application IDs, persist to database
     if (documentId && applicationId) {
       try {
-        console.log("📥 Importing nodes to document:", documentId);
+        console.log("➕ Extending document with nodes:", documentId);
+
         const result = await updateDocument({
           documentId,
           applicationId,
-          nodes: newNodesData.nodes,
-          replace: true // Replace all existing nodes with the imported ones
+          nodes: extendedNodesData.nodes,
+          replace: false // Add to existing nodes, don't replace
         });
 
         if (result.success && result.nodes) {
           // Update with the persisted nodes from the database
           setNodesData({ nodes: result.nodes });
-          console.log("✅ Document import successful");
+          console.log("✅ Document extension successful");
         } else {
-          console.error("❌ Document import failed:", result.error);
+          console.error("❌ Document extension failed:", result.error);
         }
       } catch (error) {
-        console.error("❌ Error importing document:", error);
+        console.error("❌ Error extending document:", error);
       }
     }
   }, [setNodesData, setFocusTargetId, documentId, applicationId, updateDocument]);
 
-  return { handleJsonImport };
+  return { handleJsonExtend };
 };
