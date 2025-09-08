@@ -21,12 +21,12 @@ type CreateResult = {
 };
 
 interface CreateApplicationProps {
-  currentUser: { subject: string; issuer: string; tokenIdentifier?: string; email?: string; name?: string } | null;
+  stableUserId?: string;
   isCreating: boolean;
   setIsCreating: (creating: boolean) => void;
 }
 
-export function CreateApplication({ currentUser, isCreating, setIsCreating }: CreateApplicationProps) {
+export function CreateApplication({ stableUserId, isCreating, setIsCreating }: CreateApplicationProps) {
   const createApplication = useAction(api.githubAccount.application.action.create.create);
 
   const [appName, setAppName] = useState("");
@@ -38,7 +38,7 @@ export function CreateApplication({ currentUser, isCreating, setIsCreating }: Cr
       return;
     }
 
-    if (!currentUser?.subject) {
+    if (!stableUserId) {
       setResult({ success: false, error: "Please sign in again." });
       return;
     }
@@ -49,7 +49,7 @@ export function CreateApplication({ currentUser, isCreating, setIsCreating }: Cr
     try {
       const response = await createApplication({
         name: appName.trim(),
-        userId: currentUser.subject
+        userId: stableUserId
       });
 
       setResult(response);

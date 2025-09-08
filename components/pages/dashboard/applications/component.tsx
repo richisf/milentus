@@ -49,10 +49,10 @@ interface ApplicationsViewProps {
     } | null;
   }> | undefined;
   onApplicationSelected: (applicationId: Id<"application">) => void;
-  currentUser: { subject: string; issuer: string; tokenIdentifier?: string; email?: string; name?: string };
+  stableUserId?: string;
 }
 
-export default function ApplicationsView({ applications, onApplicationSelected, currentUser }: ApplicationsViewProps) {
+export default function ApplicationsView({ applications, onApplicationSelected, stableUserId }: ApplicationsViewProps) {
   const [isCreating, setIsCreating] = useState(false);
 
   const handleSelectApplication = (applicationId: Id<"application">) => {
@@ -86,7 +86,7 @@ export default function ApplicationsView({ applications, onApplicationSelected, 
           {/* Create application component */}
           <div className="mb-8">
             <CreateApplication
-              currentUser={currentUser}
+              stableUserId={stableUserId}
               isCreating={isCreating}
               setIsCreating={setIsCreating}
             />

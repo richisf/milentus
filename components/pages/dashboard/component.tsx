@@ -14,10 +14,17 @@ export function Dashboard() {
   const router = useRouter();
   const [selectedApplicationId, setSelectedApplicationId] = useState<Id<"application"> | null>(null);
 
-  const userId = currentUser?.subject;
+  console.log("currentUser", currentUser);
+  
+  // Extract stable user ID (first part before | separator)
+  const stableUserId = currentUser?.subject ? currentUser.subject.split('|')[0] : undefined;
+
   const applications = useQuery(api.githubAccount.application.query.by_user.applications, {
-    userId: userId || undefined,
+    userId: stableUserId,
   });
+
+  console.log("applications", applications);
+
 
   useEffect(() => {
     if (currentUser === null) {
@@ -80,7 +87,7 @@ export function Dashboard() {
             <ApplicationsView
               applications={applications}
               onApplicationSelected={setSelectedApplicationId}
-              currentUser={currentUser}
+              stableUserId={stableUserId}
             />
           )}
         </CardContent>
