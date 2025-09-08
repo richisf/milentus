@@ -37,6 +37,20 @@ const getChildren = (nodes: Node[], parentId: string): Node[] => {
   return nodes.filter(node => node.parentId === parentId);
 };
 
+type ConversationData = {
+  _id: Id<"conversation">;
+  _creationTime: number;
+  documentId: Id<"document">;
+  messages: Array<{
+    _id: Id<"message">;
+    _creationTime: number;
+    conversationId: Id<"conversation">;
+    role: "user" | "assistant";
+    content: string;
+    order: number;
+  }>;
+} | null;
+
 type CanvasComponentProps = {
   documentData?: {
     _id: Id<"document">;
@@ -50,10 +64,11 @@ type CanvasComponentProps = {
     }>;
   } | null;
   conversationId?: Id<"conversation">;
+  conversationData?: ConversationData;
   onBack?: () => void;
 };
 
-export default function Document({ documentData, conversationId, onBack }: CanvasComponentProps) {
+export default function Document({ documentData, conversationId, conversationData, onBack }: CanvasComponentProps) {
   const [nodesData, setNodesData] = useState<NodesData>({
     nodes: [
       {
@@ -205,6 +220,7 @@ export default function Document({ documentData, conversationId, onBack }: Canva
             applicationId={documentData.applicationId}
             documentId={documentData._id}
             conversationId={conversationId}
+            conversationData={conversationData}
             onDocumentUpdated={(updatedDocumentId, nodes) => {
               if (nodes && nodes.length > 0) {
                 setNodesData({ nodes });

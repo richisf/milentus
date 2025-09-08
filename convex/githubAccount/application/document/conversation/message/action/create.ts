@@ -3,13 +3,17 @@ import { Schema } from "@/convex/githubAccount/application/document/conversation
 import { Instruction } from "@/convex/githubAccount/application/document/conversation/message/action/services/configuration/system";
 import { internalAction } from "@/convex/_generated/server";
 import { v } from "convex/values";
-import { internal } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
 
 export const message = internalAction({
   args: {
     message: v.string(),
-    conversationId: v.id("conversation"),
+    conversationHistory: v.array(v.object({
+      _id: v.id("message"),
+      _creationTime: v.number(),
+      conversationId: v.id("conversation"),
+      role: v.union(v.literal("user"), v.literal("assistant")),
+      content: v.string(),
+    })),
   },
   returns: v.object({
     success: v.boolean(),
@@ -24,19 +28,12 @@ export const message = internalAction({
     error?: string;
   }> => {
     try {
-      console.log(`💬 Processing message for conversation: ${args.conversationId}`);
+      console.log(`💬 Processing message with ${args.conversationHistory.length} messages context`);
 
-      // Get conversation history for context
-      const conversationHistory: Array<{
-        _id: Id<"message">;
-        _creationTime: number;
-        conversationId: Id<"conversation">;
-        role: "user" | "assistant";
-        content: string;
-      }> = await ctx.runQuery(
-        internal.githubAccount.application.document.conversation.message.query.by_conversation.messages,
-        { conversationId: args.conversationId }
-      );
+      // Use provided conversation history (no query needed)
+      const conversationHistory = args.conversationHistory;
+
+      console.log(`✅ Using provided conversation data with ${conversationHistory.length} messages`);
 
       // Format conversation for Gemini
       const geminiConversation: Array<{

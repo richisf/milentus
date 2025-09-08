@@ -70,7 +70,9 @@ export default defineSchema({
         conversationId: v.id("conversation"),
         role: v.union(v.literal("user"), v.literal("assistant")),
         content: v.string(),
+        order: v.number(), // Sequential order within conversation (1, 2, 3, ...)
       })
-        .index("by_conversation", ["conversationId"]),
+        .index("by_conversation", ["conversationId"])
+        .index("by_conversation_order", ["conversationId", "order"]),
           
   });

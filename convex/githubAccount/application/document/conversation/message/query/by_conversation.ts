@@ -15,7 +15,7 @@ export const messages = internalQuery({
   handler: async (ctx, args) => {
     return await ctx.db
       .query("message")
-      .withIndex("by_conversation", (q) => q.eq("conversationId", args.conversationId))
+      .withIndex("by_conversation_order", (q) => q.eq("conversationId", args.conversationId))
       .order("asc")
       .collect();
   },

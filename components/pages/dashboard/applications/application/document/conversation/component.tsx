@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -9,10 +9,25 @@ import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 
+type ConversationData = {
+  _id: Id<"conversation">;
+  _creationTime: number;
+  documentId: Id<"document">;
+  messages: Array<{
+    _id: Id<"message">;
+    _creationTime: number;
+    conversationId: Id<"conversation">;
+    role: "user" | "assistant";
+    content: string;
+    order: number;
+  }>;
+} | null;
+
 type MessageInputProps = {
   applicationId: Id<"application">;
   documentId: Id<"document">;
   conversationId?: Id<"conversation">;
+  conversationData?: ConversationData; // Now optional - backend queries it
   onDocumentUpdated?: (documentId: Id<"document">, nodes?: Array<{
     id: string;
     parentId: string;
@@ -21,12 +36,22 @@ type MessageInputProps = {
   }>) => void;
 };
 
-export default function MessageInput({ applicationId, documentId, conversationId, onDocumentUpdated }: MessageInputProps) {
+export default function MessageInput({ applicationId, documentId, conversationId, conversationData, onDocumentUpdated }: MessageInputProps) {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [aiResponse, setAiResponse] = useState<string | null>(null);
+  const [currentConversationData, setCurrentConversationData] = useState(conversationData);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const updateDocument = useAction(api.githubAccount.application.document.action.update.document);
+
+  useEffect(() => {
+    setCurrentConversationData(conversationData);
+  }, [conversationData]);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [currentConversationData?.messages]);
 
   const handleSend = async () => {
     if (!message.trim()) return;
@@ -37,26 +62,29 @@ export default function MessageInput({ applicationId, documentId, conversationId
       return;
     }
 
+    console.log(`📤 Sending message: "${message.trim()}"`);
+
+    setMessage(""); // Clear the input immediately
     setIsLoading(true);
+
     try {
       const result = await updateDocument({
         documentId,
-        applicationId: applicationId, // Pass applicationId for consistency
+        applicationId: applicationId,
         conversationId,
-        message: message.trim()
+        message: message.trim(),
       });
 
       if (result.success) {
-        if (result.response) {
-          // Handle AI response
-          console.log("✅ AI Response received:", result.response);
-          setAiResponse(result.response);
+        // Update the conversation data with the complete updated conversation from server
+        if (result.conversation) {
+          console.log("✅ Updated conversation received with", result.conversation.messages.length, "messages");
+          setCurrentConversationData(result.conversation);
         } else if (result.documentId) {
           // Handle document update (for other operations)
           console.log("✅ Document updated:", result.documentId);
           onDocumentUpdated?.(result.documentId, result.nodes);
         }
-        setMessage(""); // Clear the input after successful response
       } else {
         console.error("❌ Failed to process message:", result.error);
         alert(`Failed to process message: ${result.error || "Unknown error"}`);
@@ -83,23 +111,25 @@ export default function MessageInput({ applicationId, documentId, conversationId
 
   return (
     <div className="px-4 py-3">
-      {/* AI Response - Using Alert component */}
-      {aiResponse && (
-        <Alert className="mb-2 flex items-center justify-between border border-gray-200">
-          <AlertDescription className="whitespace-pre-wrap flex-1">
-            {aiResponse}
-          </AlertDescription>
-          <Button
-            onClick={() => setAiResponse(null)}
-            size="sm"
-            variant="ghost"
-            className="p-2 hover:bg-gray-100 rounded-full flex-shrink-0"
-            title="Close response"
-          >
-            ✕
-          </Button>
-        </Alert>
+      {/* Conversation History */}
+      {currentConversationData?.messages && currentConversationData.messages.length > 0 && (
+        <div className="mb-3 max-h-40 overflow-y-auto space-y-2">
+          {currentConversationData.messages.map((msg) => (
+            <Alert key={msg._id} className={`flex items-start justify-between border border-gray-200 ${
+              msg.role === "user" ? "ml-8" : "mr-8"
+            }`}>
+              <AlertDescription className="whitespace-pre-wrap flex-1">
+                <div className="font-medium text-xs mb-1 opacity-70">
+                  {msg.order}. {msg.role === "user" ? "You" : "AI"}
+                </div>
+                {msg.content}
+              </AlertDescription>
+            </Alert>
+          ))}
+          <div ref={messagesEndRef} />
+        </div>
       )}
+
 
       {/* Message input */}
       <div className="flex items-center gap-3">

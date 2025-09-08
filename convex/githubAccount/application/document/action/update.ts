@@ -30,6 +30,19 @@ export const document = action({
       collapsed: v.optional(v.boolean())
     }))),
     response: v.optional(v.string()),
+    conversation: v.optional(v.object({
+      _id: v.id("conversation"),
+      _creationTime: v.number(),
+      documentId: v.id("document"),
+      messages: v.array(v.object({
+        _id: v.id("message"),
+        _creationTime: v.number(),
+        conversationId: v.id("conversation"),
+        role: v.union(v.literal("user"), v.literal("assistant")),
+        content: v.string(),
+        order: v.number(),
+      })),
+    })),
     error: v.optional(v.string()),
   }),
   handler: async (ctx, args): Promise<{
@@ -42,6 +55,19 @@ export const document = action({
       collapsed?: boolean;
     }>,
     response?: string,
+    conversation?: {
+      _id: Id<"conversation">;
+      _creationTime: number;
+      documentId: Id<"document">;
+      messages: Array<{
+        _id: Id<"message">;
+        _creationTime: number;
+        conversationId: Id<"conversation">;
+        role: "user" | "assistant";
+        content: string;
+        order: number;
+      }>;
+    },
     error?: string
   }> => {
     try {
@@ -87,9 +113,11 @@ export const document = action({
       else if (args.message) {
         console.log(`💬 Processing message for conversation: ${args.conversationId}`);
 
+        // Pass to conversation action for message processing
         const messageProcessingResult = await ctx.runAction(internal.githubAccount.application.document.conversation.action.update.conversation, {
           conversationId: args.conversationId!,
-          message: args.message
+          message: args.message,
+          // No validation needed - conversation exists
         });
 
         if (!messageProcessingResult.success) {
@@ -102,7 +130,8 @@ export const document = action({
         return {
           success: true,
           documentId: args.documentId,
-          response: messageProcessingResult.response
+          response: messageProcessingResult.response,
+          conversation: messageProcessingResult.conversation
         };
       }
 

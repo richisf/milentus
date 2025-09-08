@@ -76,6 +76,7 @@ export function Dashboard() {
                 nodes: selectedApplication.document.nodes
               }}
               conversationId={selectedApplication.conversation?._id}
+              conversationData={selectedApplication.conversation}
               onBack={() => setSelectedApplicationId(null)}
             />
           ) : (

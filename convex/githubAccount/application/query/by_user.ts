@@ -44,6 +44,14 @@ type ConversationData = {
   _id: Id<"conversation">;
   _creationTime: number;
   documentId: Id<"document">;
+  messages: Array<{
+    _id: Id<"message">;
+    _creationTime: number;
+    conversationId: Id<"conversation">;
+    role: "user" | "assistant";
+    content: string;
+    order: number;
+  }>;
 } | null;
 
 type ApplicationWithDetails = {
@@ -113,6 +121,14 @@ export const applications = query({
         _id: v.id("conversation"),
         _creationTime: v.number(),
         documentId: v.id("document"),
+        messages: v.array(v.object({
+          _id: v.id("message"),
+          _creationTime: v.number(),
+          conversationId: v.id("conversation"),
+          role: v.union(v.literal("user"), v.literal("assistant")),
+          content: v.string(),
+          order: v.number(),
+        })),
       }),
       v.null()
     ),
@@ -142,15 +158,25 @@ export const applications = query({
           applicationId: app._id,
         });
 
-        // Fetch conversation if document exists
+        // Fetch conversation with messages if document exists
         const conversationPromise: Promise<ConversationData> = (async (): Promise<ConversationData> => {
           const doc = await documentPromise;
           if (doc) {
-            const conversations = await ctx.runQuery(internal.githubAccount.application.document.conversation.query.by_document.by_document, {
+            const conversation = await ctx.runQuery(internal.githubAccount.application.document.conversation.query.by_document.by_document, {
               documentId: doc._id,
             });
-            // Return the first conversation (assuming one conversation per document)
-            return conversations.length > 0 ? conversations[0] : null;
+
+            if (conversation) {
+              // Fetch messages for this conversation
+              const messages = await ctx.runQuery(internal.githubAccount.application.document.conversation.message.query.by_conversation.messages, {
+                conversationId: conversation._id,
+              });
+
+              return {
+                ...conversation,
+                messages,
+              };
+            }
           }
           return null;
         })();
