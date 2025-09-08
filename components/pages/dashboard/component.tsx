@@ -14,7 +14,7 @@ export function Dashboard() {
   const router = useRouter();
   const [selectedApplicationId, setSelectedApplicationId] = useState<Id<"application"> | null>(null);
 
-  const userId = currentUser?.subject?.split('|')[0];
+  const userId = currentUser?.subject;
   const applications = useQuery(api.githubAccount.application.query.by_user.applications, {
     userId: userId || undefined,
   });
