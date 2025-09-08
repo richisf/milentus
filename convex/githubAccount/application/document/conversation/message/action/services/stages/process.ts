@@ -35,12 +35,9 @@ export function processStageResponse(stage: string, geminiResponse: GeminiRespon
 
       case "features":
         if (geminiResponse.shouldProceedToDetails) {
-          if (!geminiResponse.nodes || geminiResponse.nodes.length === 0) {
-            throw new Error("No nodes provided when transitioning to details stage");
-          }
           return {
             ...baseResponse,
-            shouldUpdateDocument: isInternal ? false : true, // Don't update document for internal processing
+            shouldUpdateDocument: isInternal ? false : (geminiResponse.nodes && geminiResponse.nodes.length > 0), // Only update document if nodes are provided
             nodes: geminiResponse.nodes,
             stage: "details"
           };

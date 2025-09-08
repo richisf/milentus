@@ -37,7 +37,7 @@ export const FeatureDefinitionSchema = {
     },
     nodes: {
       type: SchemaType.ARRAY,
-      description: "REQUIRED when shouldProceedToDetails is true AND response is not empty. Document nodes representing the core entities and their relationships. Leave empty [] when response is empty (during transitions).",
+      description: "REQUIRED when shouldProceedToDetails is true. Document nodes representing the core entities and their relationships. Always provide the actual nodes structure when transitioning.",
       items: {
         type: SchemaType.OBJECT,
         properties: {
@@ -62,7 +62,7 @@ export const FeatureDefinitionSchema = {
       }
     }
   },
-  required: ["shouldProceedToDetails"],
+  required: ["shouldProceedToDetails", "nodes"],
   additionalProperties: false
 } as const;
 

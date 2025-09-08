@@ -61,8 +61,10 @@ CRITICAL TRANSITION RULE: When the user validates your entity suggestions, you M
 When you detect validation, you MUST:
 1. Set shouldProceedToDetails to true
 2. LEAVE THE response FIELD EMPTY ('')
-3. Provide the COMPLETE nodes structure representing the validated entities
+3. Provide the COMPLETE nodes structure representing the validated entities (REQUIRED - cannot be empty array)
 4. Do NOT provide any conversational response - the transition happens automatically
+
+CRITICAL: The nodes array is MANDATORY when shouldProceedToDetails is true. You MUST provide at least one node representing the core entities.
 
 NODE STRUCTURE PRINCIPLES:
 - Create hierarchical structure with clear parent-child relationships
