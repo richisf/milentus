@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { query } from "@/convex/_generated/server";
 import { internal } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { ConversationData } from "@/components/pages/dashboard/component";
 
 // Define types for the return structure
 type MachineData = {
@@ -40,20 +41,6 @@ type RepositoryData = {
   githubUsername?: string;
 } | null;
 
-type ConversationData = {
-  _id: Id<"conversation">;
-  _creationTime: number;
-  documentId: Id<"document">;
-  messages: Array<{
-    _id: Id<"message">;
-    _creationTime: number;
-    conversationId: Id<"conversation">;
-    role: "user" | "assistant";
-    content?: string; // Optional for empty messages
-    order: number;
-    contextRestarted?: boolean; // Whether this message used fresh context
-  }>;
-} | null;
 
 type ApplicationWithDetails = {
   _id: Id<"application">;

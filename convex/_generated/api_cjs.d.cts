@@ -72,6 +72,7 @@ import type * as githubAccount_application_machine_action_services_update_suspen
 import type * as githubAccount_application_machine_action_services_update from "../githubAccount/application/machine/action/services/update.js";
 import type * as githubAccount_application_machine_action_update from "../githubAccount/application/machine/action/update.js";
 import type * as githubAccount_application_machine_conversation_message_action_create from "../githubAccount/application/machine/conversation/message/action/create.js";
+import type * as githubAccount_application_machine_conversation_message_action_github from "../githubAccount/application/machine/conversation/message/action/github.js";
 import type * as githubAccount_application_machine_conversation_message_action_services_create from "../githubAccount/application/machine/conversation/message/action/services/create.js";
 import type * as githubAccount_application_machine_mutation_create from "../githubAccount/application/machine/mutation/create.js";
 import type * as githubAccount_application_machine_mutation_delete from "../githubAccount/application/machine/mutation/delete.js";
@@ -172,6 +173,7 @@ declare const fullApi: ApiFromModules<{
   "githubAccount/application/machine/action/services/update": typeof githubAccount_application_machine_action_services_update;
   "githubAccount/application/machine/action/update": typeof githubAccount_application_machine_action_update;
   "githubAccount/application/machine/conversation/message/action/create": typeof githubAccount_application_machine_conversation_message_action_create;
+  "githubAccount/application/machine/conversation/message/action/github": typeof githubAccount_application_machine_conversation_message_action_github;
   "githubAccount/application/machine/conversation/message/action/services/create": typeof githubAccount_application_machine_conversation_message_action_services_create;
   "githubAccount/application/machine/mutation/create": typeof githubAccount_application_machine_mutation_create;
   "githubAccount/application/machine/mutation/delete": typeof githubAccount_application_machine_mutation_delete;

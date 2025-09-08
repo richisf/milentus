@@ -8,21 +8,8 @@ import { PaperAirplaneIcon } from "@heroicons/react/24/outline";
 import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { ConversationData } from "@/components/pages/dashboard/component";
 
-type ConversationData = {
-  _id: Id<"conversation">;
-  _creationTime: number;
-  documentId: Id<"document">;
-  messages: Array<{
-    _id: Id<"message">;
-    _creationTime: number;
-    conversationId: Id<"conversation">;
-    role: "user" | "assistant";
-    content?: string; // Optional for empty AI responses during transitions
-    order: number;
-    contextRestarted?: boolean; // Whether this message used fresh context
-  }>;
-} | null;
 
 type MessageInputProps = {
   applicationId: Id<"application">;

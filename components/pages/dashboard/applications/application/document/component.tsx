@@ -19,7 +19,8 @@ import { useJsonImport } from "@/components/pages/dashboard/applications/applica
 import { useJsonNest } from "@/components/pages/dashboard/applications/application/document/avatar/document/view/nesting/hook";
 import { useJsonExpand } from "@/components/pages/dashboard/applications/application/document/avatar/document/view/expand/hook";
 import { useJsonExtend } from "@/components/pages/dashboard/applications/application/document/avatar/document/json/extension/hook";
-import MessageInput from "@/components/pages/dashboard/applications/application/document/conversation/component";  
+import MessageInput from "@/components/pages/dashboard/applications/application/document/conversation/component";
+import { ConversationData } from "@/components/pages/dashboard/component";  
 
 type Node = {
   id: string;
@@ -37,20 +38,6 @@ const getChildren = (nodes: Node[], parentId: string): Node[] => {
   return nodes.filter(node => node.parentId === parentId);
 };
 
-type ConversationData = {
-  _id: Id<"conversation">;
-  _creationTime: number;
-  documentId: Id<"document">;
-  messages: Array<{
-    _id: Id<"message">;
-    _creationTime: number;
-    conversationId: Id<"conversation">;
-    role: "user" | "assistant";
-    content: string;
-    order: number;
-    contextRestarted?: boolean; // Whether this message used fresh context
-  }>;
-} | null;
 
 type CanvasComponentProps = {
   documentData?: {

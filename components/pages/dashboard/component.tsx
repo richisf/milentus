@@ -9,6 +9,22 @@ import { Card, CardContent } from "@/components/ui/card";
 import ApplicationsView from "@/components/pages/dashboard/applications/component";
 import Document from "@/components/pages/dashboard/applications/application/document/component";
 
+// Shared ConversationData type
+export type ConversationData = {
+  _id: Id<"conversation">;
+  _creationTime: number;
+  documentId: Id<"document">;
+  messages: Array<{
+    _id: Id<"message">;
+    _creationTime: number;
+    conversationId: Id<"conversation">;
+    role: "user" | "assistant";
+    content?: string;
+    order: number;
+    contextRestarted?: boolean;
+  }>;
+} | null;
+
 export function Dashboard() {
   const currentUser = useQuery(api.auth.currentUser);
   const router = useRouter();
@@ -76,7 +92,7 @@ export function Dashboard() {
                 nodes: selectedApplication.document.nodes
               }}
               conversationId={selectedApplication.conversation?._id}
-              conversationData={selectedApplication.conversation}
+              conversationData={selectedApplication.conversation} 
               onBack={() => setSelectedApplicationId(null)}
             />
           ) : (
