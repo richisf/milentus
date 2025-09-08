@@ -133,7 +133,8 @@ export const document = action({
         });
 
         // Handle optional response and conversation (may be undefined during transitions)
-        if (!messageProcessingResult.response || !messageProcessingResult.conversation) {
+        // Note: response can be empty string during stage transitions, which is valid
+        if (messageProcessingResult.response === undefined || !messageProcessingResult.conversation) {
           return {
             success: false,
             error: "No response or conversation returned from message processing"

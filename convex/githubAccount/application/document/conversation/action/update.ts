@@ -161,12 +161,18 @@ export const conversation = internalAction({
       console.log(`📄 Updating document with ${messageResult.nodes.length} nodes`);
       console.log(`📋 Nodes to update:`, JSON.stringify(messageResult.nodes, null, 2));
 
+      // Determine update mode based on stage
+      const isDetailsStage = messageResult.stage === "details";
+      const updateMode = isDetailsStage ? false : true; // false = extend, true = replace
+      
+      console.log(`📝 Update mode: ${updateMode ? 'replace' : 'extend'} (stage: ${messageResult.stage})`);
+
       await ctx.runMutation(
         internal.githubAccount.application.document.mutation.update.document,
         {
           documentId: conversation.documentId,
           nodes: messageResult.nodes,
-          replace: true // Replace existing nodes with new structure
+          replace: updateMode // Replace for features stage, extend for details stage
         }
       );
       

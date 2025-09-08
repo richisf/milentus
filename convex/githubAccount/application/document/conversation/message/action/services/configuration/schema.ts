@@ -29,15 +29,19 @@ export const FeatureDefinitionSchema = {
   properties: {
     response: {
       type: SchemaType.STRING,
-      description: "Your response that PROPOSES the core data entities (database tables) for the application. Focus on what data the app manages, not UI features. Present entities like User, Contact, Deal, Task with their relationships. Leave empty ('') when shouldProceedToDetails is true."
+      description: "Your response that PROPOSES the core data entities (database tables) for the application. Focus on what data the app manages, not UI features. Present the main entities and their relationships using plain English. Leave empty ('') when shouldProceedToDetails is true."
     },
     shouldProceedToDetails: {
       type: SchemaType.BOOLEAN,
       description: "Set to true when user validates your proposed entity model with responses like 'yes', 'that works', 'perfect', etc."
     },
+    kickoffMessage: {
+      type: SchemaType.STRING,
+      description: "Helpful kickoff message for the details stage (only when shouldProceedToDetails is true). Suggest specific next steps for defining detailed fields and operations for the core entities identified in the features stage."
+    },
     nodes: {
       type: SchemaType.ARRAY,
-      description: "REQUIRED when shouldProceedToDetails is true. Document nodes representing the core entities and their relationships. Always provide the actual nodes structure when transitioning.",
+      description: "REQUIRED when shouldProceedToDetails is true. Create a clear nested hierarchy that represents how users interact with the application. Use parentId to create 'inside inside' relationships where child nodes break down parent concepts into sub-components. Let the structure emerge naturally from the application's needs.",
       items: {
         type: SchemaType.OBJECT,
         properties: {
@@ -47,15 +51,15 @@ export const FeatureDefinitionSchema = {
           },
           parentId: {
             type: SchemaType.STRING,
-            description: "Parent node ID (empty string '' for root nodes, or parent's id for children)"
+            description: "Parent node ID (empty string '' for root nodes, or parent's id for children). Use this to create clear nested relationships where children break down or expand on their parent concepts."
           },
           label: {
             type: SchemaType.STRING,
-            description: "Descriptive label for this entity or operation, focusing on data management like 'CRM manages Contacts' or 'Users can create Deals'"
+            description: "Clear, natural description of what users do or what data contains. Use conversational language that anyone can understand. Focus on user actions and important relationships."
           },
           collapsed: {
             type: SchemaType.BOOLEAN,
-            description: "Whether this node should be collapsed in the UI (default false)"
+            description: "Whether this node should be collapsed in the UI (default false). Set to false for important nodes users should see expanded."
           }
         },
         required: ["id", "parentId", "label"]
@@ -72,29 +76,29 @@ export const FunctionalityDetailSchema = {
   properties: {
     response: {
       type: SchemaType.STRING,
-      description: "Your response that PROPOSES the data model and API structure. Focus on database entities, their relationships, and CRUD operations rather than UI features. Leave empty ('') when isComplete is true."
+      description: "Your response that PROPOSES the detailed data model and structure. Focus on database entities, their relationships, and user operations rather than UI features. Use the established hierarchy patterns. Leave empty ('') when hasChanges is true."
     },
-    isComplete: {
+    hasChanges: {
       type: SchemaType.BOOLEAN,
-      description: "Whether you've defined all core entities and operations needed for the backend API"
+      description: "Whether you want to add new nodes to extend the existing structure. Set to true when you have new details to add."
     },
-    nodes: {
+    newNodes: {
       type: SchemaType.ARRAY,
-      description: "Complete data model specification with entities and operations",
+      description: "ONLY NEW nodes to add to the existing structure. Do NOT repeat existing nodes. These will be added to the current document nodes. Only provide when hasChanges is true.",
       items: {
         type: SchemaType.OBJECT,
         properties: {
           id: {
             type: SchemaType.STRING,
-            description: "Unique identifier for the node (use sequential numbers)"
+            description: "Unique identifier for the NEW node (use sequential numbers that don't conflict with existing nodes)"
           },
           parentId: {
             type: SchemaType.STRING,
-            description: "Parent node ID (empty string for root entities, entity ID for operations/relationships)"
+            description: "Parent node ID - can reference existing nodes or other new nodes. Use existing node IDs to attach new details to current structure."
           },
           label: {
             type: SchemaType.STRING,
-            description: "Descriptive label explaining the entity, operation, or relationship. Focus on backend functionality like 'Users can create Contact with Records' or 'Contact has many Deals'"
+            description: "Friendly plain English description of the new detail or specification. Use patterns like 'Users can create [Entity] with [specific fields]' or '[Field] must be [constraint/validation rule]'."
           },
           collapsed: {
             type: SchemaType.BOOLEAN,
@@ -105,6 +109,6 @@ export const FunctionalityDetailSchema = {
       }
     }
   },
-  required: ["isComplete", "nodes"],
+  required: ["hasChanges"],
   additionalProperties: false
 } as const;

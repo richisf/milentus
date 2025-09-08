@@ -58,7 +58,7 @@ export const message = internalAction({
       ];
 
       // Generate AI response first to check for automatic stage transitions
-      const geminiResponse = await sendMessageToGemini(currentStage, geminiConversation);
+      const geminiResponse = await sendMessageToGemini(currentStage, geminiConversation, document?.nodes);
       console.log(`🤖 Gemini response for stage ${currentStage}:`, JSON.stringify(geminiResponse, null, 2));
 
       // Check if AI indicates we should proceed to next stage (automatic transition)
@@ -90,7 +90,7 @@ export const message = internalAction({
         ];
 
         // Generate response for the next stage (this is what the user will see)
-        const nextStageResponse = await sendMessageToGemini(nextStage, updatedConversation);
+        const nextStageResponse = await sendMessageToGemini(nextStage, updatedConversation, document?.nodes);
         console.log(`🤖 Next stage Gemini response for stage ${nextStage}:`, JSON.stringify(nextStageResponse, null, 2));
 
         // Process and return ONLY the next stage response

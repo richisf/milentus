@@ -2,16 +2,19 @@ interface GeminiResponse {
   response?: string;
   shouldProceedToFeatures?: boolean;
   shouldProceedToDetails?: boolean;
-  isComplete?: boolean;
-  nodes?: Array<{ id: string; parentId: string; label: string; collapsed?: boolean }>;
+  hasChanges?: boolean; // For details stage - indicates new nodes to add
+  nodes?: Array<{ id: string; parentId: string; label: string; collapsed?: boolean }>; // For features stage
+  newNodes?: Array<{ id: string; parentId: string; label: string; collapsed?: boolean }>; // For details stage - only NEW nodes
+  kickoffMessage?: string; // For features->details transition
 }
 
 export function processStageResponse(stage: string, geminiResponse: GeminiResponse, userMessage: string, isInternal: boolean = false) {
   try {
-    // Allow empty responses for internal processing OR when AI indicates stage transition
+    // Allow empty responses for internal processing OR when AI indicates stage transition or changes
+    // Note: Features->Details transitions use kickoffMessage field for transition guidance
     const hasTransitionFlag = geminiResponse?.shouldProceedToFeatures === true ||
                              geminiResponse?.shouldProceedToDetails === true ||
-                             geminiResponse?.isComplete === true;
+                             geminiResponse?.hasChanges === true;
 
     if (!geminiResponse?.response && !isInternal && !hasTransitionFlag) {
       throw new Error(`No response from Gemini for stage: ${stage}`);
@@ -37,7 +40,8 @@ export function processStageResponse(stage: string, geminiResponse: GeminiRespon
         if (geminiResponse.shouldProceedToDetails) {
           return {
             ...baseResponse,
-            shouldUpdateDocument: isInternal ? false : (geminiResponse.nodes && geminiResponse.nodes.length > 0), // Only update document if nodes are provided
+            aiResponse: geminiResponse.kickoffMessage || "", // Use kickoff message for transition
+            shouldUpdateDocument: isInternal ? false : Boolean(geminiResponse.nodes && geminiResponse.nodes.length > 0), // Only update document if nodes are provided
             nodes: geminiResponse.nodes,
             stage: "details"
           };
@@ -50,16 +54,23 @@ export function processStageResponse(stage: string, geminiResponse: GeminiRespon
         };
 
       case "details":
-        // Nodes are always required when transitioning to details stage
-        if (!geminiResponse.nodes) {
-          throw new Error("No nodes provided when transitioning to details stage");
+        // Handle details stage - can have changes (new nodes) or just conversational response
+        if (geminiResponse.hasChanges && geminiResponse.newNodes) {
+          return {
+            ...baseResponse,
+            shouldUpdateDocument: isInternal ? false : true, // Extend document with NEW nodes only
+            nodes: geminiResponse.newNodes, // Only the NEW nodes to add
+            stage: "details"
+          };
+        } else {
+          // No changes, just conversational response - stay in details stage
+          return {
+            ...baseResponse,
+            shouldUpdateDocument: false,
+            nodes: undefined,
+            stage: "details"
+          };
         }
-        return {
-          ...baseResponse,
-          shouldUpdateDocument: isInternal ? false : true, // Update document with nodes during transition
-          nodes: geminiResponse.nodes,
-          stage: geminiResponse.isComplete ? "complete" : "details"
-        };
 
       default:
         return baseResponse;
