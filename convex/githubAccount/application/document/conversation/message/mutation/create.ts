@@ -5,7 +5,8 @@ export const message = internalMutation({
   args: {
     conversationId: v.id("conversation"),
     role: v.union(v.literal("user"), v.literal("assistant")),
-    content: v.string(),
+    content: v.optional(v.string()), // Optional for empty AI responses
+    jsonResponse: v.optional(v.string()), // Full JSON response from AI
   },
   returns: v.id("message"),
   handler: async (ctx, args) => {
@@ -21,6 +22,7 @@ export const message = internalMutation({
       conversationId: args.conversationId,
       role: args.role,
       content: args.content,
+      jsonResponse: args.jsonResponse,
       order: nextOrder,
     });
   },

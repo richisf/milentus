@@ -3,6 +3,23 @@ import { v } from "convex/values";
 import { internal } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 
+// Define the expected return type from the message action
+type MessageResult = {
+  success: boolean;
+  userMessage: string;
+  aiResponse: string;
+  aiJsonResponse?: string; // Full JSON response from AI
+  shouldUpdateDocument: boolean;
+  nodes?: Array<{
+    id: string;
+    parentId: string;
+    label: string;
+    collapsed?: boolean;
+  }>;
+  stage: string;
+  error?: string;
+};
+
 export const conversation = internalAction({
   args: {
     conversationId: v.id("conversation"),
@@ -22,7 +39,7 @@ export const conversation = internalAction({
         _creationTime: v.number(),
         conversationId: v.id("conversation"),
         role: v.union(v.literal("user"), v.literal("assistant")),
-        content: v.string(),
+        content: v.optional(v.string()), // Optional for empty messages
         order: v.number(),
       })),
     })),
@@ -41,13 +58,12 @@ export const conversation = internalAction({
         _creationTime: number;
         conversationId: Id<"conversation">;
         role: "user" | "assistant";
-        content: string;
+        content?: string; // Optional for empty messages
         order: number;
       }>;
     };
     error?: string;
   }> => {
-    console.log(`${args.clear ? '🗑️ Clearing' : '💬 Processing'} conversation for conversation: ${args.conversationId}`);
 
     // Query conversation object
     const conversation = await ctx.runQuery(
@@ -92,7 +108,6 @@ export const conversation = internalAction({
       { conversationId: args.conversationId }
     );
 
-    console.log(`✅ Queried conversation and ${conversationHistory.length} messages`);
 
     // Ensure we have a message to process
     if (!args.message) {
@@ -103,13 +118,17 @@ export const conversation = internalAction({
     }
 
     // Process message with AI using the context
-    const messageResult = await ctx.runAction(
+    const rawMessageResult = await ctx.runAction(
       internal.githubAccount.application.document.conversation.message.action.create.message,
       {
         message: args.message,
-        conversationHistory, // Pass context to message action
+        conversationHistory: conversationHistory as Array<{ _id: Id<"message">; _creationTime: number; content: string; jsonResponse?: string | undefined; conversationId: Id<"conversation">; role: "user" | "assistant"; order: number; }>, // Pass context to message action
+        documentId: conversation.documentId, // Pass document ID for stage determination
       }
     );
+
+    // Cast to our explicit type to avoid TypeScript union type issues
+    const messageResult = rawMessageResult as MessageResult;
 
     if (!messageResult.success) {
       return {
@@ -125,18 +144,44 @@ export const conversation = internalAction({
         conversationId: args.conversationId,
         userMessage: messageResult.userMessage,
         aiResponse: messageResult.aiResponse,
+        aiJsonResponse: messageResult.aiJsonResponse, // Pass full JSON response
         conversation: conversation, // Pass conversation object
-        existingMessages: conversationHistory, // Pass message history
+        existingMessages: conversationHistory, // Pass message history as-is (with jsonResponse)
       }
     );
 
-    const completeConversation = saveResult.conversation;
+    const finalConversation = saveResult.conversation;
+    const finalResponse = messageResult.aiResponse;
+    const finalMessageId = saveResult.aiMessageId || saveResult.userMessageId; // Use user message ID if no AI message
+
+    // If the AI suggests updating the document with nodes, do it
+    console.log(`🔍 Checking document update: shouldUpdate=${messageResult.shouldUpdateDocument}, hasNodes=${Boolean(messageResult.nodes)}, nodeCount=${messageResult.nodes?.length || 0}`);
+    
+    if (messageResult.shouldUpdateDocument && messageResult.nodes && messageResult.nodes.length > 0) {
+      console.log(`📄 Updating document with ${messageResult.nodes.length} nodes`);
+      console.log(`📋 Nodes to update:`, JSON.stringify(messageResult.nodes, null, 2));
+
+      await ctx.runMutation(
+        internal.githubAccount.application.document.mutation.update.document,
+        {
+          documentId: conversation.documentId,
+          nodes: messageResult.nodes,
+          replace: true // Replace existing nodes with new structure
+        }
+      );
+      
+      console.log(`✅ Document updated successfully`);
+    } else {
+      console.log(`⏭️ Skipping document update - no nodes to update`);
+    }
+
+    // Auto-transition logic removed - now handled in message action with cleaner design
 
     return {
       success: true,
-      response: messageResult.aiResponse,
-      messageId: saveResult.aiMessageId,
-      conversation: completeConversation,
+      response: finalResponse,
+      messageId: finalMessageId,
+      conversation: finalConversation,
     };
   },
 });

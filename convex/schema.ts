@@ -69,7 +69,8 @@ export default defineSchema({
       message: defineTable({
         conversationId: v.id("conversation"),
         role: v.union(v.literal("user"), v.literal("assistant")),
-        content: v.string(),
+        content: v.optional(v.string()), // Optional for empty AI responses during transitions
+        jsonResponse: v.optional(v.string()), // Full JSON response from AI (for stage detection)
         order: v.number(), // Sequential order within conversation (1, 2, 3, ...)
       })
         .index("by_conversation", ["conversationId"])

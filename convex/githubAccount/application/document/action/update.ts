@@ -39,7 +39,7 @@ export const document = action({
         _creationTime: v.number(),
         conversationId: v.id("conversation"),
         role: v.union(v.literal("user"), v.literal("assistant")),
-        content: v.string(),
+        content: v.optional(v.string()), // Optional for empty messages
         order: v.number(),
       })),
     })),
@@ -64,7 +64,7 @@ export const document = action({
         _creationTime: number;
         conversationId: Id<"conversation">;
         role: "user" | "assistant";
-        content: string;
+        content?: string; // Optional for empty messages
         order: number;
       }>;
     },
@@ -127,12 +127,25 @@ export const document = action({
           };
         }
 
-        // TypeScript knows these exist when success is true
+        // After conversation processing, get the updated document nodes
+        const updatedDocument = await ctx.runQuery(internal.githubAccount.application.document.query.by_id.document, {
+          documentId: args.documentId
+        });
+
+        // Handle optional response and conversation (may be undefined during transitions)
+        if (!messageProcessingResult.response || !messageProcessingResult.conversation) {
+          return {
+            success: false,
+            error: "No response or conversation returned from message processing"
+          };
+        }
+
         return {
           success: true,
           documentId: args.documentId,
-          response: messageProcessingResult.response!,
-          conversation: messageProcessingResult.conversation!
+          response: messageProcessingResult.response,
+          conversation: messageProcessingResult.conversation,
+          nodes: updatedDocument?.nodes || [] // Include updated nodes
         };
       }
 

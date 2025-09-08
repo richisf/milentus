@@ -49,7 +49,7 @@ type ConversationData = {
     _creationTime: number;
     conversationId: Id<"conversation">;
     role: "user" | "assistant";
-    content: string;
+    content?: string; // Optional for empty messages
     order: number;
   }>;
 } | null;
@@ -126,7 +126,7 @@ export const applications = query({
           _creationTime: v.number(),
           conversationId: v.id("conversation"),
           role: v.union(v.literal("user"), v.literal("assistant")),
-          content: v.string(),
+          content: v.optional(v.string()), // Optional for empty messages
           order: v.number(),
         })),
       }),
@@ -171,7 +171,8 @@ export const applications = query({
             const rawMessages = await ctx.runQuery(internal.githubAccount.application.document.conversation.message.query.by_conversation.messages, {
               conversationId: conversation._id,
             });
-            const messages = rawMessages.map((msg) => ({
+
+            const messages = rawMessages.map((msg: typeof rawMessages[0]) => ({
               _id: msg._id,
               _creationTime: msg._creationTime,
               conversationId: msg.conversationId,

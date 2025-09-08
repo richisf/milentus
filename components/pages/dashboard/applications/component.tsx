@@ -67,7 +67,6 @@ export default function ApplicationsView({ applications, onApplicationSelected, 
   if (applications === undefined) {
     return (
       <div className="flex items-center justify-center min-h-screen p-4">
-        Loading applications...
       </div>
     );
   }

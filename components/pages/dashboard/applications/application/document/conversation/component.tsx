@@ -18,7 +18,7 @@ type ConversationData = {
     _creationTime: number;
     conversationId: Id<"conversation">;
     role: "user" | "assistant";
-    content: string;
+    content?: string; // Optional for empty AI responses during transitions
     order: number;
   }>;
 } | null;
@@ -80,9 +80,11 @@ export default function MessageInput({ applicationId, documentId, conversationId
         if (result.conversation) {
           console.log("✅ Updated conversation received with", result.conversation.messages.length, "messages");
           setCurrentConversationData(result.conversation);
-        } else if (result.documentId) {
-          // Handle document update (for other operations)
-          console.log("✅ Document updated:", result.documentId);
+        }
+        
+        // Handle document node updates (can happen alongside conversation updates)
+        if (result.documentId && result.nodes) {
+          console.log("✅ Document updated with", result.nodes.length, "nodes");
           onDocumentUpdated?.(result.documentId, result.nodes);
         }
       } else {
@@ -114,7 +116,9 @@ export default function MessageInput({ applicationId, documentId, conversationId
       {/* Conversation History */}
       {currentConversationData?.messages && currentConversationData.messages.length > 0 && (
         <div className="mb-3 max-h-40 overflow-y-auto space-y-2">
-          {currentConversationData.messages.map((msg) => (
+          {currentConversationData.messages
+            .filter((msg) => msg.content && msg.content.trim() !== "") // Only show messages with actual content
+            .map((msg) => (
             <Alert key={msg._id} className="border-gray-100 bg-gray-50">
               <AlertDescription className="text-sm">
                 <div className="font-medium text-xs text-gray-500 mb-1">
@@ -126,6 +130,8 @@ export default function MessageInput({ applicationId, documentId, conversationId
               </AlertDescription>
             </Alert>
           ))}
+
+
           <div ref={messagesEndRef} />
         </div>
       )}
@@ -136,7 +142,7 @@ export default function MessageInput({ applicationId, documentId, conversationId
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder="Ask me anything..."
+          placeholder="Describe your application idea..."
           className="flex-1 border-gray-200 bg-white text-sm"
           disabled={isLoading}
         />

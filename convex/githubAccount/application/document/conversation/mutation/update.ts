@@ -7,7 +7,8 @@ export const conversation = internalMutation({
   args: {
     conversationId: v.id("conversation"),
     userMessage: v.string(),
-    aiResponse: v.string(),
+    aiResponse: v.optional(v.string()), // Optional for empty AI responses
+    aiJsonResponse: v.optional(v.string()), // Full JSON response from AI
     conversation: v.object({
       _id: v.id("conversation"),
       _creationTime: v.number(),
@@ -18,14 +19,15 @@ export const conversation = internalMutation({
       _creationTime: v.number(),
       conversationId: v.id("conversation"),
       role: v.union(v.literal("user"), v.literal("assistant")),
-      content: v.string(),
+      content: v.optional(v.string()), // Optional for empty messages
+      jsonResponse: v.optional(v.string()),
       order: v.number(),
     })),
   },
   returns: v.object({
     success: v.boolean(),
     userMessageId: v.id("message"),
-    aiMessageId: v.id("message"),
+    aiMessageId: v.optional(v.id("message")), // Optional when no AI response
     conversation: v.object({
       _id: v.id("conversation"),
       _creationTime: v.number(),
@@ -35,7 +37,7 @@ export const conversation = internalMutation({
         _creationTime: v.number(),
         conversationId: v.id("conversation"),
         role: v.union(v.literal("user"), v.literal("assistant")),
-        content: v.string(),
+        content: v.optional(v.string()), // Optional for empty messages
         order: v.number(),
       })),
     }),
@@ -43,7 +45,7 @@ export const conversation = internalMutation({
   handler: async (ctx, args): Promise<{
     success: boolean;
     userMessageId: Id<"message">;
-    aiMessageId: Id<"message">;
+    aiMessageId?: Id<"message">; // Optional when no AI response
     conversation: {
       _id: Id<"conversation">;
       _creationTime: number;
@@ -53,7 +55,7 @@ export const conversation = internalMutation({
         _creationTime: number;
         conversationId: Id<"conversation">;
         role: "user" | "assistant";
-        content: string;
+        content?: string; // Optional for empty messages
         order: number;
       }>;
     };
@@ -74,33 +76,53 @@ export const conversation = internalMutation({
       }
     );
 
-    // Create AI response message
-    const aiMessageId = await ctx.runMutation(
-      internal.githubAccount.application.document.conversation.message.mutation.create.message,
-      {
-        conversationId: args.conversationId,
-        role: "assistant",
-        content: args.aiResponse
-      }
-    );
+    // Create AI response message only if there's actual content
+    let aiMessageId: Id<"message"> | undefined;
+    if (args.aiResponse && args.aiResponse.trim() !== "") {
+      aiMessageId = await ctx.runMutation(
+        internal.githubAccount.application.document.conversation.message.mutation.create.message,
+        {
+          conversationId: args.conversationId,
+          role: "assistant",
+          content: args.aiResponse,
+          jsonResponse: args.aiJsonResponse
+        }
+      );
+    }
 
     // Query the newly created messages to get their real data
     const userMessage = await ctx.db.get(userMessageId);
-    const aiMessage = await ctx.db.get(aiMessageId);
+    const aiMessage = aiMessageId ? await ctx.db.get(aiMessageId) : null;
 
-    if (!userMessage || !aiMessage) {
-      throw new Error("Failed to retrieve created messages");
+    if (!userMessage) {
+      throw new Error("Failed to retrieve created user message");
     }
 
-    // Return complete conversation with real data
+    // Return complete conversation with real data (strip jsonResponse for frontend)
+    const sanitizeMessage = (msg: typeof userMessage) => ({
+      _id: msg._id,
+      _creationTime: msg._creationTime,
+      conversationId: msg.conversationId,
+      role: msg.role,
+      content: msg.content,
+      order: msg.order,
+    });
+
+    // Build messages array, only including AI message if it exists
+    const messagesToInclude = [userMessage];
+    if (aiMessage) {
+      messagesToInclude.push(aiMessage);
+    }
+
     const completeConversation = {
       _id: conversation._id,
       _creationTime: conversation._creationTime,
       documentId: conversation.documentId,
-      messages: [...existingMessages, userMessage, aiMessage]
+      messages: [...existingMessages, ...messagesToInclude].map(sanitizeMessage)
     };
 
-    console.log(`✅ Messages saved and conversation updated: User=${userMessageId}, AI=${aiMessageId}`);
+    const aiMessageInfo = aiMessageId ? `AI=${aiMessageId}` : "AI=(empty response skipped)";
+    console.log(`✅ Messages saved and conversation updated: User=${userMessageId}, ${aiMessageInfo}`);
 
     return {
       success: true,

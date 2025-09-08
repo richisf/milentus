@@ -10,7 +10,8 @@ export const messages = internalQuery({
     _creationTime: v.number(),
     conversationId: v.id("conversation"),
     role: v.union(v.literal("user"), v.literal("assistant")),
-    content: v.string(),
+    content: v.optional(v.string()), // Optional for empty messages
+    jsonResponse: v.optional(v.string()),
     order: v.number(),
   })),
   handler: async (ctx, args) => {
