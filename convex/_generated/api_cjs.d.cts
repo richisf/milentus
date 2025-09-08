@@ -35,6 +35,7 @@ import type * as githubAccount_application_document_conversation_message_action_
 import type * as githubAccount_application_document_conversation_message_action_services_configuration_system from "../githubAccount/application/document/conversation/message/action/services/configuration/system.js";
 import type * as githubAccount_application_document_conversation_message_action_services_create from "../githubAccount/application/document/conversation/message/action/services/create.js";
 import type * as githubAccount_application_document_conversation_message_mutation_create from "../githubAccount/application/document/conversation/message/mutation/create.js";
+import type * as githubAccount_application_document_conversation_message_mutation_delete from "../githubAccount/application/document/conversation/message/mutation/delete.js";
 import type * as githubAccount_application_document_conversation_message_query_by_conversation from "../githubAccount/application/document/conversation/message/query/by_conversation.js";
 import type * as githubAccount_application_document_conversation_mutation_create from "../githubAccount/application/document/conversation/mutation/create.js";
 import type * as githubAccount_application_document_conversation_mutation_update from "../githubAccount/application/document/conversation/mutation/update.js";
@@ -132,6 +133,7 @@ declare const fullApi: ApiFromModules<{
   "githubAccount/application/document/conversation/message/action/services/configuration/system": typeof githubAccount_application_document_conversation_message_action_services_configuration_system;
   "githubAccount/application/document/conversation/message/action/services/create": typeof githubAccount_application_document_conversation_message_action_services_create;
   "githubAccount/application/document/conversation/message/mutation/create": typeof githubAccount_application_document_conversation_message_mutation_create;
+  "githubAccount/application/document/conversation/message/mutation/delete": typeof githubAccount_application_document_conversation_message_mutation_delete;
   "githubAccount/application/document/conversation/message/query/by_conversation": typeof githubAccount_application_document_conversation_message_query_by_conversation;
   "githubAccount/application/document/conversation/mutation/create": typeof githubAccount_application_document_conversation_mutation_create;
   "githubAccount/application/document/conversation/mutation/update": typeof githubAccount_application_document_conversation_mutation_update;

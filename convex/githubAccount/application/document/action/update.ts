@@ -127,11 +127,12 @@ export const document = action({
           };
         }
 
+        // TypeScript knows these exist when success is true
         return {
           success: true,
           documentId: args.documentId,
-          response: messageProcessingResult.response,
-          conversation: messageProcessingResult.conversation
+          response: messageProcessingResult.response!,
+          conversation: messageProcessingResult.conversation!
         };
       }
 

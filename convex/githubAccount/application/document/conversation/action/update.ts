@@ -6,13 +6,14 @@ import { Id } from "@/convex/_generated/dataModel";
 export const conversation = internalAction({
   args: {
     conversationId: v.id("conversation"),
-    message: v.string(),
+    message: v.optional(v.string()),
+    clear: v.optional(v.boolean()),
   },
   returns: v.object({
     success: v.boolean(),
-    response: v.string(),
-    messageId: v.id("message"),
-    conversation: v.object({
+    response: v.optional(v.string()),
+    messageId: v.optional(v.id("message")),
+    conversation: v.optional(v.object({
       _id: v.id("conversation"),
       _creationTime: v.number(),
       documentId: v.id("document"),
@@ -24,14 +25,14 @@ export const conversation = internalAction({
         content: v.string(),
         order: v.number(),
       })),
-    }),
+    })),
     error: v.optional(v.string()),
   }),
   handler: async (ctx, args): Promise<{
     success: boolean;
-    response: string;
-    messageId: Id<"message">;
-    conversation: {
+    response?: string;
+    messageId?: Id<"message">;
+    conversation?: {
       _id: Id<"conversation">;
       _creationTime: number;
       documentId: Id<"document">;
@@ -46,9 +47,9 @@ export const conversation = internalAction({
     };
     error?: string;
   }> => {
-    console.log(`💬 Processing conversation message for conversation: ${args.conversationId}`);
+    console.log(`${args.clear ? '🗑️ Clearing' : '💬 Processing'} conversation for conversation: ${args.conversationId}`);
 
-    // Query conversation object and history for AI context (conversation-level concern)
+    // Query conversation object
     const conversation = await ctx.runQuery(
       internal.githubAccount.application.document.conversation.query.by_document.by_id,
       { conversationId: args.conversationId }
@@ -57,12 +58,49 @@ export const conversation = internalAction({
       throw new Error("Conversation not found");
     }
 
+    // Handle clear conversation case
+    if (args.clear) {
+      console.log(`🗑️ Clearing all messages from conversation: ${args.conversationId}`);
+
+      const conversationHistory = await ctx.runQuery(
+        internal.githubAccount.application.document.conversation.message.query.by_conversation.messages,
+        { conversationId: args.conversationId }
+      );
+
+      // Delete all messages via mutation
+      for (const message of conversationHistory) {
+        await ctx.runMutation(
+          internal.githubAccount.application.document.conversation.message.mutation.delete.message,
+          { messageId: message._id }
+        );
+      }
+
+      // Return empty conversation
+      return {
+        success: true,
+        conversation: {
+          _id: conversation._id,
+          _creationTime: conversation._creationTime,
+          documentId: conversation.documentId,
+          messages: []
+        }
+      };
+    }
+
     const conversationHistory = await ctx.runQuery(
       internal.githubAccount.application.document.conversation.message.query.by_conversation.messages,
       { conversationId: args.conversationId }
     );
 
     console.log(`✅ Queried conversation and ${conversationHistory.length} messages`);
+
+    // Ensure we have a message to process
+    if (!args.message) {
+      return {
+        success: false,
+        error: "No message provided"
+      };
+    }
 
     // Process message with AI using the context
     const messageResult = await ctx.runAction(
@@ -76,14 +114,6 @@ export const conversation = internalAction({
     if (!messageResult.success) {
       return {
         success: false,
-        response: "",
-        messageId: "" as Id<"message">,
-        conversation: {
-          _id: "" as Id<"conversation">,
-          _creationTime: 0,
-          documentId: "" as Id<"document">,
-          messages: []
-        },
         error: messageResult.error
       };
     }

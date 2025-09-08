@@ -11,6 +11,7 @@ export const messages = internalQuery({
     conversationId: v.id("conversation"),
     role: v.union(v.literal("user"), v.literal("assistant")),
     content: v.string(),
+    order: v.number(),
   })),
   handler: async (ctx, args) => {
     return await ctx.db

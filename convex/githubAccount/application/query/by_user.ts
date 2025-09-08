@@ -168,9 +168,17 @@ export const applications = query({
 
             if (conversation) {
               // Fetch messages for this conversation
-              const messages = await ctx.runQuery(internal.githubAccount.application.document.conversation.message.query.by_conversation.messages, {
-                conversationId: conversation._id,
-              });
+            const rawMessages = await ctx.runQuery(internal.githubAccount.application.document.conversation.message.query.by_conversation.messages, {
+              conversationId: conversation._id,
+            });
+            const messages = rawMessages.map((msg) => ({
+              _id: msg._id,
+              _creationTime: msg._creationTime,
+              conversationId: msg.conversationId,
+              role: msg.role,
+              content: msg.content,
+              order: msg.order, // Include the order field
+            }));
 
               return {
                 ...conversation,

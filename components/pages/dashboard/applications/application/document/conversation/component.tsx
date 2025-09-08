@@ -115,14 +115,14 @@ export default function MessageInput({ applicationId, documentId, conversationId
       {currentConversationData?.messages && currentConversationData.messages.length > 0 && (
         <div className="mb-3 max-h-40 overflow-y-auto space-y-2">
           {currentConversationData.messages.map((msg) => (
-            <Alert key={msg._id} className={`flex items-start justify-between border border-gray-200 ${
-              msg.role === "user" ? "ml-8" : "mr-8"
-            }`}>
-              <AlertDescription className="whitespace-pre-wrap flex-1">
-                <div className="font-medium text-xs mb-1 opacity-70">
-                  {msg.order}. {msg.role === "user" ? "You" : "AI"}
+            <Alert key={msg._id} className="border-gray-100 bg-gray-50">
+              <AlertDescription className="text-sm">
+                <div className="font-medium text-xs text-gray-500 mb-1">
+                  {msg.role === "user" ? "You" : "AI"}
                 </div>
-                {msg.content}
+                <div className="text-gray-800 whitespace-pre-wrap">
+                  {msg.content}
+                </div>
               </AlertDescription>
             </Alert>
           ))}
@@ -130,15 +130,14 @@ export default function MessageInput({ applicationId, documentId, conversationId
         </div>
       )}
 
-
       {/* Message input */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         <Input
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder="Describe what you want to plan..."
-          className="flex-1 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700 placeholder:text-gray-400"
+          placeholder="Ask me anything..."
+          className="flex-1 border-gray-200 bg-white text-sm"
           disabled={isLoading}
         />
         <Button
@@ -146,12 +145,12 @@ export default function MessageInput({ applicationId, documentId, conversationId
           disabled={!message.trim() || isLoading}
           size="sm"
           variant="ghost"
-          className="p-2 hover:bg-gray-100 rounded-full"
+          className="p-2"
         >
           {isLoading ? (
             <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
           ) : (
-            <PaperAirplaneIcon className="w-4 h-4 text-gray-500 hover:text-gray-700" />
+            <PaperAirplaneIcon className="w-4 h-4 text-gray-500" />
           )}
         </Button>
       </div>

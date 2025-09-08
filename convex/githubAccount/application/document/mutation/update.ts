@@ -28,6 +28,34 @@ export const document = internalMutation({
       await ctx.db.patch(args.documentId, {
         nodes: []
       });
+
+      // Also clear associated conversation and messages
+      console.log(`🗑️ Clearing conversation and messages for document: ${args.documentId}`);
+
+      // Find the conversation for this document
+      const conversation = await ctx.db
+        .query("conversation")
+        .withIndex("by_document", (q) => q.eq("documentId", args.documentId))
+        .unique();
+
+      if (conversation) {
+        console.log(`🗑️ Found conversation ${conversation._id}, clearing messages...`);
+
+        // Get all messages for this conversation
+        const messages = await ctx.db
+          .query("message")
+          .withIndex("by_conversation", (q) => q.eq("conversationId", conversation._id))
+          .collect();
+
+        // Delete all messages
+        for (const message of messages) {
+          await ctx.db.delete(message._id);
+        }
+
+        console.log(`✅ Cleared ${messages.length} messages from conversation`);
+      } else {
+        console.log(`ℹ️ No conversation found for document ${args.documentId}`);
+      }
     } else if (args.nodes) {
       if (args.replace) {
         // Replace all nodes with the new ones (for import)

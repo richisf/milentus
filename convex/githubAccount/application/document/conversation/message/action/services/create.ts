@@ -19,6 +19,8 @@ export async function sendMessageToGemini<T>(
     }));
 
   try {
+    console.log("📤 Gemini Input - contents:", formattedConversation);
+
     const response = await ai.models.generateContent({
       model: "gemini-2.5-pro",
       contents: formattedConversation,
@@ -38,7 +40,6 @@ export async function sendMessageToGemini<T>(
 
     return JSON.parse(response.text) as T;
   } catch (error) {
-    console.error("Gemini API error:", error);
     throw error;
   }
 }

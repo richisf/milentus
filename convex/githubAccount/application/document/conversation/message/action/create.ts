@@ -13,6 +13,7 @@ export const message = internalAction({
       conversationId: v.id("conversation"),
       role: v.union(v.literal("user"), v.literal("assistant")),
       content: v.string(),
+      order: v.number(),
     })),
   },
   returns: v.object({
@@ -28,23 +29,23 @@ export const message = internalAction({
     error?: string;
   }> => {
     try {
-      console.log(`💬 Processing message with ${args.conversationHistory.length} messages context`);
+      
 
-      // Use provided conversation history (no query needed)
-      const conversationHistory = args.conversationHistory;
-
-      console.log(`✅ Using provided conversation data with ${conversationHistory.length} messages`);
-
-      // Format conversation for Gemini
       const geminiConversation: Array<{
         role: "user" | "assistant";
         content: string;
-      }> = conversationHistory.map((msg) => ({
-        role: msg.role,
-        content: msg.content
-      }));
-
-      console.log(`📚 Conversation history length: ${geminiConversation.length} messages`);
+      }> = [
+        // Include previous messages
+        ...args.conversationHistory.map((msg) => ({
+          role: msg.role,
+          content: msg.content
+        })),
+        // Always include current user message
+        {
+          role: "user" as const,
+          content: args.message
+        }
+      ];
 
       // Send to Gemini API
       const geminiResponse: {
@@ -57,9 +58,6 @@ export const message = internalAction({
         geminiConversation
       );
 
-      console.log(`✅ Gemini response:`, geminiResponse);
-
-      // Validate response and return messages
       if (geminiResponse && geminiResponse.response) {
         return {
           success: true,
