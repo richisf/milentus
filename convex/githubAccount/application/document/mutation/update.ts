@@ -5,13 +5,14 @@ import { Id } from "@/convex/_generated/dataModel";
 export const document = internalMutation({
   args: {
     documentId: v.id("document"),
-    nodes: v.array(v.object({
+    nodes: v.optional(v.array(v.object({
       id: v.string(),
       parentId: v.string(),
       label: v.string(),
       collapsed: v.optional(v.boolean()),
       fileId: v.optional(v.id("files"))
-    }))
+    }))),
+    delete: v.optional(v.boolean())
   },
   returns: v.id("document"),
   handler: async (ctx, args): Promise<Id<"document">> => {
@@ -21,14 +22,21 @@ export const document = internalMutation({
       throw new Error("Document not found");
     }
 
-    // Get existing nodes and combine with new ones
-    const existingNodes = existingDocument.nodes || [];
-    const combinedNodes = [...existingNodes, ...args.nodes];
+    if (args.delete) {
+      // Clear all existing nodes
+      await ctx.db.patch(args.documentId, {
+        nodes: []
+      });
+    } else if (args.nodes) {
+      // Get existing nodes and combine with new ones
+      const existingNodes = existingDocument.nodes || [];
+      const combinedNodes = [...existingNodes, ...args.nodes];
 
-    // Update the document with combined nodes
-    await ctx.db.patch(args.documentId, {
-      nodes: combinedNodes
-    });
+      // Update the document with combined nodes
+      await ctx.db.patch(args.documentId, {
+        nodes: combinedNodes
+      });
+    }
 
     return args.documentId;
   },

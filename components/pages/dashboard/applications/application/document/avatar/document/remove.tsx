@@ -8,32 +8,37 @@ import { Button } from "@/components/ui/button";
 import { TrashIcon } from "@heroicons/react/24/outline";
 
 interface RemoveComponentProps {
+  applicationId: Id<"application">;
   documentId: Id<"document">;
-  onDocumentDeleted?: (documentId: Id<"document">) => void;
+  onDocumentCleared?: (documentId: Id<"document">) => void;
 }
 
-export default function RemoveComponent({ documentId, onDocumentDeleted }: RemoveComponentProps) {
-  const [isDeleting, setIsDeleting] = useState(false);
+export default function RemoveComponent({ applicationId, documentId, onDocumentCleared }: RemoveComponentProps) {
+  const [isClearing, setIsClearing] = useState(false);
 
-  const deleteDocument = useAction(api.githubAccount.repository.document.action.delete.document);
+  const clearDocument = useAction(api.githubAccount.application.document.action.update.document);
 
   const handleDelete = async () => {
-    setIsDeleting(true);
+    setIsClearing(true);
     try {
-      const result = await deleteDocument({ documentId });
+      const result = await clearDocument({
+        documentId,
+        applicationId,
+        delete: true
+      });
 
       if (result.success) {
-        console.log("✅ Document deleted:", result.documentId);
-        onDocumentDeleted?.(documentId);
+        console.log("✅ Document content cleared:", result.documentId);
+        onDocumentCleared?.(documentId);
       } else {
-        console.error("❌ Failed to delete document:", result.error);
-        alert(`Failed to delete document: ${result.error || "Unknown error"}`);
+        console.error("❌ Failed to clear document:", result.error);
+        alert(`Failed to clear document: ${result.error || "Unknown error"}`);
       }
     } catch (error) {
-      console.error("❌ Error deleting document:", error);
-      alert("Failed to delete document. Please try again.");
+      console.error("❌ Error clearing document:", error);
+      alert("Failed to clear document. Please try again.");
     } finally {
-      setIsDeleting(false);
+      setIsClearing(false);
     }
   };
 
@@ -43,15 +48,15 @@ export default function RemoveComponent({ documentId, onDocumentDeleted }: Remov
       size="sm"
       className="w-full justify-start text-xs bg-white text-red-600 hover:text-red-700 hover:bg-red-50"
       onClick={handleDelete}
-      disabled={isDeleting}
-      title="Delete this document"
+      disabled={isClearing}
+      title="Clear this document"
     >
-      {isDeleting ? (
+      {isClearing ? (
         <div className="w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full animate-spin mr-2" />
       ) : (
         <TrashIcon className="w-4 h-4 mr-2" />
       )}
-      Delete Document
+      Clear Document
     </Button>
   );
 }

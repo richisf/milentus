@@ -9,7 +9,8 @@ export const document = action({
     applicationId: v.id("application"),
     message: v.optional(v.string()),
     path: v.optional(v.string()),
-    dependencyPath: v.optional(v.string())
+    dependencyPath: v.optional(v.string()),
+    delete: v.optional(v.boolean())
   },
   returns: v.object({
     success: v.boolean(),
@@ -41,6 +42,23 @@ export const document = action({
         label: string;
         collapsed?: boolean;
       }> = [];
+
+      if (args.delete) {
+        // Handle delete operation - clear all nodes
+        console.log(`🗑️ Clearing document content for document: ${args.documentId}`);
+
+        const updatedDocumentId = await ctx.runMutation(internal.githubAccount.application.document.mutation.update.document, {
+          documentId: args.documentId,
+          nodes: [],
+          delete: true
+        });
+
+        return {
+          success: true,
+          documentId: updatedDocumentId,
+          nodes: []
+        };
+      }
 
       if (args.message) {
 

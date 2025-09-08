@@ -174,18 +174,21 @@ export default function Document({ documentData, onBack }: CanvasComponentProps)
         )}
 
         {/* Avatar component */}
-        <AvatarComponent
-          nodesData={nodesData}
-          documentId={documentData?._id}
-          onImport={handleJsonImport}
-          onExtend={handleJsonExtend}
-          onNest={handleJsonNest}
-          onExpand={handleJsonExpand}
-          onDocumentDeleted={() => {
-            console.log("Document deleted, navigating back");
-            onBack?.();
-          }}
-        />
+        {documentData?.applicationId && (
+          <AvatarComponent
+            nodesData={nodesData}
+            documentId={documentData?._id}
+            applicationId={documentData.applicationId}
+            onImport={handleJsonImport}
+            onExtend={handleJsonExtend}
+            onNest={handleJsonNest}
+            onExpand={handleJsonExpand}
+            onDocumentCleared={() => {
+              console.log("Document cleared, navigating back");
+              onBack?.();
+            }}
+          />
+        )}
       </div>
 
       {/* Canvas content - full height with bottom padding for inputs */}
