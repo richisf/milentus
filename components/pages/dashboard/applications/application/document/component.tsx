@@ -19,8 +19,7 @@ import { useJsonImport } from "@/components/pages/dashboard/applications/applica
 import { useJsonNest } from "@/components/pages/dashboard/applications/application/document/avatar/document/view/nesting/hook";
 import { useJsonExpand } from "@/components/pages/dashboard/applications/application/document/avatar/document/view/expand/hook";
 import { useJsonExtend } from "@/components/pages/dashboard/applications/application/document/avatar/document/json/extension/hook";
-import MessageInput from "@/components/pages/dashboard/applications/application/document/update/message/component";
-import { FetchFiles } from "@/components/pages/dashboard/applications/application/document/update/files/component";  
+import MessageInput from "@/components/pages/dashboard/applications/application/document/conversation/component";  
 
 type Node = {
   id: string;
@@ -50,10 +49,11 @@ type CanvasComponentProps = {
       collapsed?: boolean;
     }>;
   } | null;
+  conversationId?: Id<"conversation">;
   onBack?: () => void;
 };
 
-export default function Document({ documentData, onBack }: CanvasComponentProps) {
+export default function Document({ documentData, conversationId, onBack }: CanvasComponentProps) {
   const [nodesData, setNodesData] = useState<NodesData>({
     nodes: [
       {
@@ -199,18 +199,12 @@ export default function Document({ documentData, onBack }: CanvasComponentProps)
       {/* Files and Message inputs at bottom */}
       {documentData && (
         <div className="absolute bottom-0 left-0 right-0 z-50">
-          {/* Files input */}
-          <div className="px-4 py-2 bg-white">
-            <FetchFiles
-              applicationId={documentData.applicationId}
-              documentId={documentData._id}
-            />
-          </div>
 
           {/* Message input */}
           <MessageInput
             applicationId={documentData.applicationId}
             documentId={documentData._id}
+            conversationId={conversationId}
             onDocumentUpdated={(updatedDocumentId, nodes) => {
               if (nodes && nodes.length > 0) {
                 setNodesData({ nodes });

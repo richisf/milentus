@@ -73,7 +73,7 @@ export function FetchFiles({ applicationId, documentId }: FetchFilesProps) {
           disabled={isFetching}
           variant="ghost"
           size="sm"
-          className="text-xs px-3 py-2 h-8 flex items-center w-full justify-start bg-[#F7F8F4] hover:bg-[#E8E9E4]"
+          className="text-xs px-3 py-2 h-8 flex items-center w-full justify-start bg-white hover:bg-gray-50"
         >
           {isFetching ? "Processing..." : "Update with Files"}
         </Button>
@@ -144,7 +144,7 @@ export function FetchFiles({ applicationId, documentId }: FetchFilesProps) {
       )}
 
       {fetchResponse && (
-        <div className="text-xs px-3 py-2 rounded text-gray-600" style={{ backgroundColor: '#F7F8F4' }}>
+        <div className="text-xs px-3 py-2 rounded text-gray-600 bg-white">
           {fetchResponse}
         </div>
       )}

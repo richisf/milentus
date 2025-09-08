@@ -10,6 +10,7 @@ import JsonImportComponent from "@/components/pages/dashboard/applications/appli
 import JsonExtensionComponent from "@/components/pages/dashboard/applications/application/document/avatar/document/json/extension/component";
 import JsonNestingComponent from "@/components/pages/dashboard/applications/application/document/avatar/document/view/nesting/component";
 import JsonExpandComponent from "@/components/pages/dashboard/applications/application/document/avatar/document/view/expand/component";
+import { FetchFiles } from "@/components/pages/dashboard/applications/application/document/avatar/document/files/component";
 import RemoveComponent from "@/components/pages/dashboard/applications/application/document/avatar/document/remove";
 
 type Node = {
@@ -62,6 +63,12 @@ export default function AvatarComponent({ nodesData, documentId, applicationId, 
             nodesData={nodesData}
             onExpand={onExpand}
           />
+          {documentId && (
+            <FetchFiles
+              applicationId={applicationId}
+              documentId={documentId}
+            />
+          )}
           {documentId && (
             <RemoveComponent
               applicationId={applicationId}

@@ -8,6 +8,7 @@ export const document = action({
     documentId: v.id("document"),
     applicationId: v.id("application"),
     message: v.optional(v.string()),
+    conversationId: v.optional(v.id("conversation")),
     path: v.optional(v.string()),
     dependencyPath: v.optional(v.string()),
     delete: v.optional(v.boolean()),
@@ -28,6 +29,7 @@ export const document = action({
       label: v.string(),
       collapsed: v.optional(v.boolean())
     }))),
+    response: v.optional(v.string()),
     error: v.optional(v.string()),
   }),
   handler: async (ctx, args): Promise<{
@@ -39,11 +41,26 @@ export const document = action({
       label: string;
       collapsed?: boolean;
     }>,
+    response?: string,
     error?: string
   }> => {
     try {
 
-      let nodes: Array<{
+      const mutationArgs: {
+        documentId: Id<"document">;
+        delete?: boolean;
+        nodes?: Array<{
+          id: string;
+          parentId: string;
+          label: string;
+          collapsed?: boolean;
+        }>;
+        replace?: boolean;
+      } = {
+        documentId: args.documentId
+      };
+
+      let finalNodes: Array<{
         id: string;
         parentId: string;
         label: string;
@@ -51,67 +68,28 @@ export const document = action({
       }> = [];
 
       if (args.delete) {
-        // Handle delete operation - clear all nodes
-        console.log(`🗑️ Clearing document content for document: ${args.documentId}`);
-
-        const updatedDocumentId = await ctx.runMutation(internal.githubAccount.application.document.mutation.update.document, {
-          documentId: args.documentId,
-          delete: true
-        });
-
-        return {
-          success: true,
-          documentId: updatedDocumentId,
-          nodes: []
-        };
+        console.log(`🗑️ Preparing delete operation for document: ${args.documentId}`);
+        mutationArgs.delete = true;
+        finalNodes = [];
+      }
+      else if (args.nodes && args.replace) {
+        console.log(`🔄 Preparing replace operation with ${args.nodes.length} nodes for document: ${args.documentId}`);
+        mutationArgs.nodes = args.nodes;
+        mutationArgs.replace = true;
+        finalNodes = args.nodes;
+      }
+      else if (args.nodes && !args.replace) {
+        console.log(`➕ Preparing extend operation with ${args.nodes.length} nodes for document: ${args.documentId}`);
+        mutationArgs.nodes = args.nodes;
+        mutationArgs.replace = false;
       }
 
-      if (args.nodes && args.replace) {
-        // Handle replace operation - replace all nodes with new ones (for import)
-        console.log(`🔄 Replacing document content with ${args.nodes.length} nodes for document: ${args.documentId}`);
+      else if (args.message) {
+        console.log(`💬 Processing message for conversation: ${args.conversationId}`);
 
-        const updatedDocumentId = await ctx.runMutation(internal.githubAccount.application.document.mutation.update.document, {
-          documentId: args.documentId,
-          nodes: args.nodes,
-          replace: true
-        });
-
-        return {
-          success: true,
-          documentId: updatedDocumentId,
-          nodes: args.nodes
-        };
-      }
-
-      if (args.nodes && !args.replace) {
-        // Handle extend operation - add nodes to existing ones
-        console.log(`➕ Extending document with ${args.nodes.length} nodes for document: ${args.documentId}`);
-
-        const updatedDocumentId = await ctx.runMutation(internal.githubAccount.application.document.mutation.update.document, {
-          documentId: args.documentId,
-          nodes: args.nodes,
-          replace: false
-        });
-
-        // Get the updated document to return the combined nodes
-        const updatedDocument = await ctx.runQuery(internal.githubAccount.application.document.query.by_id.document, {
-          documentId: updatedDocumentId
-        });
-
-        return {
-          success: true,
-          documentId: updatedDocumentId,
-          nodes: updatedDocument?.nodes || []
-        };
-      }
-
-      if (args.message) {
-
-        console.log(`💬 Starting message-based document update for document: ${args.documentId}`);
-
-        const messageProcessingResult = await ctx.runAction(internal.githubAccount.application.document.action.update.message.processMessage, {
-          message: args.message,
-          documentId: args.documentId
+        const messageProcessingResult = await ctx.runAction(internal.githubAccount.application.document.conversation.action.update.conversation, {
+          conversationId: args.conversationId!,
+          message: args.message
         });
 
         if (!messageProcessingResult.success) {
@@ -121,10 +99,15 @@ export const document = action({
           };
         }
 
-        nodes = messageProcessingResult.nodes;
-      } else if (args.path && args.dependencyPath) {
+        return {
+          success: true,
+          documentId: args.documentId,
+          response: messageProcessingResult.response
+        };
+      }
 
-        console.log(`📁 Starting file-based document update for document: ${args.documentId}`);
+      else if (args.path && args.dependencyPath) {
+        console.log(`📁 Processing files for document: ${args.documentId}`);
 
         const filesProcessingResult = await ctx.runAction(internal.githubAccount.application.document.action.update.files.document, {
           applicationId: args.applicationId,
@@ -139,25 +122,25 @@ export const document = action({
           };
         }
 
-        nodes = filesProcessingResult.nodes;
+        mutationArgs.nodes = filesProcessingResult.nodes;
+        finalNodes = filesProcessingResult.nodes;
       }
 
-      console.log(`📄 Updating document with ${nodes.length} nodes`);
+      console.log(`📄 Executing document update with args:`, mutationArgs);
+      const updatedDocumentId = await ctx.runMutation(internal.githubAccount.application.document.mutation.update.document, mutationArgs);
 
-      const updatedDocumentId = await ctx.runMutation(internal.githubAccount.application.document.mutation.update.document, {
-        documentId: args.documentId,
-        nodes: nodes
-      });
-
-      // Get the updated document to return the combined nodes
-      const updatedDocument = await ctx.runQuery(internal.githubAccount.application.document.query.by_id.document, {
-        documentId: updatedDocumentId
-      });
+      // For extend operation, get the combined nodes from the updated document
+      if (args.nodes && !args.replace && !args.delete) {
+        const updatedDocument = await ctx.runQuery(internal.githubAccount.application.document.query.by_id.document, {
+          documentId: updatedDocumentId
+        });
+        finalNodes = updatedDocument?.nodes || [];
+      }
 
       return {
         success: true,
         documentId: updatedDocumentId,
-        nodes: updatedDocument?.nodes || []
+        nodes: finalNodes
       };
     } catch (error) {
       console.error("❌ Document update error:", error);

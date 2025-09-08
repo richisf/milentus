@@ -75,6 +75,7 @@ export function Dashboard() {
                 applicationId: selectedApplication._id,
                 nodes: selectedApplication.document.nodes
               }}
+              conversationId={selectedApplication.conversation?._id}
               onBack={() => setSelectedApplicationId(null)}
             />
           ) : (

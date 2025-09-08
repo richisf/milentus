@@ -60,5 +60,17 @@ export default defineSchema({
       }))
     })
       .index("by_application", ["applicationId"]),
+
+      conversation: defineTable({
+        documentId: v.id("document"),
+      })
+        .index("by_document", ["documentId"]),
+
+      message: defineTable({
+        conversationId: v.id("conversation"),
+        role: v.union(v.literal("user"), v.literal("assistant")),
+        content: v.string(),
+      })
+        .index("by_conversation", ["conversationId"]),
           
   });

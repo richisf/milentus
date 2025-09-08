@@ -10,11 +10,13 @@ export const document = internalAction({
   returns: v.object({
     success: v.boolean(),
     documentId: v.optional(v.id("document")),
+    conversationId: v.optional(v.id("conversation")),
     error: v.optional(v.string()),
   }),
   handler: async (ctx, args): Promise<{
     success: boolean,
     documentId?: Id<"document">,
+    conversationId?: Id<"conversation">,
     error?: string
   }> => {
     try {
@@ -25,9 +27,25 @@ export const document = internalAction({
         nodes: []
       });
 
+      console.log(`📄 Document created with ID: ${documentId}`);
+
+      // Create an empty conversation for the document
+      const conversationResult = await ctx.runAction(internal.githubAccount.application.document.conversation.action.create.conversation, {
+        documentId
+      });
+
+      if (!conversationResult.success) {
+        console.error("❌ Failed to create conversation:", conversationResult.error);
+        // Don't fail the whole operation if conversation creation fails
+        console.warn("⚠️ Document created but conversation creation failed");
+      } else {
+        console.log(`💬 Conversation created with ID: ${conversationResult.conversationId}`);
+      }
+
       return {
         success: true,
-        documentId
+        documentId,
+        conversationId: conversationResult.success ? conversationResult.conversationId : undefined
       };
     } catch (error) {
       console.error("❌ Document creation error:", error);

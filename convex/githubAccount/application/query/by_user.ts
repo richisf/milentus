@@ -40,6 +40,12 @@ type RepositoryData = {
   githubUsername?: string;
 } | null;
 
+type ConversationData = {
+  _id: Id<"conversation">;
+  _creationTime: number;
+  documentId: Id<"document">;
+} | null;
+
 type ApplicationWithDetails = {
   _id: Id<"application">;
   _creationTime: number;
@@ -48,6 +54,7 @@ type ApplicationWithDetails = {
   machine: MachineData;
   document: DocumentData;
   repository: RepositoryData;
+  conversation: ConversationData;
 };
 
 export const applications = query({
@@ -101,6 +108,14 @@ export const applications = query({
       }),
       v.null()
     ),
+    conversation: v.union(
+      v.object({
+        _id: v.id("conversation"),
+        _creationTime: v.number(),
+        documentId: v.id("document"),
+      }),
+      v.null()
+    ),
   })),
   handler: async (ctx, args): Promise<ApplicationWithDetails[]> => {
     // Query all applications for the specified user using the by_user index
@@ -127,10 +142,24 @@ export const applications = query({
           applicationId: app._id,
         });
 
-        const [machine, document, repository]: [MachineData, DocumentData, RepositoryData] = await Promise.all([
+        // Fetch conversation if document exists
+        const conversationPromise: Promise<ConversationData> = (async (): Promise<ConversationData> => {
+          const doc = await documentPromise;
+          if (doc) {
+            const conversations = await ctx.runQuery(internal.githubAccount.application.document.conversation.query.by_document.by_document, {
+              documentId: doc._id,
+            });
+            // Return the first conversation (assuming one conversation per document)
+            return conversations.length > 0 ? conversations[0] : null;
+          }
+          return null;
+        })();
+
+        const [machine, document, repository, conversation]: [MachineData, DocumentData, RepositoryData, ConversationData] = await Promise.all([
           machinePromise,
           documentPromise,
           repositoryPromise,
+          conversationPromise,
         ]);
 
         return {
@@ -138,7 +167,8 @@ export const applications = query({
           machine,
           document,
           repository,
-        };
+          conversation,
+        } as ApplicationWithDetails;
       })
     );
 
