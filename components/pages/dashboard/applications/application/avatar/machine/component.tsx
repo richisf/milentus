@@ -48,7 +48,10 @@ export function MachineStatus({ applicationId, machine }: MachineStatusProps) {
       {/* Status and Control Button */}
       {machine.state === "running" && (
         <Button
-          onClick={() => handleStateChange("suspended")}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleStateChange("suspended");
+          }}
           disabled={isUpdating}
           variant="ghost"
           size="sm"
@@ -60,7 +63,10 @@ export function MachineStatus({ applicationId, machine }: MachineStatusProps) {
 
       {machine.state === "suspended" && (
         <Button
-          onClick={() => handleStateChange("running")}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleStateChange("running");
+          }}
           disabled={isUpdating}
           variant="ghost"
           size="sm"

@@ -12,7 +12,7 @@ interface Application {
   _creationTime: number;
   userId?: string;
   name: string;
-  machine?: {
+  machine: {
     _id: Id<"machine">;
     _creationTime: number;
     applicationId: Id<"application">;
@@ -23,8 +23,8 @@ interface Application {
     domain?: string;
     convexUrl?: string;
     convexProjectId?: number;
-  };
-  repository?: {
+  } | null;
+  repository: {
     _id: Id<"repository">;
     _creationTime: number;
     applicationId: Id<"application">;
@@ -32,8 +32,8 @@ interface Application {
     name: string;
     accessToken?: string;
     githubUsername?: string;
-  };
-  document?: {
+  } | null;
+  document: {
     _id: Id<"document">;
     _creationTime: number;
     applicationId: Id<"application">;
@@ -44,7 +44,7 @@ interface Application {
       collapsed?: boolean;
       fileId?: Id<"files">;
     }>;
-  };
+  } | null;
 }
 
 interface ApplicationSettingsProps {

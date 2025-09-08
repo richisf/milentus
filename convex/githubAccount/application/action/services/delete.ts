@@ -57,6 +57,23 @@ export const application = internalAction({
     success: boolean
   }> => {
     try {
+      // Handle machine cleanup first (needs repository to exist for DNS cleanup)
+      if (args.machine) {
+        console.log(`🧹 Cleaning up machine for application: ${args.applicationId}`);
+        const machineRemoveResult = await ctx.runAction(internal.githubAccount.application.machine.action.delete.machine, {
+          machine: args.machine,
+        });
+
+        if (!machineRemoveResult.success) {
+          console.error(`❌ Machine cleanup failed: ${machineRemoveResult.error}`);
+          throw new Error(`Machine cleanup failed: ${machineRemoveResult.error}`);
+        } else {
+          console.log(`✅ Machine cleanup completed`);
+        }
+      } else {
+        console.log(`ℹ️ No machine found to cleanup for application: ${args.applicationId}`);
+      }
+
       console.log(`🗑️ Removing repository for application: ${args.applicationId}`);
 
       if (!args.repository) {
@@ -73,23 +90,6 @@ export const application = internalAction({
         throw new Error(`Repository removal failed: ${repositoryRemoveResult.error}`);
       } else {
         console.log(`✅ Repository removal completed`);
-      }
-
-      // Handle machine cleanup if machine exists
-      if (args.machine) {
-        console.log(`🧹 Cleaning up machine for application: ${args.applicationId}`);
-        const machineRemoveResult = await ctx.runAction(internal.githubAccount.application.machine.action.delete.machine, {
-          machine: args.machine,
-        });
-
-        if (!machineRemoveResult.success) {
-          console.error(`❌ Machine cleanup failed: ${machineRemoveResult.error}`);
-          throw new Error(`Machine cleanup failed: ${machineRemoveResult.error}`);
-        } else {
-          console.log(`✅ Machine cleanup completed`);
-        }
-      } else {
-        console.log(`ℹ️ No machine found to cleanup for application: ${args.applicationId}`);
       }
 
       // Handle document cleanup

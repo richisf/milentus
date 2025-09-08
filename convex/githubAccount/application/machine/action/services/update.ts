@@ -108,8 +108,8 @@ export async function machine(params: OrchestrateMachineUpdateParams): Promise<s
         }
       }
 
-      console.log(`⏳ Waiting 30 seconds for VM to be fully ready after resumption...`);
-      await new Promise(resolve => setTimeout(resolve, 10000));
+      console.log(`⏳ Waiting 5 seconds for VM to be fully ready after resumption...`);
+      await new Promise(resolve => setTimeout(resolve, 5000));
 
       let sshConnected = false;
       const sshRetries = 3;

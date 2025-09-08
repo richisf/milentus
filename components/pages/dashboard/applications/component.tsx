@@ -5,7 +5,8 @@ import { Id } from "@/convex/_generated/dataModel";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import RepositoriesAvatarComponent from "@/components/pages/dashboard/avatar/component";
-import { CreateApplication } from "@/components/pages/dashboard/applications/create/component";  
+import { CreateApplication } from "@/components/pages/dashboard/applications/create/component";
+import ApplicationSettings from "@/components/pages/dashboard/applications/application/avatar/component";  
 
 interface ApplicationsViewProps {
   applications: Array<{
@@ -58,6 +59,11 @@ export default function ApplicationsView({ applications, onApplicationSelected, 
     onApplicationSelected(applicationId);
   };
 
+  const handleApplicationRemoved = () => {
+    // Refresh applications list after removal
+    // This will trigger a re-render and update the applications list
+  };
+
   if (applications === undefined) {
     return (
       <div className="flex items-center justify-center min-h-screen p-4">
@@ -108,6 +114,14 @@ export default function ApplicationsView({ applications, onApplicationSelected, 
                   className="cursor-pointer flex flex-col items-center justify-center text-center min-h-[140px] relative group border-gray-300 bg-[#F7F8F4]"
                   onClick={() => handleSelectApplication(app._id)}
                 >
+                  {/* Settings button in top-right corner */}
+                  <div className="absolute top-2 right-2 z-10">
+                    <ApplicationSettings
+                      application={app}
+                      onApplicationRemoved={handleApplicationRemoved}
+                    />
+                  </div>
+
                   <CardContent className="p-6">
                     <h3 className="text-lg font-medium">{app.name}</h3>
                   </CardContent>
