@@ -7,9 +7,12 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { PaperAirplaneIcon } from "@heroicons/react/24/outline";
 import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
-import { ConversationData } from "@/components/pages/dashboard/component";
+import { Id, Doc } from "@/convex/_generated/dataModel";
 
+// Using proper generated types from Convex
+type ConversationData = (Doc<"conversation"> & {
+  messages: Doc<"message">[];
+}) | null;
 
 type MessageInputProps = {
   applicationId: Id<"application">;

@@ -1,8 +1,7 @@
 import { v } from "convex/values";
 import { query } from "@/convex/_generated/server";
 import { internal } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
-import { ConversationData } from "@/components/pages/dashboard/component";
+import { Id, Doc } from "@/convex/_generated/dataModel";
 
 // Define types for the return structure
 type MachineData = {
@@ -41,6 +40,10 @@ type RepositoryData = {
   githubUsername?: string;
 } | null;
 
+// Using proper generated types from Convex
+type ConversationData = (Doc<"conversation"> & {
+  messages: Doc<"message">[];
+}) | null;
 
 type ApplicationWithDetails = {
   _id: Id<"application">;

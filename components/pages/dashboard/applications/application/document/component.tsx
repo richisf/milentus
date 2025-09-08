@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { Id } from "@/convex/_generated/dataModel";
+import { Id, Doc } from "@/convex/_generated/dataModel";
 import { HomeIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
 import CanvasRow from "@/components/pages/dashboard/applications/application/document/row/component";
@@ -19,8 +19,7 @@ import { useJsonImport } from "@/components/pages/dashboard/applications/applica
 import { useJsonNest } from "@/components/pages/dashboard/applications/application/document/avatar/document/view/nesting/hook";
 import { useJsonExpand } from "@/components/pages/dashboard/applications/application/document/avatar/document/view/expand/hook";
 import { useJsonExtend } from "@/components/pages/dashboard/applications/application/document/avatar/document/json/extension/hook";
-import MessageInput from "@/components/pages/dashboard/applications/application/document/conversation/component";
-import { ConversationData } from "@/components/pages/dashboard/component";  
+import MessageInput from "@/components/pages/dashboard/applications/application/document/conversation/component";  
 
 type Node = {
   id: string;
@@ -38,6 +37,10 @@ const getChildren = (nodes: Node[], parentId: string): Node[] => {
   return nodes.filter(node => node.parentId === parentId);
 };
 
+// Using proper generated types from Convex
+type ConversationData = (Doc<"conversation"> & {
+  messages: Doc<"message">[];
+}) | null;
 
 type CanvasComponentProps = {
   documentData?: {
