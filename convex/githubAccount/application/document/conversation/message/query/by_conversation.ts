@@ -13,6 +13,7 @@ export const messages = internalQuery({
     content: v.optional(v.string()), // Optional for empty messages
     jsonResponse: v.optional(v.string()),
     order: v.number(),
+    contextRestarted: v.optional(v.boolean()), // Whether this message used fresh context
   })),
   handler: async (ctx, args) => {
     return await ctx.db

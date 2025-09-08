@@ -32,15 +32,16 @@ export const document = action({
     response: v.optional(v.string()),
     conversation: v.optional(v.object({
       _id: v.id("conversation"),
-      _creationTime: v.number(),
+      _creationTime: v.float64(),
       documentId: v.id("document"),
       messages: v.array(v.object({
         _id: v.id("message"),
-        _creationTime: v.number(),
+        _creationTime: v.float64(),
         conversationId: v.id("conversation"),
         role: v.union(v.literal("user"), v.literal("assistant")),
         content: v.optional(v.string()), // Optional for empty messages
-        order: v.number(),
+        order: v.float64(),
+        contextRestarted: v.optional(v.boolean()), // Whether this message used fresh context
       })),
     })),
     error: v.optional(v.string()),
@@ -66,6 +67,7 @@ export const document = action({
         role: "user" | "assistant";
         content?: string; // Optional for empty messages
         order: number;
+        contextRestarted?: boolean; // Whether this message used fresh context
       }>;
     },
     error?: string

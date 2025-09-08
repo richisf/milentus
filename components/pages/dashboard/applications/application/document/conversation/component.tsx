@@ -20,6 +20,7 @@ type ConversationData = {
     role: "user" | "assistant";
     content?: string; // Optional for empty AI responses during transitions
     order: number;
+    contextRestarted?: boolean; // Whether this message used fresh context
   }>;
 } | null;
 

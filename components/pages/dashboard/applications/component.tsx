@@ -45,7 +45,7 @@ interface ApplicationsViewProps {
         label: string;
         collapsed?: boolean;
         fileId?: Id<"files">;
-      }>;
+      }>; 
     } | null;
   }> | undefined;
   onApplicationSelected: (applicationId: Id<"application">) => void;

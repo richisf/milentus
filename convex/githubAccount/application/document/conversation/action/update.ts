@@ -17,6 +17,7 @@ type MessageResult = {
     collapsed?: boolean;
   }>;
   stage: string;
+  restartContext?: boolean; // Whether next interaction should restart context
   error?: string;
 };
 
@@ -32,15 +33,16 @@ export const conversation = internalAction({
     messageId: v.optional(v.id("message")),
     conversation: v.optional(v.object({
       _id: v.id("conversation"),
-      _creationTime: v.number(),
+      _creationTime: v.float64(),
       documentId: v.id("document"),
       messages: v.array(v.object({
         _id: v.id("message"),
-        _creationTime: v.number(),
+        _creationTime: v.float64(),
         conversationId: v.id("conversation"),
         role: v.union(v.literal("user"), v.literal("assistant")),
         content: v.optional(v.string()), // Optional for empty messages
-        order: v.number(),
+        order: v.float64(),
+        contextRestarted: v.optional(v.boolean()),
       })),
     })),
     error: v.optional(v.string()),
@@ -60,6 +62,7 @@ export const conversation = internalAction({
         role: "user" | "assistant";
         content?: string; // Optional for empty messages
         order: number;
+        contextRestarted?: boolean;
       }>;
     };
     error?: string;
@@ -122,7 +125,7 @@ export const conversation = internalAction({
       internal.githubAccount.application.document.conversation.message.action.create.message,
       {
         message: args.message,
-        conversationHistory: conversationHistory as Array<{ _id: Id<"message">; _creationTime: number; content: string; jsonResponse?: string | undefined; conversationId: Id<"conversation">; role: "user" | "assistant"; order: number; }>, // Pass context to message action
+        conversationHistory: conversationHistory as Array<{ _id: Id<"message">; _creationTime: number; content: string; jsonResponse?: string | undefined; conversationId: Id<"conversation">; role: "user" | "assistant"; order: number; contextRestarted?: boolean; }>, // Pass context to message action
         documentId: conversation.documentId, // Pass document ID for stage determination
       }
     );
@@ -145,6 +148,7 @@ export const conversation = internalAction({
         userMessage: messageResult.userMessage,
         aiResponse: messageResult.aiResponse,
         aiJsonResponse: messageResult.aiJsonResponse, // Pass full JSON response
+        contextRestarted: messageResult.restartContext || false, // Pass whether this used fresh context
         conversation: conversation, // Pass conversation object
         existingMessages: conversationHistory, // Pass message history as-is (with jsonResponse)
       }

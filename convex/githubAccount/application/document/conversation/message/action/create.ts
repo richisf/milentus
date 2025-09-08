@@ -16,6 +16,7 @@ export const message = internalAction({
       content: v.string(),
       jsonResponse: v.optional(v.string()),
       order: v.number(),
+      contextRestarted: v.optional(v.boolean()),
     })),
     documentId: v.id("document"),
   },
@@ -32,6 +33,7 @@ export const message = internalAction({
       collapsed: v.optional(v.boolean()),
     }))),
     stage: v.string(),
+    restartContext: v.optional(v.boolean()), // Whether next interaction should restart context
     error: v.optional(v.string()),
   }),
   handler: async (ctx, args) => {
@@ -57,8 +59,27 @@ export const message = internalAction({
         { role: "user" as const, content: args.message }
       ];
 
+      // Check if we should restart context based on previous AI response
+      const lastAiMessage = args.conversationHistory
+        .slice()
+        .reverse()
+        .find(msg => msg.role === "assistant" && msg.jsonResponse);
+      
+      let shouldRestartContext = false;
+      if (lastAiMessage?.jsonResponse) {
+        try {
+          const lastAiData = JSON.parse(lastAiMessage.jsonResponse);
+          shouldRestartContext = lastAiData.restartContext === true;
+          if (shouldRestartContext) {
+            console.log("🔄 Previous AI requested context restart - using fresh context");
+          }
+        } catch {
+          console.log("⚠️ Could not parse last AI response for restart context check");
+        }
+      }
+
       // Generate AI response first to check for automatic stage transitions
-      const geminiResponse = await sendMessageToGemini(currentStage, geminiConversation, document?.nodes);
+      const geminiResponse = await sendMessageToGemini(currentStage, geminiConversation, document?.nodes, shouldRestartContext);
       console.log(`🤖 Gemini response for stage ${currentStage}:`, JSON.stringify(geminiResponse, null, 2));
 
       // Check if AI indicates we should proceed to next stage (automatic transition)
@@ -90,17 +111,43 @@ export const message = internalAction({
         ];
 
         // Generate response for the next stage (this is what the user will see)
-        const nextStageResponse = await sendMessageToGemini(nextStage, updatedConversation, document?.nodes);
+        // Auto-restart context when transitioning from features to details
+        const shouldAutoRestart = geminiResponse.shouldProceedToDetails === true;
+        if (shouldAutoRestart) {
+          console.log("🔄 Auto-restarting context for features→details transition");
+        }
+
+        // For auto-restart, use only the current user message to start fresh
+        const conversationForNextStage = shouldAutoRestart
+          ? [{ role: "user" as const, content: args.message }]
+          : updatedConversation;
+
+        const nextStageResponse = await sendMessageToGemini(nextStage, conversationForNextStage, document?.nodes, shouldAutoRestart);
         console.log(`🤖 Next stage Gemini response for stage ${nextStage}:`, JSON.stringify(nextStageResponse, null, 2));
 
         // Process and return ONLY the next stage response
-        const finalResult = processStageResponse(nextStage, nextStageResponse, args.message);
+        // For features→details transition, always restart context
+        const restartContextOverride = shouldAutoRestart ? true : undefined;
+        const finalResult = processStageResponse(nextStage, nextStageResponse, args.message, restartContextOverride);
+
+        // Include restartContext in the JSON response for the next message to detect
+        if (shouldAutoRestart && finalResult.aiJsonResponse) {
+          try {
+            const jsonResponse = JSON.parse(finalResult.aiJsonResponse);
+            jsonResponse.restartContext = true;
+            finalResult.aiJsonResponse = JSON.stringify(jsonResponse);
+            console.log("🔄 Setting restartContext flag for next user interaction");
+          } catch {
+            console.log("⚠️ Could not modify JSON response to include restartContext");
+          }
+        }
+
         console.log(`📋 Final processed result (user will see this):`, JSON.stringify(finalResult, null, 2));
         return finalResult;
       }
 
       // Process and return response for normal messages (no auto-transition)
-      const result = processStageResponse(currentStage, geminiResponse, args.message);
+      const result = processStageResponse(currentStage, geminiResponse, args.message, false);
       return result;
 
     } catch (error) {

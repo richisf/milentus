@@ -76,11 +76,15 @@ export const FunctionalityDetailSchema = {
   properties: {
     response: {
       type: SchemaType.STRING,
-      description: "Your response that PROPOSES the detailed data model and structure. Focus on database entities, their relationships, and user operations rather than UI features. Use the established hierarchy patterns. Leave empty ('') when hasChanges is true."
+      description: "Your response that continues the conversation. When hasChanges is true, provide a response that acknowledges what was added and suggests what to explore next. When hasChanges is false, have a normal conversation about the application details."
     },
     hasChanges: {
       type: SchemaType.BOOLEAN,
       description: "Whether you want to add new nodes to extend the existing structure. Set to true when you have new details to add."
+    },
+    restartContext: {
+      type: SchemaType.BOOLEAN,
+      description: "Whether to restart the conversation context for the next interaction. Set to true when the user is switching to a new topic or feature. This will provide the AI with the complete current nodes structure and only the user's current message, skipping the full conversation history for a fresh focused approach."
     },
     newNodes: {
       type: SchemaType.ARRAY,
@@ -109,6 +113,6 @@ export const FunctionalityDetailSchema = {
       }
     }
   },
-  required: ["hasChanges"],
+  required: ["hasChanges", "restartContext"],
   additionalProperties: false
 } as const;

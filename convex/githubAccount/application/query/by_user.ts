@@ -51,6 +51,7 @@ type ConversationData = {
     role: "user" | "assistant";
     content?: string; // Optional for empty messages
     order: number;
+    contextRestarted?: boolean; // Whether this message used fresh context
   }>;
 } | null;
 
@@ -119,15 +120,16 @@ export const applications = query({
     conversation: v.union(
       v.object({
         _id: v.id("conversation"),
-        _creationTime: v.number(),
+        _creationTime: v.float64(),
         documentId: v.id("document"),
         messages: v.array(v.object({
           _id: v.id("message"),
-          _creationTime: v.number(),
+          _creationTime: v.float64(),
           conversationId: v.id("conversation"),
           role: v.union(v.literal("user"), v.literal("assistant")),
           content: v.optional(v.string()), // Optional for empty messages
-          order: v.number(),
+          order: v.float64(),
+          contextRestarted: v.optional(v.boolean()), // Whether this message used fresh context
         })),
       }),
       v.null()
@@ -179,6 +181,7 @@ export const applications = query({
               role: msg.role,
               content: msg.content,
               order: msg.order, // Include the order field
+              contextRestarted: msg.contextRestarted, // Include context restart flag
             }));
 
               return {

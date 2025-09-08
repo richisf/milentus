@@ -7,6 +7,7 @@ export const message = internalMutation({
     role: v.union(v.literal("user"), v.literal("assistant")),
     content: v.optional(v.string()), // Optional for empty AI responses
     jsonResponse: v.optional(v.string()), // Full JSON response from AI
+    contextRestarted: v.optional(v.boolean()), // Whether this message used fresh context
   },
   returns: v.id("message"),
   handler: async (ctx, args) => {
@@ -24,6 +25,7 @@ export const message = internalMutation({
       content: args.content,
       jsonResponse: args.jsonResponse,
       order: nextOrder,
+      contextRestarted: args.contextRestarted,
     });
   },
 });

@@ -72,6 +72,7 @@ export default defineSchema({
         content: v.optional(v.string()), // Optional for empty AI responses during transitions
         jsonResponse: v.optional(v.string()), // Full JSON response from AI (for stage detection)
         order: v.number(), // Sequential order within conversation (1, 2, 3, ...)
+        contextRestarted: v.optional(v.boolean()), // Whether this message used fresh context (skipped conversation history)
       })
         .index("by_conversation", ["conversationId"])
         .index("by_conversation_order", ["conversationId", "order"]),

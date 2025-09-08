@@ -9,6 +9,7 @@ export const conversation = internalMutation({
     userMessage: v.string(),
     aiResponse: v.optional(v.string()), // Optional for empty AI responses
     aiJsonResponse: v.optional(v.string()), // Full JSON response from AI
+    contextRestarted: v.optional(v.boolean()), // Whether this message used fresh context
     conversation: v.object({
       _id: v.id("conversation"),
       _creationTime: v.number(),
@@ -22,6 +23,7 @@ export const conversation = internalMutation({
       content: v.optional(v.string()), // Optional for empty messages
       jsonResponse: v.optional(v.string()),
       order: v.number(),
+      contextRestarted: v.optional(v.boolean()),
     })),
   },
   returns: v.object({
@@ -30,15 +32,16 @@ export const conversation = internalMutation({
     aiMessageId: v.optional(v.id("message")), // Optional when no AI response
     conversation: v.object({
       _id: v.id("conversation"),
-      _creationTime: v.number(),
+      _creationTime: v.float64(),
       documentId: v.id("document"),
       messages: v.array(v.object({
         _id: v.id("message"),
-        _creationTime: v.number(),
+        _creationTime: v.float64(),
         conversationId: v.id("conversation"),
         role: v.union(v.literal("user"), v.literal("assistant")),
         content: v.optional(v.string()), // Optional for empty messages
-        order: v.number(),
+        order: v.float64(),
+        contextRestarted: v.optional(v.boolean()),
       })),
     }),
   }),
@@ -57,6 +60,7 @@ export const conversation = internalMutation({
         role: "user" | "assistant";
         content?: string; // Optional for empty messages
         order: number;
+        contextRestarted?: boolean; // Whether this message used fresh context
       }>;
     };
   }> => {
@@ -85,7 +89,8 @@ export const conversation = internalMutation({
           conversationId: args.conversationId,
           role: "assistant",
           content: args.aiResponse,
-          jsonResponse: args.aiJsonResponse
+          jsonResponse: args.aiJsonResponse,
+          contextRestarted: args.contextRestarted
         }
       );
     }
@@ -106,6 +111,7 @@ export const conversation = internalMutation({
       role: msg.role,
       content: msg.content,
       order: msg.order,
+      contextRestarted: msg.contextRestarted,
     });
 
     // Build messages array, only including AI message if it exists
