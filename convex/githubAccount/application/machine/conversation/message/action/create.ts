@@ -4,6 +4,7 @@ import { action } from "@/convex/_generated/server";
 import { v } from "convex/values";
 import { internal } from "@/convex/_generated/api";
 import { claude } from "@/convex/githubAccount/application/machine/conversation/message/action/services/create";
+import { handleGitPush, GitPushResult } from "@/convex/githubAccount/application/machine/conversation/message/action/services/github";
 
 export const message = action({
   args: {
@@ -47,16 +48,13 @@ export const message = action({
         throw new Error("No machine found for this application");
       }
 
-      // Use the machine
-      const machineDetails = machine;
-
-      console.log(`🤖 Running Claude Code on machine: ${machineDetails.name}`);
+      console.log(`🤖 Running Claude Code on machine: ${machine.name}`);
 
       // Construct HTTPS URL using the machine's domain
-      const httpsUrl = machineDetails.domain ? `https://${machineDetails.domain}` : undefined;
+      const httpsUrl = machine.domain ? `https://${machine.domain}` : undefined;
       console.log(`🔗 Using HTTPS URL for HMR: ${httpsUrl || 'domain not yet assigned'}`);
 
-      const result = await claude(machineDetails, args.message, httpsUrl, repository.name);
+      const result = await claude(machine, args.message, httpsUrl, repository.name);
 
       console.log(`✅ Claude Code command executed successfully`);
 
@@ -68,10 +66,22 @@ export const message = action({
         console.log(`⚠️ Claude returned error/warning: ${result.error}`);
       }
 
+      // Handle git operations if Claude had any output (successful or not)
+      let gitError: string | undefined;
+      if (result.output) {
+        console.log(`🔄 Starting git push operations...`);
+        const gitPushResult: GitPushResult = await handleGitPush(machine, repository.name);
+        gitError = gitPushResult.error;
+      }
+
+      // Return result - success if no Claude error occurred
+      const hasClaudeError = !!result.error;
+      const combinedError = [result.error, gitError].filter(Boolean).join('; ') || undefined;
+
       return {
-        success: true,
+        success: !hasClaudeError,
         output: result.output,
-        error: result.error,
+        error: combinedError,
       };
     } catch (error) {
       console.error("❌ Claude Code execution failed:", error);

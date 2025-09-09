@@ -5,13 +5,7 @@ import { api } from "@/convex/_generated/api";
 import { useState } from "react";
 import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
-
-type Node = {
-  id: string;
-  parentId: string;
-  label: string;
-  collapsed?: boolean;
-};
+import { buildNumberedStructure, Node } from "./hierarchy/helper";
 
 type NodesData = {
   nodes: Node[];
@@ -22,13 +16,6 @@ interface ClaudeComponentProps {
   documentId?: Id<"document">;
   nodesData: NodesData;
 }
-
-// Helper function to calculate node depth
-const getDepth = (nodes: Node[], nodeId: string, depth = 0): number => {
-  const node = nodes.find(n => n.id === nodeId);
-  if (!node || node.parentId === "") return depth;
-  return getDepth(nodes, node.parentId, depth + 1);
-};
 
 export function ClaudeComponent({ applicationId, nodesData }: ClaudeComponentProps) {
   const sendClaudeAction = useAction(api.githubAccount.application.machine.conversation.message.action.create.message); 
@@ -46,27 +33,10 @@ export function ClaudeComponent({ applicationId, nodesData }: ClaudeComponentPro
     setResponse(null);
 
     try {
-      // Create simplified instruction message with readable node structure
-      const simplifiedNodes = nodesData.nodes.map(node => {
-        const indent = '  '.repeat(getDepth(nodesData.nodes, node.id));
-        return `${indent}${node.label}`;
-      }).join('\n');
+      // Create instruction message with numbered hierarchical structure
+      const numberedStructure = buildNumberedStructure(nodesData.nodes);
 
-      const instructionMessage = `Build a complete application with these features:
-
-${simplifiedNodes}
-
-Requirements:
-1. Generate ALL missing backend code (mutations, queries, actions)
-2. Generate corresponding frontend components and pages
-3. Create proper TypeScript interfaces and types
-4. Implement form handling and validation
-5. Add proper error handling and loading states
-6. Follow existing project patterns and conventions
-7. Create reusable UI components where appropriate
-8. Ensure proper data flow between frontend and backend
-
-Focus on complete, production-ready implementation with both backend and frontend.`;
+      const instructionMessage = `Application Features: ${numberedStructure}. Create the schema and the folders with the endpoints at @/convex, then the components at @/components, then the pages at @/pages`;
 
       const result = await sendClaudeAction({
         applicationId: applicationId,

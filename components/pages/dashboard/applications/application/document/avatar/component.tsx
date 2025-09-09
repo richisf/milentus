@@ -12,7 +12,6 @@ import JsonNestingComponent from "@/components/pages/dashboard/applications/appl
 import JsonExpandComponent from "@/components/pages/dashboard/applications/application/document/avatar/document/view/expand/component";
 import { FetchFiles } from "@/components/pages/dashboard/applications/application/document/avatar/document/files/component";
 import { ClaudeComponent } from "@/components/pages/dashboard/applications/application/document/avatar/document/claude/component";
-import { GitHubComponent } from "@/components/pages/dashboard/applications/application/document/avatar/document/github/component";
 import RemoveComponent from "@/components/pages/dashboard/applications/application/document/avatar/document/remove";
 
 type Node = {
@@ -75,9 +74,6 @@ export default function AvatarComponent({ nodesData, documentId, applicationId, 
             applicationId={applicationId}
             documentId={documentId}
             nodesData={nodesData}
-          />
-          <GitHubComponent
-            applicationId={applicationId}
           />
           {documentId && (
             <RemoveComponent
