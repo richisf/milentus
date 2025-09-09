@@ -36,6 +36,7 @@ export interface VMCreateResult {
     httpsUrl?: string;
     convexUrl?: string;
     convexProjectId?: number;
+    convexDeployKey?: string;
   };
   error?: string;
 }
@@ -60,6 +61,11 @@ export interface MachineState {
   ip?: string;
   convexUrl?: string;
   convexProjectId?: number;
+  convexDeployKey?: string;
+  convexDeploymentIdentifier?: string;
+  convexDevUrl?: string;
+  jwtPrivateKey?: string;
+  jwks?: string;
 }
 
 const ZONES = [
