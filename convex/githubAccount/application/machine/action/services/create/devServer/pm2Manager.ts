@@ -1,6 +1,6 @@
 "use node";
 
-import { MachineState } from "@/convex/githubAccount/application/machine/action/services/create";
+import { SSHConnection } from "@/convex/githubAccount/application/machine/action/services/create";
 
 export interface PM2Config {
   repoPath: string;
@@ -13,20 +13,20 @@ export interface PM2Config {
   jwks?: string;
 }
 
-export async function setupPM2Process(machineState: MachineState, config: PM2Config): Promise<void> {
+export async function setupPM2Process(sshConnection: SSHConnection, config: PM2Config): Promise<void> {
   const { repoPath, port, domain, convexUrl, convexDeployment, convexDeployKey, jwtPrivateKey, jwks } = config;
   const escapedRepoPath = repoPath.replace(/'/g, "\\'");
 
   // Stop existing servers
   console.log('🔄 Stopping any existing dev servers...');
-  await machineState.ssh.execCommand(
+  await sshConnection.ssh.execCommand(
     `cd '${escapedRepoPath}' && pm2 delete next-dev-server convex-dev-server || true`
   );
-  await machineState.ssh.execCommand(`sudo fuser -k ${port}/tcp || true`);
+  await sshConnection.ssh.execCommand(`sudo fuser -k ${port}/tcp || true`);
 
   // Fix file permissions
   console.log('🔧 Fixing file permissions...');
-  await machineState.ssh.execCommand(
+  await sshConnection.ssh.execCommand(
     `cd '${escapedRepoPath}' && chmod -R 755 .`
   );
 
@@ -43,7 +43,7 @@ export async function setupPM2Process(machineState: MachineState, config: PM2Con
           HOST: "0.0.0.0",
           NODE_ENV: "development",
           NODE_OPTIONS: "--max-old-space-size=3072",
-          NEXT_PUBLIC_CONVEX_URL: "http://localhost:3210", // Connect to local Convex dev server
+          NEXT_PUBLIC_CONVEX_URL: convexUrl || "http://localhost:3210", // Use production Convex URL or fallback to local dev server
           WATCHPACK_POLLING: "true",
           CHOKIDAR_USEPOLLING: "true",
           CHOKIDAR_INTERVAL: "10",
@@ -139,12 +139,12 @@ export async function setupPM2Process(machineState: MachineState, config: PM2Con
   const configJson = JSON.stringify(pm2Config, null, 2);
   const configBase64 = Buffer.from(configJson).toString('base64');
 
-  await machineState.ssh.execCommand(
+  await sshConnection.ssh.execCommand(
     `cd '${escapedRepoPath}' && echo '${configBase64}' | base64 -d > ecosystem.config.json`
   );
 
   // Start PM2 process
-  const startResult = await machineState.ssh.execCommand(
+  const startResult = await sshConnection.ssh.execCommand(
     `cd '${escapedRepoPath}' && pm2 start ecosystem.config.json`
   );
   console.log('PM2 start result:', startResult.stdout);
@@ -153,7 +153,7 @@ export async function setupPM2Process(machineState: MachineState, config: PM2Con
   console.log('🔍 Waiting for Next.js and Convex dev servers to start...');
   await new Promise(resolve => setTimeout(resolve, 15000)); // Give more time for both servers
 
-  const statusResult = await machineState.ssh.execCommand(`cd '${escapedRepoPath}' && pm2 status`);
+  const statusResult = await sshConnection.ssh.execCommand(`cd '${escapedRepoPath}' && pm2 status`);
   console.log('PM2 status:', statusResult.stdout);
 
   // Check if both processes are running

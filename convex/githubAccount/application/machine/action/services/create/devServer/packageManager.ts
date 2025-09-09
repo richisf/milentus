@@ -1,9 +1,9 @@
 "use node";
 
-import { MachineState } from "@/convex/githubAccount/application/machine/action/services/create"; 
+import { SSHConnection } from "@/convex/githubAccount/application/machine/action/services/create";
 
 export async function setupDevStableScript(
-  machineState: MachineState,
+  sshConnection: SSHConnection,
   repoPath: string,
   port: number
 ): Promise<void> {
@@ -31,7 +31,7 @@ export async function setupDevStableScript(
 
   const escapedRepoPath = repoPath.replace(/'/g, "\\'");
 
-  const scriptResult = await machineState.ssh.execCommand(
+  const scriptResult = await sshConnection.ssh.execCommand(
     `cd '${escapedRepoPath}' && node -e "${setupScript.replace(/"/g, '\\"')}"`
   );
 

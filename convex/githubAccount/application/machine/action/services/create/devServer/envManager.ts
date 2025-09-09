@@ -1,9 +1,9 @@
 "use node";
 
-import { MachineState } from "@/convex/githubAccount/application/machine/action/services/create"; 
+import { SSHConnection } from "@/convex/githubAccount/application/machine/action/services/create"; 
 
 export async function setEnvironmentVariable(
-  machineState: MachineState,
+  sshConnection: SSHConnection,
   repoPath: string,
   key: string,
   value: string
@@ -15,7 +15,7 @@ export async function setEnvironmentVariable(
 
   // Use a more robust approach - read, modify, and write back .env.local
   console.log('🔧 Reading current .env.local content...');
-  const readResult = await machineState.ssh.execCommand(
+  const readResult = await sshConnection.ssh.execCommand(
     `cd '${escapedRepoPath}' && cat .env.local 2>/dev/null || echo ""`
   );
 
@@ -39,7 +39,7 @@ export async function setEnvironmentVariable(
   // Write back using base64 to avoid shell escaping issues
   const newContent = updatedLines.join('\n') + '\n';
   const contentBase64 = Buffer.from(newContent).toString('base64');
-  await machineState.ssh.execCommand(
+  await sshConnection.ssh.execCommand(
     `cd '${escapedRepoPath}' && echo '${contentBase64}' | base64 -d > .env.local`
   );
 

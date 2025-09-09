@@ -2,7 +2,35 @@
 
 import { InstancesClient, ZoneOperationsClient } from '@google-cloud/compute';
 import { NodeSSH } from 'node-ssh';
-import { GoogleCredentials, MachineState } from '@/convex/githubAccount/application/machine/action/services/create';
+import { GoogleCredentials } from '@/convex/githubAccount/application/machine/action/services/create';
+
+// Local interfaces for machine creation
+interface VMCreateState {
+  machineName: string;
+  projectId: string;
+  zone: string;
+  credentials: GoogleCredentials;
+  instancesClient: InstancesClient;
+  operationsClient: ZoneOperationsClient;
+  ssh: NodeSSH;
+  sshUser: string;
+  sshPrivateKeyContent: string;
+  sshKeyPassphrase?: string;
+}
+
+interface MachineState {
+  machineName: string;
+  projectId: string;
+  zone: string;
+  ip: string;
+  sshUser: string;
+  sshPrivateKeyContent: string;
+  sshKeyPassphrase?: string;
+  credentials: GoogleCredentials;
+  instancesClient: InstancesClient;
+  operationsClient: ZoneOperationsClient;
+  ssh: NodeSSH;
+}
 
 export async function create(name: string, zone: string, credentials: GoogleCredentials): Promise<MachineState> {
   const gcpProjectId = credentials.project_id;
@@ -18,7 +46,7 @@ export async function create(name: string, zone: string, credentials: GoogleCred
   const instancesClient = new InstancesClient(clientOptions);
   const operationsClient = new ZoneOperationsClient(clientOptions);
 
-  const machineState: MachineState = {
+  const vmCreateState: VMCreateState = {
     machineName: name,
     projectId: gcpProjectId,
     zone: zone,
@@ -27,9 +55,8 @@ export async function create(name: string, zone: string, credentials: GoogleCred
     operationsClient,
     ssh: new NodeSSH(),
     sshUser: 'ubuntu',
-    sshPrivateKeyContent: process.env.GCP_SSH_PRIVATE_KEY,
+    sshPrivateKeyContent: process.env.GCP_SSH_PRIVATE_KEY!,
     sshKeyPassphrase: process.env.GCP_SSH_KEY_PASSPHRASE,
-    ip: undefined,
   };
 
   // SSH Configuration
@@ -67,7 +94,7 @@ export async function create(name: string, zone: string, credentials: GoogleCred
       items: [
         {
           key: 'ssh-keys',
-          value: `${machineState.sshUser}:${sshPublicKeyContent}`,
+          value: `${vmCreateState.sshUser}:${sshPublicKeyContent}`,
         },
       ],
     },
@@ -117,10 +144,21 @@ export async function create(name: string, zone: string, credentials: GoogleCred
     throw new Error('Failed to get external IP from GCP');
   }
 
-  return {
-    ...machineState,
+  const machineState: MachineState = {
+    machineName: vmCreateState.machineName,
+    projectId: vmCreateState.projectId,
+    zone: vmCreateState.zone,
     ip: externalIp,
+    sshUser: vmCreateState.sshUser,
+    sshPrivateKeyContent: vmCreateState.sshPrivateKeyContent,
+    sshKeyPassphrase: vmCreateState.sshKeyPassphrase,
+    credentials: vmCreateState.credentials,
+    instancesClient: vmCreateState.instancesClient,
+    operationsClient: vmCreateState.operationsClient,
+    ssh: vmCreateState.ssh,
   };
+
+  return machineState;
 }
 
 

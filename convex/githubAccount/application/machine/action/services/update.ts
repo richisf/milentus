@@ -3,11 +3,10 @@
 import { controlVMInstance } from "@/convex/githubAccount/application/machine/action/services/update/machine";
 import { suspendDevServer } from "@/convex/githubAccount/application/machine/action/services/update/suspend";
 import { resumeDevServer } from "@/convex/githubAccount/application/machine/action/services/update/resume";
-import { MachineState } from "@/convex/githubAccount/application/machine/action/services/create";
+import { SSHConnection, GoogleCredentials } from "@/convex/githubAccount/application/machine/action/services/create";
 import { setupWhiteNodeDNS } from "@/convex/githubAccount/application/machine/action/services/create/dns";
 import { cleanupDNSRecord } from "@/convex/githubAccount/application/machine/action/services/delete/dns";
 import { NodeSSH } from 'node-ssh';
-import { InstancesClient, ZoneOperationsClient } from '@google-cloud/compute';
 
 export interface OrchestrateMachineUpdateParams {
   machineId: string;
@@ -33,9 +32,12 @@ export async function machine(params: OrchestrateMachineUpdateParams): Promise<s
       throw new Error('GOOGLE_APPLICATION_CREDENTIALS environment variable not found');
     }
     const decodedCredentials = Buffer.from(encodedCredentials, 'base64').toString();
-    const credentials: { project_id: string; client_email: string; private_key: string } = JSON.parse(decodedCredentials);
+    const credentials: GoogleCredentials = JSON.parse(decodedCredentials);
 
     const sshPrivateKey = process.env.GCP_SSH_PRIVATE_KEY;
+    if (!sshPrivateKey) {
+      throw new Error('GCP_SSH_PRIVATE_KEY environment variable not found');
+    }
 
     const vmConfig = {
       vmName: currentMachine.name,
@@ -44,19 +46,17 @@ export async function machine(params: OrchestrateMachineUpdateParams): Promise<s
       credentials,
     };
 
-    const machineState = {
-      machineName: currentMachine.name,
-      projectId: credentials.project_id,
-      zone: currentMachine.zone,
-      credentials,
-      instancesClient: {} as InstancesClient, // Not needed for SSH operations
-      operationsClient: {} as ZoneOperationsClient, // Not needed for SSH operations
+    // Create SSH connection info
+    const sshConnection: SSHConnection = {
       ssh: new NodeSSH(),
       sshUser: 'ubuntu',
-      sshPrivateKeyContent: sshPrivateKey,
-      sshKeyPassphrase: process.env.GCP_SSH_KEY_PASSPHRASE,
-      ip: currentMachine.ipAddress,
-    } as MachineState;
+      ip: currentMachine.ipAddress || '',
+    };
+
+    const sshCredentials = {
+      privateKey: sshPrivateKey,
+      passphrase: process.env.GCP_SSH_KEY_PASSPHRASE,
+    };
 
     const repoPath = repoName ? `/home/ubuntu/${repoName}` : `/home/ubuntu/${machineId}`;
 
@@ -64,17 +64,17 @@ export async function machine(params: OrchestrateMachineUpdateParams): Promise<s
 
     if (newState === "suspended") {
 
-        console.log(`🔗 Establishing SSH connection to ${machineState.ip} for suspension...`);
+        console.log(`🔗 Establishing SSH connection to ${sshConnection.ip} for suspension...`);
       try {
-        await machineState.ssh.connect({
-          host: machineState.ip!,
-          username: machineState.sshUser,
-          privateKey: machineState.sshPrivateKeyContent,
-          passphrase: machineState.sshKeyPassphrase,
+        await sshConnection.ssh.connect({
+          host: sshConnection.ip,
+          username: sshConnection.sshUser,
+          privateKey: sshCredentials.privateKey,
+          passphrase: sshCredentials.passphrase,
           readyTimeout: 20000,
         });
         try {
-          await suspendDevServer({ machineState, repoPath });
+          await suspendDevServer(sshConnection, repoPath);
         } catch (devServerError) {
           console.log("⚠️ Dev server suspension failed, continuing with VM suspension:", devServerError);
         }
@@ -92,7 +92,7 @@ export async function machine(params: OrchestrateMachineUpdateParams): Promise<s
         console.log(`🌐 IP address changed: ${currentMachine.ipAddress} → ${resumeResult.ipAddress}`);
         newIpAddress = resumeResult.ipAddress;
 
-        machineState.ip = resumeResult.ipAddress;
+        sshConnection.ip = resumeResult.ipAddress;
 
         if (repoName) {
           console.log("🔄 Updating DNS records for new IP address...");
@@ -117,11 +117,11 @@ export async function machine(params: OrchestrateMachineUpdateParams): Promise<s
       for (let attempt = 1; attempt <= sshRetries; attempt++) {
         try {
           console.log(`🔗 SSH connection attempt ${attempt}/${sshRetries}...`);
-          await machineState.ssh.connect({
-            host: machineState.ip!,
-            username: machineState.sshUser,
-            privateKey: machineState.sshPrivateKeyContent,
-            passphrase: machineState.sshKeyPassphrase,
+          await sshConnection.ssh.connect({
+            host: sshConnection.ip,
+            username: sshConnection.sshUser,
+            privateKey: sshCredentials.privateKey,
+            passphrase: sshCredentials.passphrase,
             readyTimeout: 20000,
           });
           console.log(`✅ SSH connection established for post-resume operations`);
@@ -138,7 +138,7 @@ export async function machine(params: OrchestrateMachineUpdateParams): Promise<s
 
       if (sshConnected) {
         try {
-          await machineState.ssh.execCommand(`sudo nginx -s reload || true`);
+          await sshConnection.ssh.execCommand(`sudo nginx -s reload || true`);
           console.log("🔄 Nginx configuration reloaded");
         } catch (nginxError) {
           console.log("⚠️ Nginx reload failed:", nginxError);
@@ -153,7 +153,7 @@ export async function machine(params: OrchestrateMachineUpdateParams): Promise<s
         await new Promise(resolve => setTimeout(resolve, 3000));
 
         try {
-          await resumeDevServer({ machineState, repoPath });
+          await resumeDevServer(sshConnection, repoPath);
         } catch (devServerError) {
           console.log("⚠️ Dev server resumption failed:", devServerError);
         }

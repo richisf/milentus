@@ -1,14 +1,8 @@
 "use node";
 
-import { MachineState } from '@/convex/githubAccount/application/machine/action/services/create';
+import { SSHConnection } from '@/convex/githubAccount/application/machine/action/services/create';
 
-export interface MachineUpdateConfig {
-  machineState: MachineState;
-  repoPath: string;
-}
-
-export async function suspendDevServer(config: MachineUpdateConfig): Promise<void> {
-  const { machineState, repoPath } = config;
+export async function suspendDevServer(sshConnection: SSHConnection, repoPath: string): Promise<void> {
   const escapedRepoPath = repoPath.replace(/'/g, "\\'");
 
   console.log('🛑 Suspending dev server...');
@@ -16,7 +10,7 @@ export async function suspendDevServer(config: MachineUpdateConfig): Promise<voi
   try {
     // Stop the PM2 process
     console.log('🔄 Stopping PM2 dev-server process...');
-    const stopResult = await machineState.ssh.execCommand(
+    const stopResult = await sshConnection.ssh.execCommand(
       `cd '${escapedRepoPath}' && pm2 stop dev-server || pm2 delete dev-server || true`
     );
 
@@ -27,7 +21,7 @@ export async function suspendDevServer(config: MachineUpdateConfig): Promise<voi
     }
 
     // Verify the process is stopped
-    const statusResult = await machineState.ssh.execCommand(
+    const statusResult = await sshConnection.ssh.execCommand(
       `cd '${escapedRepoPath}' && pm2 status dev-server || echo "Process not found"`
     );
 

@@ -1,12 +1,12 @@
 "use node";
 
-import { MachineState } from "@/convex/githubAccount/application/machine/action/services/create";
+import { SSHConnection } from "@/convex/githubAccount/application/machine/action/services/create";
 
-export async function configureNginxSite(machineState: MachineState, domain: string, certPath: string, port: number): Promise<void> {
+export async function configureNginxSite(sshConnection: SSHConnection, domain: string, certPath: string, port: number): Promise<void> {
   // Clean up any existing nginx configurations for this domain
   console.log(`🗳️ Cleaning up any existing nginx configurations for ${domain}...`);
-  await machineState.ssh.execCommand(`sudo rm -f /etc/nginx/sites-enabled/${domain} || true`);
-  await machineState.ssh.execCommand(`sudo rm -f /etc/nginx/sites-available/${domain} || true`);
+  await sshConnection.ssh.execCommand(`sudo rm -f /etc/nginx/sites-enabled/${domain} || true`);
+  await sshConnection.ssh.execCommand(`sudo rm -f /etc/nginx/sites-available/${domain} || true`);
 
   // Create HTTPS configuration
   const httpsConfig = `
@@ -108,15 +108,15 @@ server {
 
   // Write the configuration using base64 to avoid shell escaping issues
   const configBase64 = Buffer.from(httpsConfig).toString('base64');
-  await machineState.ssh.execCommand(
+  await sshConnection.ssh.execCommand(
     `echo '${configBase64}' | base64 -d | sudo tee /etc/nginx/sites-available/${domain}`
   );
 
   // Enable the site
-  await machineState.ssh.execCommand(
+  await sshConnection.ssh.execCommand(
     `sudo ln -sf /etc/nginx/sites-available/${domain} /etc/nginx/sites-enabled/`
   );
 
   // Remove default site if it exists
-  await machineState.ssh.execCommand(`sudo rm -f /etc/nginx/sites-enabled/default`);
+  await sshConnection.ssh.execCommand(`sudo rm -f /etc/nginx/sites-enabled/default`);
 }

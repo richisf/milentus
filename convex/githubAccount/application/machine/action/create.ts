@@ -3,7 +3,6 @@
 import { internalAction } from "@/convex/_generated/server";
 import { v } from "convex/values";
 import { internal } from "@/convex/_generated/api";
-import { machine as createMachine } from "@/convex/githubAccount/application/machine/action/services/create"
 
 export const machine = internalAction({
   args: {
@@ -28,45 +27,33 @@ export const machine = internalAction({
   }> => {
 
     try {
-      const result = await createMachine(args.repository);
 
-      if (result.success) {
+      // Generate machine name once to avoid timing issues
+      const machineName = `${args.repository.name}-vm-${Date.now()}`;
 
-        if (result.devServer?.convexUrl && result.devServer?.convexProjectId) {
-          const machineId = await ctx.runMutation(internal.githubAccount.application.machine.mutation.create.machine, {
-            applicationId: args.applicationId,
-            name: result.name!,
-            zone: result.zone!,
-            ipAddress: result.ip!,
-            domain: result.domain!,
-            convexUrl: result.devServer!.convexUrl,
-            convexProjectId: result.devServer!.convexProjectId,
-            state: "running",
-          });
+      const machineId = await ctx.runMutation(internal.githubAccount.application.machine.mutation.create.machine, {
+        applicationId: args.applicationId,
+        name: machineName,
+        zone: "",
+        state: "pending",
+      });
 
-          console.log(`✅ Machine created: ${machineId}`);
-          return { success: true };
-        } else {
-          console.error(`❌ Invalid machine data - missing required fields`);
-          return {
-            success: false,
-            error: "Machine creation returned invalid data",
-          };
-        }
-      } else {
-        console.error(`❌ VM creation failed: ${result.error}`);
-        return {
-          success: false,
-          error: result.error || "VM creation failed",
-        };
-      }
+      console.log(`📝 Machine record created with ID: ${machineId}, status: pending`);
+
+      await ctx.scheduler.runAfter(0, internal.githubAccount.application.machine.action.services.create.phase1, {
+        machineId,
+        repository: args.repository,
+      });
+
+      console.log(`🚀 Phase 1 scheduled for machine: ${machineId}`);
+
+      return { success: true };
+
     } catch (error) {
-
-      console.error("❌ Machine creation error:", error);
-
+      console.error("❌ Machine creation setup error:", error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Failed to create machine",
+        error: error instanceof Error ? error.message : "Failed to setup machine creation",
       };
     }
   },

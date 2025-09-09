@@ -76,10 +76,12 @@ import type * as githubAccount_application_machine_conversation_message_action_c
 import type * as githubAccount_application_machine_conversation_message_action_services_create from "../githubAccount/application/machine/conversation/message/action/services/create.js";
 import type * as githubAccount_application_machine_conversation_message_action_services_github from "../githubAccount/application/machine/conversation/message/action/services/github.js";
 import type * as githubAccount_application_machine_conversation_message_action_services_system from "../githubAccount/application/machine/conversation/message/action/services/system.js";
+import type * as githubAccount_application_machine_mutation_batch from "../githubAccount/application/machine/mutation/batch.js";
 import type * as githubAccount_application_machine_mutation_create from "../githubAccount/application/machine/mutation/create.js";
 import type * as githubAccount_application_machine_mutation_delete from "../githubAccount/application/machine/mutation/delete.js";
 import type * as githubAccount_application_machine_mutation_update from "../githubAccount/application/machine/mutation/update.js";
 import type * as githubAccount_application_machine_query_by_application from "../githubAccount/application/machine/query/by_application.js";
+import type * as githubAccount_application_machine_query_by_id from "../githubAccount/application/machine/query/by_id.js";
 import type * as githubAccount_application_mutation_create from "../githubAccount/application/mutation/create.js";
 import type * as githubAccount_application_mutation_delete from "../githubAccount/application/mutation/delete.js";
 import type * as githubAccount_application_query_by_id from "../githubAccount/application/query/by_id.js";
@@ -179,10 +181,12 @@ declare const fullApi: ApiFromModules<{
   "githubAccount/application/machine/conversation/message/action/services/create": typeof githubAccount_application_machine_conversation_message_action_services_create;
   "githubAccount/application/machine/conversation/message/action/services/github": typeof githubAccount_application_machine_conversation_message_action_services_github;
   "githubAccount/application/machine/conversation/message/action/services/system": typeof githubAccount_application_machine_conversation_message_action_services_system;
+  "githubAccount/application/machine/mutation/batch": typeof githubAccount_application_machine_mutation_batch;
   "githubAccount/application/machine/mutation/create": typeof githubAccount_application_machine_mutation_create;
   "githubAccount/application/machine/mutation/delete": typeof githubAccount_application_machine_mutation_delete;
   "githubAccount/application/machine/mutation/update": typeof githubAccount_application_machine_mutation_update;
   "githubAccount/application/machine/query/by_application": typeof githubAccount_application_machine_query_by_application;
+  "githubAccount/application/machine/query/by_id": typeof githubAccount_application_machine_query_by_id;
   "githubAccount/application/mutation/create": typeof githubAccount_application_mutation_create;
   "githubAccount/application/mutation/delete": typeof githubAccount_application_mutation_delete;
   "githubAccount/application/query/by_id": typeof githubAccount_application_query_by_id;

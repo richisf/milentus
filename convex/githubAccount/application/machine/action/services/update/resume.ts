@@ -1,21 +1,15 @@
 "use node";
 
-import { MachineState } from '@/convex/githubAccount/application/machine/action/services/create';
+import { SSHConnection } from '@/convex/githubAccount/application/machine/action/services/create';
 
-export interface MachineUpdateConfig {
-  machineState: MachineState;
-  repoPath: string;
-}
-
-export async function resumeDevServer(config: MachineUpdateConfig): Promise<void> {
-  const { machineState, repoPath } = config;
+export async function resumeDevServer(sshConnection: SSHConnection, repoPath: string): Promise<void> {
   const escapedRepoPath = repoPath.replace(/'/g, "\\'");
 
   console.log('▶️ Resuming dev server...');
 
   try {
     // Check if ecosystem config exists
-    const configCheck = await machineState.ssh.execCommand(
+    const configCheck = await sshConnection.ssh.execCommand(
       `cd '${escapedRepoPath}' && ls -la ecosystem.config.json || echo "Config not found"`
     );
 
@@ -25,13 +19,13 @@ export async function resumeDevServer(config: MachineUpdateConfig): Promise<void
 
     // Try to restart first, then start if restart fails
     console.log('🔄 Attempting to restart dev server...');
-    const restartResult = await machineState.ssh.execCommand(
+    const restartResult = await sshConnection.ssh.execCommand(
       `cd '${escapedRepoPath}' && pm2 restart dev-server || echo "Restart failed"`
     );
 
     if (restartResult.stdout.includes('Restart failed') || restartResult.code !== 0) {
       console.log('🔄 Restart failed, attempting to start dev server...');
-      const startResult = await machineState.ssh.execCommand(
+      const startResult = await sshConnection.ssh.execCommand(
         `cd '${escapedRepoPath}' && pm2 start ecosystem.config.json`
       );
 
@@ -45,7 +39,7 @@ export async function resumeDevServer(config: MachineUpdateConfig): Promise<void
     await new Promise(resolve => setTimeout(resolve, 5000));
 
     // Verify the process is running
-    const statusResult = await machineState.ssh.execCommand(
+    const statusResult = await sshConnection.ssh.execCommand(
       `cd '${escapedRepoPath}' && pm2 status dev-server`
     );
 

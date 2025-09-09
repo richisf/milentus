@@ -1,9 +1,9 @@
 "use node";
 
-import { MachineState } from "@/convex/githubAccount/application/machine/action/services/create";
+import { SSHConnection } from "@/convex/githubAccount/application/machine/action/services/create";
 
 export async function setupConvexProject(
-  machineState: MachineState,
+  sshConnection: SSHConnection,
   username: string,
   repoName: string,
   repoPath: string
@@ -81,7 +81,7 @@ export async function setupConvexProject(
     const escapedRepoPath = repoPath.replace(/'/g, "\\'");
     const initCommand = `cd '${escapedRepoPath}' && CONVEX_DEPLOY_KEY="${deployKey}" npx convex dev --once`;
 
-    const initResult = await machineState.ssh.execCommand(initCommand);
+    const initResult = await sshConnection.ssh.execCommand(initCommand);
 
     if (initResult.code === 0) {
       console.log('✅ Convex project initialized locally');
