@@ -322,14 +322,16 @@ export const phase2 = internalAction({
 
         // Setup SSL (optional)
         try {
+          const sslConfig = {
+            domain: args.setupResult.domain,
+            repoDir: args.repository.name
+          };
+
           const sslResult = await setupSSL({
             ssh,
             sshUser: args.setupResult.sshUser,
             ip: args.setupResult.ip
-          }, {
-            domain: args.setupResult.domain,
-            repoDir: args.repository.name
-          });
+          }, sslConfig);
           if (sslResult.certPath) {
             console.log(`🔒 SSL certificate configured for ${sslResult.domain}`);
             if (devServerResult) {

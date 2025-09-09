@@ -20,16 +20,35 @@ export async function setupSSL(
   const email = "admin@dokimint.com";
   const port = 3000;
 
+  // Check DNS resolution
+  console.log('🌐 Checking DNS resolution...');
+  const dnsCheck = await sshConnection.ssh.execCommand(`nslookup ${config.domain}`);
+  if (dnsCheck.code !== 0) {
+    throw new Error(`DNS resolution failed for ${config.domain}`);
+  }
+
   console.log('📦 Installing certbot and nginx...');
   await sshConnection.ssh.execCommand('sudo apt update && sudo apt install -y certbot nginx');
   console.log('✅ SSL tools installed');
 
+  // Wait for domain DNS propagation
+  console.log('⏳ Waiting for DNS propagation (10 seconds)...');
+  await new Promise(resolve => setTimeout(resolve, 10000));
+
+  // Stop nginx to free port 80 for certbot
   await sshConnection.ssh.execCommand(`sudo systemctl stop nginx || true`);
 
-  const certResult = await sshConnection.ssh.execCommand(
-    `sudo certbot certonly --standalone -d ${config.domain} --non-interactive --agree-tos --email ${email}`
-  );
+  // Run certbot to obtain SSL certificate
+  console.log(`🔐 Obtaining SSL certificate for ${config.domain}...`);
+  const certbotCommand = `sudo certbot certonly --standalone -d ${config.domain} --non-interactive --agree-tos --email ${email}`;
+  const certResult = await sshConnection.ssh.execCommand(certbotCommand);
 
+  if (certResult.code !== 0) {
+    console.log(`❌ Certbot failed: ${certResult.stderr}`);
+    throw new Error(`Failed to obtain SSL certificate for ${config.domain}`);
+  }
+
+  // Start nginx
   await sshConnection.ssh.execCommand(`sudo systemctl start nginx || true`);
 
   if (certResult.code === 0) {

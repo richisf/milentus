@@ -47,12 +47,11 @@ export async function setupWhiteNodeDNS(repoName: string, ipAddress: string, cre
   });
 
   // Create a change to add the record
-  const change = await zone.createChange({
+  await zone.createChange({
     add: [record]
   });
 
   console.log(`✅ DNS record created: ${subdomain} → ${ipAddress}`);
-  console.log(`📝 Change ID: ${change[0].id}`);
 
   return subdomain; // Return: "my-repo.dokimint.com"
 }
