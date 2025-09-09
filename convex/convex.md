@@ -1,150 +1,175 @@
-# Convex Folder Structure
+# Convex Schema-Driven Architecture
 
-## Core Principle
-**Schema-Driven Architecture**: Folder structure mirrors database schema relationships and nesting.
+## Core Algorithm
+**Foreign Key Relationships → Folder Nesting**: Database schema dictates folder structure through dependency analysis.
 
-## Creation Algorithm
+## Schema Analysis Algorithm
 
-### 1. Schema Analysis
-For each table in `schema.ts`:
-- Create folder: `convex/{tableName}/`
-- If table has foreign key relationships, nest related tables inside parent table folder
-- Example: `repository` table → `convex/githubAccount/repository/`
+### Step 1: Parse Schema Dependencies
+```typescript
+FOR EACH table IN schema.ts:
+  dependencies = findForeignKeyReferences(table)
 
-### 2. Base Table Structure
-For every table folder:
-```
-CREATE: convex/{tableName}/
-├── query.ts                    # Read operations (internalQuery)
-├── mutations/
-│   ├── create.ts              # Create operations (internalMutation)
-│   ├── update.ts              # Update operations (mutation)
-│   └── remove.ts              # Delete operations (mutation)
+  IF dependencies.length === 0:
+    CREATE: convex/{tableName}/          # Top-level table
+  ELSE:
+    parentTable = findPrimaryParent(dependencies)
+    CREATE: convex/{parentTable}/{tableName}/  # Nested table
 ```
 
-### 3. Actions Branching Logic
-For mutations/actions/:
-```
-IF action NEEDS external API calls:
-  CREATE: mutations/actions/{actionName}.ts
-
-IF action HAS branching logic BASED ON database fields:
-  CREATE: mutations/actions/{actionName}/
-  ├── {branchCondition}.ts     # e.g., default.ts, nonDefault.ts
-
-IF action NEEDS service functions:
-  CREATE: mutations/actions/services/
-  ├── {serviceName}.ts         # Pure service functions
+### Step 2: Base Structure Creation
+```typescript
+FOR EACH tableFolder:
+  CREATE base structure:
+  ├── query/                    # Read operations (internalQuery)
+  │   └── {queryType}.ts        # e.g., by_id.ts, by_parent.ts
+  └── mutation/                 # Write operations
+      ├── create.ts             # internalMutation
+      ├── update.ts             # mutation
+      └── delete.ts             # mutation
 ```
 
-## Schema Foundation
-- **Schema Definition**: All tables defined in `schema.ts`
-- **Auth Integration**: Basic auth table with `auth.ts` in `/convex/`
-- **Table Relationships**: Tables can be independent or nested based on foreign key relationships
-- **Foreign Key = Nesting**: Related tables nest inside parent folders
+### Step 3: Actions Branching Logic
+```typescript
+IF operation NEEDS external APIs:
+  CREATE: action/{operationName}.ts
 
-## Folder Structure Pattern
+IF operation HAS conditional logic:
+  CREATE: action/{operationName}/
+  ├── {condition1}.ts           # e.g., default.ts, custom.ts
+  └── services/                 # Shared utilities
+      └── {condition1}.ts
 
-### 1. Parent Table Structure
+IF operation NEEDS service decomposition:
+  CREATE: action/services/
+  ├── {serviceName}.ts          # Pure business logic
+  └── {serviceName}/            # Complex service branching
+      └── {subService}.ts
+```
+
+## Schema-to-Folder Mapping Examples
+
+### Database Schema:
+```typescript
+ParentTable: { /* no foreign keys */ }
+
+ChildTable: {
+  parentId: v.id("ParentTable")
+}
+
+GrandchildTable: {
+  childId: v.id("ChildTable")
+}
+```
+
+### Generated Folder Structure:
 ```
 convex/
-├── githubAccount/          # Parent table (no dependencies)
+├── ParentTable/               # Top-level (no dependencies)
 │   ├── query/
-│   │   └── by_user.ts      # Read operations (named by query field)
+│   │   └── by_id.ts
 │   ├── mutation/
-│   │   ├── create.ts       # Database create operations
-│   │   ├── remove.ts       # Database delete operations
-│   │   └── update.ts       # Database update operations
-│   └── action/
-│       ├── create.ts       # API entry point (orchestrator)
+│   │   ├── create.ts
+│   │   ├── update.ts
+│   │   └── delete.ts
+│   └── action/                 # If external APIs needed
+│       ├── create.ts
 │       └── services/
-│           ├── create.ts   # Main service orchestrator
-│           └── create/     # Individual operations
-│               ├── exchange.ts
-│               └── fetch.ts
+└── ParentTable/
+    └── ChildTable/            # Nested (depends on ParentTable)
+        ├── query/
+        │   └── by_parent.ts
+        ├── mutation/
+        │   ├── create.ts
+        │   ├── update.ts
+        │   └── delete.ts
+        └── ParentTable/
+            └── ChildTable/
+                └── GrandchildTable/  # Deep nesting
 ```
 
-### 2. Nested Table Structure
-Tables with foreign key dependencies nest inside their parent:
+## Pattern Recognition Rules
 
+### 1. **Top-Level Tables** (No Dependencies)
 ```
 convex/
-└── githubAccount/
-    └── repository/         # Depends on githubAccount
-        ├── query/
-        ├── mutation/
-        ├── action/
-        │   ├── create.ts   # Entry point
-        │   ├── create/     # Branched business logic
-        │   │   ├── default.ts      # Default repository creation
-        │   │   ├── nonDefault.ts   # User repository creation
-        │   │   └── services/
-        │   │       └── nonDefault.ts
-        │   ├── remove.ts
-        │   └── services/
-        │       └── remove.ts
-        ├── document/       # Depends on repository
-        └── machine/        # Depends on repository
+├── User/
+├── Organization/
+└── Product/
 ```
 
-### 3. Business Logic Branching
-When actions have different business logic paths, create subfolders:
+### 2. **Nested Tables** (Foreign Key Dependencies)
+```
+convex/
+├── User/
+│   ├── Project/              # project.userId → User._id
+│   └── Organization/
+│       └── Team/             # team.organizationId → Organization._id
+└── Product/
+    └── Review/               # review.productId → Product._id
+```
 
+### 3. **Complex Branching** (Business Logic Paths)
 ```
 action/
-├── create.ts               # Main entry point
-└── create/                 # Branched logic folder
-    ├── default.ts          # Path 1: Default creation
-    ├── nonDefault.ts       # Path 2: Custom creation
-    └── services/           # Services for branched logic
-        └── nonDefault.ts
+├── create.ts                 # Entry point
+└── create/                   # Branching logic
+    ├── standard.ts           # Standard creation path
+    ├── premium.ts            # Premium creation path
+    └── services/             # Shared services
+        ├── validation.ts
+        ├── notification.ts
+        └── billing.ts
 ```
 
-### 4. Complex Operations
-For operations with multiple orchestration paths:
-
+### 4. **Service Decomposition** (External API Calls)
 ```
 action/
-├── update.ts               # Entry point
-└── update/                 # Branched operations
-    ├── files.ts            # File-based updates
-    ├── message.ts          # Message-based updates
-    └── services/           # Shared services
-        ├── response.ts     # Common response handler
-        ├── files/          # File-specific services
-        └── message/        # Message-specific services
+├── update.ts
+└── update/
+    ├── profile.ts            # Profile update logic
+    ├── settings.ts           # Settings update logic
+    └── services/
+        ├── email/
+        │   ├── sendWelcome.ts
+        │   └── sendNotification.ts
+        ├── payment/
+        │   ├── processCharge.ts
+        │   └── refundPayment.ts
+        └── file/
+            └── uploadAvatar.ts
 ```
 
-## File Creation Checklist
+## Implementation Checklist
 
-### When Adding New Table:
-1. **Define table in schema.ts**
-2. **Determine nesting**: Parent table folder or top-level?
-3. **Create base structure**: query.ts + mutations/ folder
-4. **Add CRUD operations**: create.ts, update.ts, remove.ts
-5. **Plan external APIs**: Do you need actions/ folder?
-6. **Identify branching**: Any conditional logic based on fields?
-7. **Design services**: Pure functions for external calls?
+### Adding New Table:
+1. **Define schema** in `schema.ts`
+2. **Analyze dependencies** → Find foreign key relationships
+3. **Determine nesting level** → Top-level or nested?
+4. **Create folder structure** → `convex/{parentTable}/{tableName}/`
+5. **Add base operations** → query/, mutation/
+6. **Plan complex operations** → Need action/ folder?
+7. **Identify branching** → Conditional business logic?
 
-### When Adding New Feature:
-1. **Database branching?** → Create subfolder in actions/
-2. **External API calls?** → Add to actions/services/
-3. **Pure business logic?** → Add to mutations/ root
-4. **Read operations?** → Add to query.ts
+### Adding New Feature:
+1. **Pure database operation?** → Add to `mutation/`
+2. **External API calls?** → Add to `action/services/`
+3. **Complex branching logic?** → Create subfolder in `action/`
+4. **Read operation?** → Add to `query/`
 
-## Key Patterns
+## Key Principles
 
-1. **CRUD Operations**: Every table has `query/` (Read) and `mutation/` (Create, Update, Delete)
-2. **API Entry Points**: Actions serve as public API endpoints
-3. **Service Orchestration**: Services handle business logic and external API calls
-4. **Business Logic Branching**: Different logic paths get separate action files
-5. **Nesting by Dependency**: Child tables nest inside parent table folders
-6. **Naming Convention**: Files named by primary operation or query field
+1. **Schema-Driven**: Folder structure mirrors database relationships
+2. **Dependency Nesting**: Child tables nest inside parent folders
+3. **CRUD Foundation**: Every table has read/write operations
+4. **Action Branching**: Complex logic gets dedicated folders
+5. **Service Separation**: External APIs isolated in services/
+6. **Naming Convention**: Files named by operation type or query field
 
-## File Responsibilities
+## File Type Responsibilities
 
-- **Queries**: Database read operations (`by_user.ts`, `by_id.ts`)
-- **Mutations**: Database write operations (`create.ts`, `update.ts`, `remove.ts`)
-- **Actions**: API endpoints and business logic orchestration
-- **Services**: External API calls and complex business logic
-- **Branched Actions**: Different business logic paths for the same operation
+- **Queries** (`query/`): Database read operations
+- **Mutations** (`mutation/`): Database write operations
+- **Actions** (`action/`): Public API endpoints + orchestration
+- **Services** (`action/services/`): External API calls + complex logic
+- **Branched Actions**: Different business logic paths
