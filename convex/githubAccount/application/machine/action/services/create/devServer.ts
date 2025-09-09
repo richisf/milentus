@@ -1,11 +1,10 @@
 "use node";
 
 import { MachineState } from "@/convex/githubAccount/application/machine/action/services/create";
-import { createConvexProject } from "@/convex/githubAccount/application/machine/action/services/create/devServer/convexProject";
+import { setupConvexProject } from "@/convex/githubAccount/application/machine/action/services/create/devServer/convexProject";
 import { setupDevStableScript } from "@/convex/githubAccount/application/machine/action/services/create/devServer/packageManager";
 import { ensureNextConfig } from "@/convex/githubAccount/application/machine/action/services/create/devServer/nextjsConfig";
 import { setupPM2Process } from "@/convex/githubAccount/application/machine/action/services/create/devServer/pm2Manager";
-import { setEnvironmentVariable } from "@/convex/githubAccount/application/machine/action/services/create/devServer/envManager";
 import { setupConvexAuth } from "@/convex/githubAccount/application/machine/action/services/create/devServer/convexAuth";
 
 export async function startDevServer(
@@ -14,44 +13,57 @@ export async function startDevServer(
   domain: string,
   username?: string,
   repoName?: string
-): Promise<{ httpUrl: string; httpsUrl?: string; convexUrl?: string; convexProjectId?: number }> {
+): Promise<{ httpUrl: string; httpsUrl?: string; convexUrl?: string; convexDevUrl?: string; convexProjectId?: number; convexDeployKey?: string; convexDeploymentIdentifier?: string }> {
   console.log('🚀 Starting dev server with PM2...');
 
   const port = 3000;
   // HTTPS is always set up by default, so we always configure for HTTPS
   const httpsUrl = domain ? `https://${domain}` : undefined;
 
-  // Step 1: Handle Convex project creation
+  // Step 1: Setup complete Convex project (creation, deploy key, initialization)
   let convexUrl: string | undefined;
+  let convexDevUrl: string | undefined;
   let convexProjectId: number | undefined;
+  let convexDeployKey: string | undefined;
+  let convexDeploymentIdentifier: string | undefined;
   if (username && repoName) {
-    const convexResult = await createConvexProject(username, repoName);
+    const convexResult = await setupConvexProject(machineState, username, repoName, repoPath);
     convexUrl = convexResult.convexUrl;
+    convexDevUrl = convexResult.convexDevUrl;
     convexProjectId = convexResult.projectId;
+    convexDeployKey = convexResult.deployKey;
+    convexDeploymentIdentifier = convexResult.deploymentIdentifier;
 
     // Store in machineState for later use
     machineState.convexUrl = convexUrl;
+    machineState.convexDevUrl = convexDevUrl;
     machineState.convexProjectId = convexProjectId;
+    if (convexDeployKey) {
+      machineState.convexDeployKey = convexDeployKey;
+      console.log('🔑 Deploy key stored in machine state');
+    }
   }
 
-  // Step 2: Configure project files
+  // Step 2: Setup Convex authentication (only if we have a Convex project)
+  if (convexUrl) {
+    await setupConvexAuth(machineState, repoPath, convexDeployKey);
+  }
+
+  // Step 5: Configure project files
   await setupDevStableScript(machineState, repoPath, port);
   await ensureNextConfig(machineState, repoPath);
 
-  // Step 3: Setup and start PM2
-  await setupPM2Process(machineState, { repoPath, port, domain });
-
-  // Step 4: Configure environment variables
-  if (convexUrl) {
-    await setEnvironmentVariable(machineState, repoPath, 'NEXT_PUBLIC_CONVEX_URL', convexUrl);
-  } else {
-    console.log('⚠️ No convexUrl available, skipping environment variable setup');
-  }
-
-  // Step 5: Setup Convex authentication (only if we have a Convex project)
-  if (convexUrl) {
-    await setupConvexAuth(machineState, repoPath, convexUrl);
-  }
+  // Step 6: Setup and start PM2 (both Next.js and Convex dev servers)
+  await setupPM2Process(machineState, {
+    repoPath,
+    port,
+    domain,
+    convexUrl,
+    convexDeployment: convexDeploymentIdentifier,
+    convexDeployKey,
+    jwtPrivateKey: machineState.jwtPrivateKey,
+    jwks: machineState.jwks
+  });
 
   const httpUrl = `http://${machineState.ip}:${port}`;
 
@@ -62,5 +74,5 @@ export async function startDevServer(
     console.log(`📊 Convex URL: ${convexUrl}`);
   }
 
-  return { httpUrl, httpsUrl, convexUrl, convexProjectId };
+  return { httpUrl, httpsUrl, convexUrl, convexDevUrl, convexProjectId, convexDeployKey, convexDeploymentIdentifier };
 }
