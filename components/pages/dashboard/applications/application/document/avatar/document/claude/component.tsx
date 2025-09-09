@@ -36,7 +36,7 @@ export function ClaudeComponent({ applicationId, nodesData }: ClaudeComponentPro
       // Create instruction message with numbered hierarchical structure
       const numberedStructure = buildNumberedStructure(nodesData.nodes);
 
-      const instructionMessage = `Application Features: ${numberedStructure}. Create the schema and the folders with the endpoints at @/convex, then the components at @/components, then the pages at @/pages`;
+      const instructionMessage = `Application Features: ${numberedStructure}. Create the schema and the folders with the endpoints at @/convex, then the components at @/components, then the pages at @/pages to display the component`;
 
       const result = await sendClaudeAction({
         applicationId: applicationId,
