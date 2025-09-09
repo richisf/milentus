@@ -49,6 +49,7 @@ import type * as githubAccount_application_document_query_by_application from ".
 import type * as githubAccount_application_document_query_by_id from "../githubAccount/application/document/query/by_id.js";
 import type * as githubAccount_application_machine_action_create from "../githubAccount/application/machine/action/create.js";
 import type * as githubAccount_application_machine_action_delete from "../githubAccount/application/machine/action/delete.js";
+import type * as githubAccount_application_machine_action_services_create_devServer_convexAuth from "../githubAccount/application/machine/action/services/create/devServer/convexAuth.js";
 import type * as githubAccount_application_machine_action_services_create_devServer_convexProject from "../githubAccount/application/machine/action/services/create/devServer/convexProject.js";
 import type * as githubAccount_application_machine_action_services_create_devServer_envManager from "../githubAccount/application/machine/action/services/create/devServer/envManager.js";
 import type * as githubAccount_application_machine_action_services_create_devServer_nextjsConfig from "../githubAccount/application/machine/action/services/create/devServer/nextjsConfig.js";
@@ -151,6 +152,7 @@ declare const fullApi: ApiFromModules<{
   "githubAccount/application/document/query/by_id": typeof githubAccount_application_document_query_by_id;
   "githubAccount/application/machine/action/create": typeof githubAccount_application_machine_action_create;
   "githubAccount/application/machine/action/delete": typeof githubAccount_application_machine_action_delete;
+  "githubAccount/application/machine/action/services/create/devServer/convexAuth": typeof githubAccount_application_machine_action_services_create_devServer_convexAuth;
   "githubAccount/application/machine/action/services/create/devServer/convexProject": typeof githubAccount_application_machine_action_services_create_devServer_convexProject;
   "githubAccount/application/machine/action/services/create/devServer/envManager": typeof githubAccount_application_machine_action_services_create_devServer_envManager;
   "githubAccount/application/machine/action/services/create/devServer/nextjsConfig": typeof githubAccount_application_machine_action_services_create_devServer_nextjsConfig;

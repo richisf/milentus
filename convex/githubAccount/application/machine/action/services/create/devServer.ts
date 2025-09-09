@@ -6,6 +6,7 @@ import { setupDevStableScript } from "@/convex/githubAccount/application/machine
 import { ensureNextConfig } from "@/convex/githubAccount/application/machine/action/services/create/devServer/nextjsConfig";
 import { setupPM2Process } from "@/convex/githubAccount/application/machine/action/services/create/devServer/pm2Manager";
 import { setEnvironmentVariable } from "@/convex/githubAccount/application/machine/action/services/create/devServer/envManager";
+import { setupConvexAuth } from "@/convex/githubAccount/application/machine/action/services/create/devServer/convexAuth";
 
 export async function startDevServer(
   machineState: MachineState,
@@ -45,6 +46,11 @@ export async function startDevServer(
     await setEnvironmentVariable(machineState, repoPath, 'NEXT_PUBLIC_CONVEX_URL', convexUrl);
   } else {
     console.log('⚠️ No convexUrl available, skipping environment variable setup');
+  }
+
+  // Step 5: Setup Convex authentication (only if we have a Convex project)
+  if (convexUrl) {
+    await setupConvexAuth(machineState, repoPath, convexUrl);
   }
 
   const httpUrl = `http://${machineState.ip}:${port}`;
