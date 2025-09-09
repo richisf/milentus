@@ -31,6 +31,7 @@ export const application = internalAction({
         domain: v.optional(v.string()),
         convexUrl: v.optional(v.string()),
         convexProjectId: v.optional(v.number()),
+        deployKey: v.optional(v.string()),
       }),
       v.null()
     ),

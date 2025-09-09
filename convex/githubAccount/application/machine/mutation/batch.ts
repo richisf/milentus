@@ -11,6 +11,7 @@ export const machine = internalMutation({
       domain: v.optional(v.string()),
       convexUrl: v.optional(v.string()),
       convexProjectId: v.optional(v.number()),
+      deployKey: v.optional(v.string()), // Add deployKey field to match schema
     }),
   },
   returns: v.null(),

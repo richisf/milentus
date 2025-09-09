@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Cog6ToothIcon } from "@heroicons/react/24/outline";
 import { RemoveApplication } from "@/components/pages/dashboard/applications/application/avatar/remove/component";
-import { MachineStatus } from "@/components/pages/dashboard/applications/application/avatar/machine/component";  
+import { MachineStatus } from "@/components/pages/dashboard/applications/application/avatar/machine/component";
 import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 
@@ -109,7 +109,6 @@ export default function ApplicationSettings({ application, onApplicationRemoved 
           </div>
         </div>
       )}
-
 
     </div>
   );

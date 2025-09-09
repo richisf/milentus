@@ -351,6 +351,7 @@ export const phase2 = internalAction({
           state: "running",
           convexUrl: devServerResult?.convexUrl,
           convexProjectId: devServerResult?.convexProjectId,
+          deployKey: devServerResult?.convexDeployKey, // Store the deploy key in the machine record
         },
       });
 

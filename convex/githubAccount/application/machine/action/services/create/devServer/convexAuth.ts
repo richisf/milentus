@@ -9,8 +9,8 @@ export async function setupConvexAuth(sshConnection: SSHConnection, repoPath: st
   const siteUrl = `http://localhost:3000`; // Local development server
 
   try {
-    // Step 1: Generate JWT keys
-    console.log('🔑 Generating JWT keys...');
+    // Step 1: Generate private key and JWKS
+    console.log('🔑 Generating private key and JWKS...');
     const keyGenScript = `
       const { exportJWK, exportPKCS8, generateKeyPair } = require('jose');
       (async () => {
@@ -51,7 +51,7 @@ export async function setupConvexAuth(sshConnection: SSHConnection, repoPath: st
     // Decode the base64 private key
     const jwtPrivateKey = Buffer.from(jwtPrivateKeyBase64, 'base64').toString('utf8');
 
-    console.log('✅ JWT keys generated successfully');
+    console.log('✅ Private key and JWKS generated successfully');
 
 
     // Step 2: Set environment variables in Convex
@@ -65,15 +65,15 @@ export async function setupConvexAuth(sshConnection: SSHConnection, repoPath: st
       `cd '${escapedRepoPath}' && ${deployKeyCmd}npx convex env set SITE_URL ${siteUrl}`
     );
 
-    // For JWT keys, we need to handle them carefully due to length and special characters
-    // First, write them to temporary files and then set them
+    // For private key, we need to handle it carefully due to length and special characters
+    // First, write it to temporary file and then set it
     const jwtPrivateKeyFile = `/tmp/jwt_private_key_${Date.now()}.txt`;
     const jwksFile = `/tmp/jwks_${Date.now()}.txt`;
 
-    // Write JWT keys to temporary files using base64 encoding for safe transfer
-    console.log('🔧 Writing JWT private key to temporary file...');
+    // Write private key and JWKS to temporary files using safe methods
+    console.log('🔧 Writing private key to temporary file...');
     const writePrivateKeyResult = await sshConnection.ssh.execCommand(
-      `cd '${escapedRepoPath}' && echo "${jwtPrivateKeyBase64}" | base64 -d > ${jwtPrivateKeyFile}`
+      `cd '${escapedRepoPath}' && printf '%s' "${jwtPrivateKeyBase64}" | base64 -d > ${jwtPrivateKeyFile}`
     );
 
     if (writePrivateKeyResult.code !== 0) {
@@ -83,7 +83,7 @@ export async function setupConvexAuth(sshConnection: SSHConnection, repoPath: st
 
     console.log('🔧 Writing JWKS to temporary file...');
     const writeJwksResult = await sshConnection.ssh.execCommand(
-      `cd '${escapedRepoPath}' && echo "${jwks.replace(/"/g, '\\"')}" > ${jwksFile}`
+      `cd '${escapedRepoPath}' && printf '%s' "${jwks.replace(/"/g, '\\"')}" > ${jwksFile}`
     );
 
     if (writeJwksResult.code !== 0) {
@@ -98,62 +98,68 @@ export async function setupConvexAuth(sshConnection: SSHConnection, repoPath: st
     );
     console.log('📄 Private key file verification:', verifyPrivateKey.stdout);
 
-    // Set JWT_PRIVATE_KEY using a .env file approach (Convex CLI doesn't support --stdin)
-    console.log('🔧 Setting JWT_PRIVATE_KEY environment variable...');
+    // Set private key using the proven Double Dash Method
+    console.log('🔧 Setting private key environment variable...');
     let jwtKeySuccess = false;
 
     try {
-      // Method: Create a .env file and use it to set the environment variable
-      console.log('📝 Creating temporary .env file for JWT_PRIVATE_KEY...');
+      console.log('📝 Using Double Dash Method (proven to work)...');
+      
+      // Create script that uses -- to separate options from arguments
+      const doubledashScript = `/tmp/set_private_key_${Date.now()}.sh`;
+      
+      const createScript = await sshConnection.ssh.execCommand(
+        `cd '${escapedRepoPath}' && cat > ${doubledashScript} << 'DOUBLEDASH_EOF'
+#!/bin/bash
+set -e
 
-      // First, create a temporary .env file with the private key
-      const envFile = `/tmp/jwt_env_${Date.now()}.env`;
-      const result1 = await sshConnection.ssh.execCommand(
-        `cd '${escapedRepoPath}' && cat > ${envFile} << 'EOF'
-JWT_PRIVATE_KEY="$(cat ${jwtPrivateKeyFile})"
-EOF`
+${deployKey ? `export CONVEX_DEPLOY_KEY='${deployKey}'` : ''}
+
+echo "📝 Setting private key using Double Dash Method..."
+
+# Read the private key content
+PRIVATE_KEY_CONTENT="$(cat "${jwtPrivateKeyFile}")"
+
+# Verify we have content
+if [ -z "$PRIVATE_KEY_CONTENT" ]; then
+    echo "ERROR: No content read from private key file"
+    exit 1
+fi
+
+echo "✅ Read private key (length: $(echo -n "$PRIVATE_KEY_CONTENT" | wc -c))"
+
+# Use -- to separate options from arguments (prevents CLI parsing issues)
+npx convex env set JWT_PRIVATE_KEY -- "$PRIVATE_KEY_CONTENT"
+
+echo "✅ Private key set successfully using Double Dash Method"
+DOUBLEDASH_EOF`
       );
 
-      if (result1.code === 0) {
-        console.log('✅ Created .env file with JWT_PRIVATE_KEY');
-
-        // Now try to import the .env file
-        const result2 = await sshConnection.ssh.execCommand(
-          `cd '${escapedRepoPath}' && ${deployKeyCmd}npx convex env import ${envFile}`
+      if (createScript.code === 0) {
+        const runScript = await sshConnection.ssh.execCommand(
+          `cd '${escapedRepoPath}' && chmod +x ${doubledashScript} && ${doubledashScript}`
         );
-
-        if (result2.code === 0) {
-          console.log('✅ JWT_PRIVATE_KEY set successfully via .env import');
+        
+        if (runScript.code === 0) {
+          console.log('✅ Private key set successfully');
           jwtKeySuccess = true;
         } else {
-          console.log('❌ JWT_PRIVATE_KEY .env import failed:', result2.stderr);
-
-          // Fallback: Try setting via individual env var if import doesn't work
-          const result3 = await sshConnection.ssh.execCommand(
-            `cd '${escapedRepoPath}' && ${deployKeyCmd}npx convex env set JWT_PRIVATE_KEY "$(cat ${jwtPrivateKeyFile})"`
-          );
-
-          if (result3.code === 0) {
-            console.log('✅ JWT_PRIVATE_KEY set successfully (command substitution)');
-            jwtKeySuccess = true;
-          } else {
-            console.log('❌ JWT_PRIVATE_KEY command substitution also failed:', result3.stderr);
-          }
+          console.log('❌ Double Dash Method failed:', runScript.stderr);
         }
 
-        // Clean up the temporary .env file
-        await sshConnection.ssh.execCommand(
-          `cd '${escapedRepoPath}' && rm -f ${envFile}`
-        );
+        // Clean up
+        await sshConnection.ssh.execCommand(`rm -f ${doubledashScript}`);
       } else {
-        console.log('❌ Failed to create .env file:', result1.stderr);
+        console.log('❌ Failed to create Double Dash script:', createScript.stderr);
       }
     } catch (e) {
-      console.log('❌ JWT_PRIVATE_KEY exception:', e);
+      console.log('❌ Double Dash Method exception:', e);
     }
 
     if (!jwtKeySuccess) {
-      console.log('⚠️ JWT_PRIVATE_KEY not set, continuing...');
+      console.log('⚠️ Private key setting failed, continuing without it...');
+    } else {
+      console.log('✅ Private key set successfully');
     }
 
     // Set JWKS using the direct command line method that works

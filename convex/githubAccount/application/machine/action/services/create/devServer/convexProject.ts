@@ -92,10 +92,11 @@ export async function setupConvexProject(
   }
 
   return {
-    convexUrl, 
-    convexDevUrl, 
+    convexUrl,
+    convexDevUrl,
     projectId,
     deployKey: deployKey || undefined,
-    deploymentIdentifier: deploymentIdentifier
+    deploymentIdentifier: deploymentIdentifier,
+    // Note: deployKey is returned but should be stored in machine record
   };
 }

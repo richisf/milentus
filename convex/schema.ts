@@ -45,6 +45,7 @@ export default defineSchema({
       domain: v.optional(v.string()),
       convexUrl: v.optional(v.string()),
       convexProjectId: v.optional(v.number()),
+      deployKey: v.optional(v.string()), // Store the Convex deploy key for this machine
     })
       .index("by_application", ["applicationId"]),
 
