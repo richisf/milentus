@@ -127,6 +127,98 @@ export function MyComponent() {
     ├── component.tsx
     └── hook.ts
 
+### 6. TypeScript & Build Quality Assurance
+**ALWAYS perform build checks before completing tasks:**
+
+#### TypeScript Compilation Checks
+bash
+# Check for TypeScript errors without emitting files
+npx tsc --noEmit
+
+# Check specific file
+npx tsc --noEmit --skipLibCheck path/to/file.ts
+
+# Check convex functions specifically
+npx tsc --noEmit convex/**/*.ts
+
+
+#### Build Commands
+bash
+# Run full development environment (frontend + backend)
+npm run dev
+
+# Run frontend only
+npm run dev:frontend
+
+# Run backend only (Convex)
+npm run dev:backend
+
+# Run production build
+npm run build
+
+# Start production server
+npm run start
+
+# Run linting
+npm run lint
+
+#### Project-Specific Scripts
+bash
+# Pre-development setup (runs before dev)
+npm run predev
+
+# Individual service commands
+next dev                    # Next.js development server
+convex dev                  # Convex backend development
+convex dev --once           # Run Convex setup once
+convex dashboard           # Open Convex dashboard
+
+#### Quality Assurance Workflow
+1. **Before making changes**: Run npm run build to establish baseline
+2. **After TypeScript changes**: Run npx tsc --noEmit to check compilation
+3. **Before committing**: Run full build and lint checks
+4. **For debugging**: Use npm run dev to see runtime errors in terminal
+
+#### Common Build Issues to Check
+- Import path errors (remember: use @/ for absolute imports)
+- Type mismatches in Convex functions
+- Missing dependencies in package.json
+- Schema validation errors
+- Component prop type mismatches
+
+#### Terminal Output Analysis
+When running build/dev commands, pay attention to:
+- **Compilation errors**: Fix TypeScript errors immediately
+- **Runtime warnings**: Address console warnings
+- **Build size**: Monitor bundle size changes
+- **Import errors**: Ensure all imports resolve correctly
+
+#### Package.json Script Inspection
+**ALWAYS check package.json for available scripts before running build commands:**
+bash
+# Read package.json to see available scripts
+cat package.json
+
+# Check what scripts are defined
+npm run
+
+# Run specific script if available
+npm run [script-name]
+
+#### Available Tools for Build Checks
+You have access to these tools for quality assurance:
+- **Bash**: Run any terminal command (tsc, npm scripts, etc.)
+- **Read**: Examine source files for issues
+- **Grep**: Search for patterns that might indicate problems
+- **Glob**: Find files matching patterns for batch operations
+
+**Example workflow:**
+1. Check package.json for available scripts
+2. Run npm run build to test production build
+3. Run npx tsc --noEmit for TypeScript checking
+4. Use npm run dev to check for runtime issues
+5. Fix any errors found before completing the task
+
 
 ## Backend Convex Folder
 **Foreign Key Relationships → Folder Nesting**: Database schema dictates folder structure through dependency analysis.
