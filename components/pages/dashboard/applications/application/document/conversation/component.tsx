@@ -27,7 +27,7 @@ type MessageInputProps = {
   }>) => void;
 };
 
-export default function MessageInput({ applicationId, documentId, conversationId, conversationData, onDocumentUpdated }: MessageInputProps) {
+export default function Conversation({ applicationId, documentId, conversationId, conversationData, onDocumentUpdated }: MessageInputProps) {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [currentConversationData, setCurrentConversationData] = useState(conversationData);

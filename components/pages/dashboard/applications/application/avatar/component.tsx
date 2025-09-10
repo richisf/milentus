@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Cog6ToothIcon } from "@heroicons/react/24/outline";
-import { RemoveApplication } from "@/components/pages/dashboard/applications/application/avatar/remove/component";
-import { MachineStatus } from "@/components/pages/dashboard/applications/application/avatar/machine/component";
+import { Remove } from "@/components/pages/dashboard/applications/application/avatar/remove/component";
+import { Machine } from "@/components/pages/dashboard/applications/application/avatar/machine/component";
 import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 
@@ -47,13 +47,13 @@ interface Application {
   } | null;
 }
 
-interface ApplicationSettingsProps {
+interface AvatarProps {
   application: Application;
   onApplicationRemoved: () => void;
 }
 
-export default function ApplicationSettings({ application, onApplicationRemoved }: ApplicationSettingsProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export default function Avatar({ application, onApplicationRemoved }: AvatarProps) {
+    const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -93,14 +93,14 @@ export default function ApplicationSettings({ application, onApplicationRemoved 
           <div className="flex flex-col gap-1">
             {/* Machine Status - simplified */}
             {application.machine && (
-              <MachineStatus
+              <Machine
                 applicationId={application._id}
                 machine={application.machine}
               />
             )}
 
             {/* Remove Application */}
-            <RemoveApplication
+            <Remove
               applicationId={application._id}
               applicationName={application.name}
               applicationDisplayName={application.name}

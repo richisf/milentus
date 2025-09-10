@@ -14,7 +14,7 @@ interface CreateResult {
   repositoryUrl?: string;
 }
 
-export function DefaultApplicationCreator() {
+export function Default() {
   const [isCreating, setIsCreating] = useState(false);
   const [createResult, setCreateResult] = useState<CreateResult | null>(null);
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { GithubCallback } from "@/components/pages/github/callback/component";
+import { Callback } from "@/components/pages/github/callback/component";
 
-export default function GithubCallbackPage() {
-  return <GithubCallback />;
+export default function Page() {
+  return <Callback />;
 }

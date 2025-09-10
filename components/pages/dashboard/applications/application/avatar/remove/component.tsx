@@ -7,19 +7,19 @@ import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-interface RemoveApplicationProps {
+interface RemoveProps {
   applicationId: Id<"application">;
   applicationName: string;
   applicationDisplayName?: string;
   onRemoveSuccess?: () => void;
 }
 
-export function RemoveApplication({
+export function Remove({
   applicationId,
   applicationName,
   applicationDisplayName,
   onRemoveSuccess
-}: RemoveApplicationProps) {
+}: RemoveProps) {
   const removeApplicationAction = useAction(api.githubAccount.application.action.delete.application);
 
   const [isRemoving, setIsRemoving] = useState(false);

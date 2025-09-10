@@ -16,11 +16,11 @@ type NodesData = {
   nodes: Node[];
 };
 
-interface JsonImportProps {
+interface ImportProps {
   onImport: (nodesData: NodesData) => void;
 }
 
-export default function JsonImportComponent({ onImport }: JsonImportProps) {
+export default function Import({ onImport }: ImportProps) {
   const [jsonInput, setJsonInput] = useState("");
   const [error, setError] = useState("");
 

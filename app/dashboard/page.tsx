@@ -2,7 +2,7 @@
 
 import { Dashboard } from "@/components/pages/dashboard/component";
 
-export default function DashboardPage() {
+export default function Page() {
   return (
     <>
       <Dashboard />

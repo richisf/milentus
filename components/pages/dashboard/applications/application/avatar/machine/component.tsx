@@ -6,7 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 
-interface MachineStatusProps {
+interface MachineProps {
   applicationId: Id<"application">;
   machine: {
     _id: Id<"machine">;
@@ -17,7 +17,7 @@ interface MachineStatusProps {
   };
 }
 
-export function MachineStatus({ applicationId, machine }: MachineStatusProps) {
+export function Machine({ applicationId, machine }: MachineProps) {
   const [isUpdating, setIsUpdating] = useState(false);
   const updateMachineState = useAction(api.githubAccount.application.machine.action.update.machine);
 

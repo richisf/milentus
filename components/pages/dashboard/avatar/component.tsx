@@ -6,7 +6,7 @@ import { SignOut } from "@/components/pages/dashboard/avatar/singout/component";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
-export default function RepositoriesAvatarComponent() {
+export default function Avatar() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

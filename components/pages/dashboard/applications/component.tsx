@@ -5,7 +5,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import RepositoriesAvatarComponent from "@/components/pages/dashboard/avatar/component";
-import { CreateApplication } from "@/components/pages/dashboard/applications/create/component";
+import { Create } from "@/components/pages/dashboard/applications/create/component";
 import ApplicationSettings from "@/components/pages/dashboard/applications/application/avatar/component";  
 
 interface ApplicationsViewProps {
@@ -52,7 +52,7 @@ interface ApplicationsViewProps {
   stableUserId?: string;
 }
 
-export default function ApplicationsView({ applications, onApplicationSelected, stableUserId }: ApplicationsViewProps) {
+export default function Applications({ applications, onApplicationSelected, stableUserId }: ApplicationsViewProps) {
   const [isCreating, setIsCreating] = useState(false);
 
   const handleSelectApplication = (applicationId: Id<"application">) => {
@@ -85,7 +85,7 @@ export default function ApplicationsView({ applications, onApplicationSelected, 
 
             {/* Create application component */}
             <div className="mb-8">
-              <CreateApplication
+              <Create
                 stableUserId={stableUserId}
                 isCreating={isCreating}
                 setIsCreating={setIsCreating}

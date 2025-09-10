@@ -5,15 +5,15 @@ import { Id } from "@/convex/_generated/dataModel";
 import { Cog6ToothIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import JsonExportComponent from "@/components/pages/dashboard/applications/application/document/avatar/document/json/export/component";
-import JsonImportComponent from "@/components/pages/dashboard/applications/application/document/avatar/document/json/import/component";
-import JsonExtensionComponent from "@/components/pages/dashboard/applications/application/document/avatar/document/json/extension/component";
-import JsonNestingComponent from "@/components/pages/dashboard/applications/application/document/avatar/document/view/nesting/component";
-import JsonExpandComponent from "@/components/pages/dashboard/applications/application/document/avatar/document/view/expand/component";
-import { FetchFiles } from "@/components/pages/dashboard/applications/application/document/avatar/document/files/component";
-import { ClaudeComponent } from "@/components/pages/dashboard/applications/application/document/avatar/document/claude/component";
-import { PullComponent } from "@/components/pages/dashboard/applications/application/document/avatar/document/pull/component";
-import RemoveComponent from "@/components/pages/dashboard/applications/application/document/avatar/document/remove";
+import Export from "@/components/pages/dashboard/applications/application/document/avatar/document/json/export/component";
+import Import from "@/components/pages/dashboard/applications/application/document/avatar/document/json/import/component";
+import Extension from "@/components/pages/dashboard/applications/application/document/avatar/document/json/extension/component";
+import Nesting from "@/components/pages/dashboard/applications/application/document/avatar/document/view/nesting/component";
+import Expand from "@/components/pages/dashboard/applications/application/document/avatar/document/view/expand/component";
+import { Files } from "@/components/pages/dashboard/applications/application/document/avatar/document/files/component";
+import { Claude } from "@/components/pages/dashboard/applications/application/document/avatar/document/claude/component";
+import { Pull } from "@/components/pages/dashboard/applications/application/document/avatar/document/pull/component";
+import Remove from "@/components/pages/dashboard/applications/application/document/avatar/document/remove";
 
 type Node = {
   id: string;
@@ -37,7 +37,7 @@ interface AvatarProps {
   onDocumentCleared?: (documentId: Id<"document">) => void;
 }
 
-export default function AvatarComponent({ nodesData, documentId, applicationId, onImport, onExtend, onNest, onExpand, onDocumentCleared }: AvatarProps) {
+export default function Avatar({ nodesData, documentId, applicationId, onImport, onExtend, onNest, onExpand, onDocumentCleared }: AvatarProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -51,37 +51,37 @@ export default function AvatarComponent({ nodesData, documentId, applicationId, 
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-56 bg-[#F7F8F4]">
         <div className="flex flex-col gap-1">
-          <JsonExportComponent nodesData={nodesData} />
-          <JsonImportComponent onImport={onImport} />
-          <JsonExtensionComponent
+          <Export nodesData={nodesData} />
+          <Import onImport={onImport} />
+          <Extension
             currentNodesData={nodesData}
             onExtend={onExtend}
           />
-          <JsonNestingComponent
+          <Nesting
             nodesData={nodesData}
             onNest={onNest}
           />
-          <JsonExpandComponent
+          <Expand
             nodesData={nodesData}
             onExpand={onExpand}
           />
           {documentId && (
-            <FetchFiles
+            <Files
               applicationId={applicationId}
               documentId={documentId}
             />
           )}
-          <ClaudeComponent
+          <Claude
             applicationId={applicationId}
             documentId={documentId}
             nodesData={nodesData}
           />
-          <PullComponent
+          <Pull
             applicationId={applicationId}
             documentId={documentId}
           />
           {documentId && (
-            <RemoveComponent
+            <Remove
               applicationId={applicationId}
               documentId={documentId}
               onDocumentCleared={onDocumentCleared}

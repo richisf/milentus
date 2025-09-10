@@ -26,7 +26,7 @@ interface CreateApplicationProps {
   setIsCreating: (creating: boolean) => void;
 }
 
-export function CreateApplication({ stableUserId, isCreating, setIsCreating }: CreateApplicationProps) {
+export function Create({ stableUserId, isCreating, setIsCreating }: CreateApplicationProps) {
   const createApplication = useAction(api.githubAccount.application.action.create.create);
 
   const [appName, setAppName] = useState("");

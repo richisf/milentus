@@ -16,12 +16,12 @@ type NodesData = {
   nodes: Node[];
 };
 
-interface JsonNestingProps {
+interface NestingProps {
   nodesData: NodesData;
   onNest: (level: number) => void;
 }
 
-export default function JsonNestingComponent({ nodesData, onNest }: JsonNestingProps) {
+export default function Nesting({ nodesData, onNest }: NestingProps) {
   const [level, setLevel] = useState(1);
 
   const handleNest = () => {

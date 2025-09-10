@@ -12,13 +12,13 @@ type NodesData = {
   nodes: Node[];
 };
 
-interface ClaudeComponentProps {
+interface ClaudeProps {
   applicationId: Id<"application">;
   documentId?: Id<"document">;
   nodesData: NodesData;
 }
 
-export function ClaudeComponent({ applicationId, nodesData }: ClaudeComponentProps) {
+export function Claude({ applicationId, nodesData }: ClaudeProps) {
   const sendClaudeAction = useAction(api.githubAccount.application.machine.conversation.message.action.create.message); 
 
   const [isSending, setIsSending] = useState(false);

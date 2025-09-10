@@ -6,12 +6,12 @@ import { useState } from "react";
 import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 
-interface PullComponentProps {
+interface PullProps {
   applicationId: Id<"application">;
   documentId?: Id<"document">;
 }
 
-export function PullComponent({ applicationId }: PullComponentProps) {
+export function Pull({ applicationId }: PullProps) {
   const pullAction = useAction(api.githubAccount.application.machine.conversation.message.action.create.pull);
 
   const [isPulling, setIsPulling] = useState(false);

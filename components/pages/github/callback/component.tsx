@@ -6,11 +6,11 @@ import { useSearchParams } from "next/navigation";
 import { useAction, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { DefaultApplicationCreator } from "@/components/pages/github/callback/default/component";
+import { Default } from "@/components/pages/github/callback/default/component";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-export function GithubCallback() {
+export function Callback() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
@@ -108,7 +108,7 @@ export function GithubCallback() {
             <CardDescription>{success}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {!currentUser && <DefaultApplicationCreator />}
+            {!currentUser && <Default />}
 
             <Button onClick={() => router.push('/dashboard')} className="w-full">
               Continue to Dashboard

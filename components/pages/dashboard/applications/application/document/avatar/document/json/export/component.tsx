@@ -14,11 +14,11 @@ type NodesData = {
   nodes: Node[];
 };
 
-interface JsonExportProps {
+interface ExportProps {
   nodesData: NodesData;
 }
 
-export default function JsonExportComponent({ nodesData }: JsonExportProps) {
+export default function Export({ nodesData }: ExportProps) {
   const { handleJsonExport } = useJsonExport();
 
   const handleExport = async () => {

@@ -8,12 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-interface FetchFilesProps {
+interface FilesProps {
   applicationId: Id<"application">;
   documentId: Id<"document">; // Required for updating existing documents
 }
 
-export function FetchFiles({ applicationId, documentId }: FetchFilesProps) {
+export function Files({ applicationId, documentId }: FilesProps) {
   const updateDocumentAction = useAction(api.githubAccount.application.document.action.update.document);
 
   const [isFetching, setIsFetching] = useState(false);

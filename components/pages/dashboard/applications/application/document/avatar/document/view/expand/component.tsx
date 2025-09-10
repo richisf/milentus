@@ -16,12 +16,12 @@ type NodesData = {
   nodes: Node[];
 };
 
-interface JsonExpandProps {
+interface ExpandProps {
   nodesData: NodesData;
   onExpand: (level: number) => void;
 }
 
-export default function JsonExpandComponent({ nodesData, onExpand }: JsonExpandProps) {
+export default function Expand({ nodesData, onExpand }: ExpandProps) {
   const [level, setLevel] = useState(1);
 
   const handleExpand = () => {

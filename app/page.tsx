@@ -2,7 +2,7 @@
 
 import { Page } from "@/components/pages/page/component";
 
-export default function AppPage() {
+export default function Main() {
   return (
     <>
       <Page />

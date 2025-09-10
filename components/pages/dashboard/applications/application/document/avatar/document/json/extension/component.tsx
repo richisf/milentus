@@ -16,13 +16,13 @@ type NodesData = {
   nodes: Node[];
 };
 
-interface JsonExtensionProps {
+interface ExtensionProps {
   currentNodesData: NodesData;
   onExtend: (extendedNodesData: NodesData) => void;
 }
 
-export default function JsonExtensionComponent({ currentNodesData, onExtend }: JsonExtensionProps) {
-  const [jsonInput, setJsonInput] = useState("");
+export default function Extension({ currentNodesData, onExtend }: ExtensionProps) {
+    const [jsonInput, setJsonInput] = useState("");
   const [error, setError] = useState("");
 
   const validateNode = (obj: unknown): obj is Node => {

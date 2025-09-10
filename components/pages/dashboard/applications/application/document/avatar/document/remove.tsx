@@ -7,14 +7,14 @@ import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { TrashIcon } from "@heroicons/react/24/outline";
 
-interface RemoveComponentProps {
+interface RemoveProps {
   applicationId: Id<"application">;
   documentId: Id<"document">;
   onDocumentCleared?: (documentId: Id<"document">) => void;
 }
 
-export default function RemoveComponent({ applicationId, documentId, onDocumentCleared }: RemoveComponentProps) {
-  const [isClearing, setIsClearing] = useState(false);
+export default function Remove({ applicationId, documentId, onDocumentCleared }: RemoveProps) {
+    const [isClearing, setIsClearing] = useState(false);
 
   const clearDocument = useAction(api.githubAccount.application.document.action.update.document);
 

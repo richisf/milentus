@@ -11,7 +11,7 @@ type Node = {
   collapsed?: boolean;
 };
 
-type CanvasRowProps = {
+type NodeProps = {
   node: Node;
   childNodes: Node[];
   isRoot?: boolean;
@@ -30,7 +30,7 @@ type CanvasRowProps = {
   children?: ReactNode;
 };
 
-export default function CanvasRow({
+export default function Node({
   node,
   childNodes,
   isRoot = false,
@@ -47,7 +47,7 @@ export default function CanvasRow({
   onArrowRight,
   autoFocus,
   children,
-}: CanvasRowProps) {
+}: NodeProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {

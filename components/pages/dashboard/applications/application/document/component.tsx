@@ -4,22 +4,22 @@ import { useState, useCallback, useEffect } from "react";
 import { Id, Doc } from "@/convex/_generated/dataModel";
 import { HomeIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
-import CanvasRow from "@/components/pages/dashboard/applications/application/document/row/component";
-import AvatarComponent from "@/components/pages/dashboard/applications/application/document/avatar/component";
-import { useEnterKey } from "@/components/pages/dashboard/applications/application/document/row/keyboard/enter/hook";
-import { useTabStart } from "@/components/pages/dashboard/applications/application/document/row/keyboard/tab/start/hook";
-import { useTabEnd } from "@/components/pages/dashboard/applications/application/document/row/keyboard/tab/end/hook";
-import { useDeleteEmpty } from "@/components/pages/dashboard/applications/application/document/row/keyboard/delete/emtpy/hook";
-import { useDeleteContent } from "@/components/pages/dashboard/applications/application/document/row/keyboard/delete/content/hook";
-import { useArrowUp } from "@/components/pages/dashboard/applications/application/document/row/keyboard/arrows/up/hook";
-import { useArrowDown } from "@/components/pages/dashboard/applications/application/document/row/keyboard/arrows/down/hook";
-import { useArrowLeft } from "@/components/pages/dashboard/applications/application/document/row/keyboard/arrows/left/hook";
-import { useArrowRight } from "@/components/pages/dashboard/applications/application/document/row/keyboard/arrows/right/hook";
+import Node from "@/components/pages/dashboard/applications/application/document/node/component";
+import Avatar from "@/components/pages/dashboard/applications/application/document/avatar/component";
+import { useEnterKey } from "@/components/pages/dashboard/applications/application/document/node/keyboard/enter/hook";
+import { useTabStart } from "@/components/pages/dashboard/applications/application/document/node/keyboard/tab/start/hook";
+import { useTabEnd } from "@/components/pages/dashboard/applications/application/document/node/keyboard/tab/end/hook";
+import { useDeleteEmpty } from "@/components/pages/dashboard/applications/application/document/node/keyboard/delete/emtpy/hook";
+import { useDeleteContent } from "@/components/pages/dashboard/applications/application/document/node/keyboard/delete/content/hook";
+import { useArrowUp } from "@/components/pages/dashboard/applications/application/document/node/keyboard/arrows/up/hook";
+import { useArrowDown } from "@/components/pages/dashboard/applications/application/document/node/keyboard/arrows/down/hook";
+import { useArrowLeft } from "@/components/pages/dashboard/applications/application/document/node/keyboard/arrows/left/hook";
+import { useArrowRight } from "@/components/pages/dashboard/applications/application/document/node/keyboard/arrows/right/hook";
 import { useJsonImport } from "@/components/pages/dashboard/applications/application/document/avatar/document/json/import/hook";
 import { useJsonNest } from "@/components/pages/dashboard/applications/application/document/avatar/document/view/nesting/hook";
 import { useJsonExpand } from "@/components/pages/dashboard/applications/application/document/avatar/document/view/expand/hook";
 import { useJsonExtend } from "@/components/pages/dashboard/applications/application/document/avatar/document/json/extension/hook";
-import MessageInput from "@/components/pages/dashboard/applications/application/document/conversation/component";  
+import Conversation from "@/components/pages/dashboard/applications/application/document/conversation/component";  
 
 type Node = {
   id: string;
@@ -138,7 +138,7 @@ export default function Document({ documentData, conversationId, conversationDat
     console.log('Rendering node:', node.id, 'focusTargetId:', focusTargetId, 'shouldAutoFocus:', shouldAutoFocus);
 
     return (
-      <CanvasRow
+      <Node
         key={node.id}
         node={node}
         childNodes={children}
@@ -157,7 +157,7 @@ export default function Document({ documentData, conversationId, conversationDat
         autoFocus={shouldAutoFocus}
       >
         {children.map(child => renderNode(child, false))}
-      </CanvasRow>
+      </Node>
     );
   }, [nodesData.nodes, toggle, updateInput, handleEnterAtEnd, handleTabAtStart, handleTabAtEnd, handleDeleteAtStartEmpty, handleDeleteAtStartWithContent, handleArrowUp, handleArrowDown, handleArrowLeft, handleArrowRight, focusTargetId]);
 
@@ -181,7 +181,7 @@ export default function Document({ documentData, conversationId, conversationDat
 
         {/* Avatar component */}
         {documentData?.applicationId && (
-          <AvatarComponent
+          <Avatar
             nodesData={nodesData}
             documentId={documentData?._id}
             applicationId={documentData.applicationId}
@@ -207,7 +207,7 @@ export default function Document({ documentData, conversationId, conversationDat
         <div className="absolute bottom-0 left-0 right-0 z-50">
 
           {/* Message input */}
-          <MessageInput
+          <Conversation
             applicationId={documentData.applicationId}
             documentId={documentData._id}
             conversationId={conversationId}
