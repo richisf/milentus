@@ -39,7 +39,7 @@ export function ClaudeComponent({ applicationId, nodesData }: ClaudeComponentPro
       // Create instruction message with numbered hierarchical structure
       const numberedStructure = buildNumberedStructure(nodesData.nodes);
 
-      const instructionMessage = `Application Features: ${numberedStructure}. Create the schema and the folders with the endpoints at @/convex, then the components at @/components, then the pages at @/pages to display the component`;
+      const instructionMessage = `Application Features: ${numberedStructure}. Create the schema and the folders with the endpoints at @/convex, then the components at @/components, and integrate the components so that they are visible inside current components that can be viewed inside a page in @/pages, or if necessary, create a new page. Note create all of thefrontend, backend and database components. Note always run npx tsc --noEmit and npm run lint to check for Typescript checks before ending the task - fix the errors if any are present.`;
 
       const result = await sendClaudeAction({
         applicationId: applicationId,
