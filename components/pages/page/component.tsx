@@ -6,10 +6,12 @@ import { useEffect } from "react";
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { SignIn } from "./signin/component";
+import { useIsMobile } from "@/components/hooks/isMobile";
 
 export function Page() {
   const { isAuthenticated } = useConvexAuth();
   const router = useRouter();
+  const isMobile = useIsMobile();
 
   // Redirect authenticated users to dashboard
   useEffect(() => {
@@ -40,20 +42,32 @@ export function Page() {
           }}
         >
           <div className="flex items-center justify-center h-full">
-            <div className="flex items-start gap-28">
-              <div className="h-56 flex items-start justify-center">
+            {isMobile ? (
+              <div className="flex items-center justify-center">
                 <Image
                   src="/name.svg"
                   alt="White Node Logo"
                   width={2827}
                   height={1040}
-                  className="h-full w-auto object-contain"
+                  className="h-32 w-auto object-contain"
                 />
               </div>
-              <div className="h-56 max-w-md flex flex-col justify-between">
-                <SignIn />
+            ) : (
+              <div className="flex items-start gap-28">
+                <div className="h-56 flex items-start justify-center">
+                  <Image
+                    src="/name.svg"
+                    alt="White Node Logo"
+                    width={2827}
+                    height={1040}
+                    className="h-full w-auto object-contain"
+                  />
+                </div>
+                <div className="h-56 max-w-md flex flex-col justify-between">
+                  <SignIn />
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </Card>
       </div>
