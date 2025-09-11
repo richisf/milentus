@@ -27,8 +27,8 @@ export function Github() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4" style={{ backgroundColor: '#F7F8F4' }}>
+      <Card className="w-full max-w-md bg">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Connect GitHub</CardTitle>
           <CardDescription>
@@ -36,9 +36,6 @@ export function Github() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-center text-sm text-muted-foreground">
-            Link your GitHub repositories to get started with managing your codebase.
-          </p>
 
           <Button
             onClick={initiateGithubOAuth}
