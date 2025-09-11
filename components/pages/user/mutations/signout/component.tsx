@@ -18,7 +18,8 @@ export function SignOut() {
     <Button
       variant="ghost"
       size="sm"
-      className="text-xs px-3 py-2 h-8 flex items-center w-full justify-start bg-white"
+      className="text-xs px-3 py-2 h-8 flex items-center w-16 justify-center"
+      style={{ backgroundColor: '#F7F8F4' }}
       onClick={handleSignOut}
     >
       Sign Out

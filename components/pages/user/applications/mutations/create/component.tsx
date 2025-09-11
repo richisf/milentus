@@ -4,7 +4,6 @@ import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useState } from "react";
 import { Id } from "@/convex/_generated/dataModel";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -73,32 +72,35 @@ export function Create({ stableUserId, isCreating, setIsCreating }: CreateApplic
         <Label className="text-lg font-medium">Create Application</Label>
       </div>
 
-      {/* Input and Button Row */}
-      <div className="flex gap-2 w-full items-end">
-        <div className="flex-1">
-          <Input
-            type="text"
-            placeholder="Enter application name"
-            className="placeholder:text-gray-400 placeholder:text-sm"
-            value={appName}
-            onChange={(e) => setAppName(e.target.value)}
-            disabled={isCreating}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !isCreating && appName.trim()) {
-                handleCreateNamedApplication();
-              }
-            }}
-          />
-        </div>
-
-        <Button
+      {/* Input with integrated send button */}
+      <div className="relative">
+        <Input
+          type="text"
+          placeholder="Enter application name"
+          className="placeholder:text-gray-400 placeholder:text-sm pr-12"
+          value={appName}
+          onChange={(e) => setAppName(e.target.value)}
+          disabled={isCreating}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !isCreating && appName.trim()) {
+              handleCreateNamedApplication();
+            }
+          }}
+        />
+        <button
           onClick={handleCreateNamedApplication}
           disabled={isCreating || !appName.trim()}
-          variant="secondary"
-          className="whitespace-nowrap bg-[#F7F8F4] hover:bg-[#E8E2D1] text-gray-800 border-gray-300"
+          className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 disabled:text-gray-300 disabled:cursor-not-allowed p-1"
+          title={isCreating ? "Creating..." : "Create application"}
         >
-          {isCreating ? "Creating..." : "Create"}
-        </Button>
+          {isCreating ? (
+            <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-500 rounded-full animate-spin"></div>
+          ) : (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          )}
+        </button>
       </div>
 
       {result?.error && (
