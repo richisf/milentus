@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAction, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { Default } from "@/components/pages/github/callback/default/component";
+import { Default } from "@/components/pages/user/github/callback/default/component";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
