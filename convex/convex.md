@@ -21,7 +21,7 @@ FOR EACH table IN schema.ts:
 ```typescript
 FOR EACH tableFolder:
   CREATE base structure:
-  ├── query/                    # Read operations (internalQuery)
+  ├── query/                    # Read operations (internal.query)
   │   └── {queryType}.ts        # e.g., by_id.ts, by_parent.ts
   └── mutation/                 # Write operations
       ├── create.ts             # internalMutation

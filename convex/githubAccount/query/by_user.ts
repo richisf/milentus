@@ -4,6 +4,7 @@ import { internalQuery } from "@/convex/_generated/server";
 export const githubAccount = internalQuery({
   args: {
     userId: v.optional(v.string()), // user subject string
+    githubAccountId: v.optional(v.id("githubAccount")), // Direct GitHub account ID lookup
     fallbackToDefault: v.optional(v.boolean()), // If true, falls back to default if user has no GitHub account
   },
   returns: v.union(v.object({
@@ -14,6 +15,11 @@ export const githubAccount = internalQuery({
     username: v.string(),
   }), v.null()),
   handler: async (ctx, args) => {
+    // If githubAccountId is provided, get that specific account
+    if (args.githubAccountId) {
+      return await ctx.db.get(args.githubAccountId);
+    }
+
     // If userId is provided, try to find a GitHub user for that specific user
     if (args.userId) {
       const userGithubAccount = await ctx.db

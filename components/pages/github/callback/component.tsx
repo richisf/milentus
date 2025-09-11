@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSearchParams } from "next/navigation";
 import { useAction, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -10,9 +9,15 @@ import { Default } from "@/components/pages/github/callback/default/component";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-export function Callback() {
+interface CallbackProps {
+  code: string | null;
+  state: string | null;
+  error: string | null;
+  errorMessage: string | null;
+}
+
+export function Callback({ code, state, error: errorParam, errorMessage }: CallbackProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -24,13 +29,9 @@ export function Callback() {
   useEffect(() => {
     if (processed) return;
 
-    const code = searchParams.get('code');
-    const state = searchParams.get('state');
-    const errorParam = searchParams.get('error');
-
     // Handle OAuth errors
     if (errorParam) {
-      setError(searchParams.get('error_message') || errorParam);
+      setError(errorMessage || errorParam);
       setProcessed(true);
       return;
     }
@@ -64,7 +65,7 @@ export function Callback() {
           setLoading(false);
         });
     }
-  }, [searchParams, router, creategithubAccount, currentUser, processed]);
+  }, [code, state, errorParam, errorMessage, router, creategithubAccount, currentUser, processed]);
 
   if (loading) {
     return (
@@ -110,7 +111,7 @@ export function Callback() {
           <CardContent className="space-y-4">
             {!currentUser && <Default />}
 
-            <Button onClick={() => router.push('/dashboard')} className="w-full">
+            <Button onClick={() => router.push('/user')} className="w-full">
               Continue to Dashboard
             </Button>
           </CardContent>

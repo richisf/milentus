@@ -14,7 +14,7 @@ export function Page() {
   // Redirect authenticated users to dashboard
   useEffect(() => {
     if (isAuthenticated) {
-      router.push("/dashboard");
+      router.push("/user");
     }
   }, [isAuthenticated, router]);
 

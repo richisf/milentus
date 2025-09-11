@@ -18,7 +18,7 @@ export function Default() {
   const [isCreating, setIsCreating] = useState(false);
   const [createResult, setCreateResult] = useState<CreateResult | null>(null);
 
-  const createApplication = useAction(api.githubAccount.application.action.create.create);
+  const createApplication = useAction(api.application.action.create.create);
 
   const handleCreateDefaultApplication = async () => {
     setIsCreating(true);

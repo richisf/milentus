@@ -14,7 +14,7 @@
 ```
 app/                          # Next.js App Router (routes only)
 ├── page.tsx                  # Route: /
-├── dashboard/page.tsx        # Route: /dashboard
+├── dashboard/page.tsx        # Route: /user
 └── api/route.ts              # API routes
 
 components/pages/             # Component implementations
@@ -28,9 +28,9 @@ components/pages/             # Component implementations
 
 ### Route Handler Pattern
 ```typescript
-// app/dashboard/page.tsx - Thin wrapper
+// app/user/page.tsx - Thin wrapper
 "use client";
-import { Dashboard } from "@/components/pages/dashboard/component";
+import { Dashboard } from "@/components/pages/user/component";
 
 export default function DashboardPage() {
   return <Dashboard />;
@@ -113,7 +113,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useQuery } from "@/convex/_generated/api";
-import { Dashboard } from "@/components/pages/dashboard/component";
+import { Dashboard } from "@/components/pages/user/component";
 
 export function MyComponent() {
   return (

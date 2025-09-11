@@ -16,17 +16,18 @@ export default defineSchema({
   application: defineTable({
     userId: v.optional(v.string()), // user subject string or null for default application
     name: v.string(),
+    githubAccountId: v.id("githubAccount"), // Required: Consistent hierarchical link
   })
     .index("by_user", ["userId"])
-    .index("by_user_and_name", ["userId", "name"]),   
+    .index("by_user_and_name", ["userId", "name"])
+    .index("by_github_account", ["githubAccountId"]),
 
     repository: defineTable({
       applicationId: v.id("application"),
-      githubAccountId: v.id("githubAccount"),
       name: v.string(),
+      githubAccountId: v.id("githubAccount"), // Required: Inherits from application
     })
-      .index("by_application", ["applicationId"])
-      .index("by_github_user", ["githubAccountId"]),
+      .index("by_application", ["applicationId"]),
 
       files: defineTable({
         repositoryId: v.id("repository"),
@@ -45,7 +46,7 @@ export default defineSchema({
       domain: v.optional(v.string()),
       convexUrl: v.optional(v.string()),
       convexProjectId: v.optional(v.number()),
-      deployKey: v.optional(v.string()), // Store the Convex deploy key for this machine
+      deployKey: v.optional(v.string()),
     })
       .index("by_application", ["applicationId"]),
 
@@ -70,12 +71,11 @@ export default defineSchema({
       message: defineTable({
         conversationId: v.id("conversation"),
         role: v.union(v.literal("user"), v.literal("assistant")),
-        content: v.optional(v.string()), // Optional for empty AI responses during transitions
-        jsonResponse: v.optional(v.string()), // Full JSON response from AI (for stage detection)
-        order: v.number(), // Sequential order within conversation (1, 2, 3, ...)
-        contextRestarted: v.optional(v.boolean()), // Whether this message used fresh context (skipped conversation history)
+        content: v.optional(v.string()), 
+        jsonResponse: v.optional(v.string()),
+        order: v.number(),
+        contextRestarted: v.optional(v.boolean()),
       })
         .index("by_conversation", ["conversationId"])
         .index("by_conversation_order", ["conversationId", "order"]),
-          
   });
