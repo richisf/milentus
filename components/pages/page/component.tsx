@@ -33,7 +33,7 @@ export function Page() {
       className="min-h-screen"
       style={{ backgroundColor: '#F7F8F4', padding: '12px' }}
     >
-      <div className="flex justify-center">
+      <div className=" flex justify-center">
         <Card
           className="h-full w-full max-w-none"
           style={{
@@ -41,7 +41,7 @@ export function Page() {
             overflow: 'hidden'
           }}
         >
-          <div className="flex items-center justify-center h-full">
+          <div className="p-4 flex items-center justify-center h-full">
             {isMobile ? (
               <div className="flex items-center justify-center">
                 <Image
