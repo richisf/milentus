@@ -2,8 +2,9 @@
 
 import { internalAction } from "@/convex/_generated/server";
 import { v } from "convex/values";
-import { internal } from "@/convex/_generated/api";
+import { api, internal } from "@/convex/_generated/api";
 
+// Simple function that directly calls schedule1 phase1
 export const machine = internalAction({
   args: {
     applicationId: v.id("application"),
@@ -18,42 +19,29 @@ export const machine = internalAction({
   },
   returns: v.object({
     success: v.boolean(),
-    error: v.optional(v.string()),
   }),
-  handler: async (ctx, args): Promise<{
-    success: boolean,
-    error?: string
-  }> => {
+  handler: async (ctx, args) => {
+    console.log(`🚀 Creating machine for ${args.repository.name}`);
 
-    try {
+    // Create machine record
+    const machineName = `${args.repository.name}-vm-${Date.now()}`;
+    const machineId = await ctx.runMutation(internal.application.machine.mutation.create.machine, {
+      applicationId: args.applicationId,
+      name: machineName,
+      zone: "",
+      state: "pending",
+    });
 
-      // Generate machine name once to avoid timing issues
-      const machineName = `${args.repository.name}-vm-${Date.now()}`;
+    console.log(`📝 Machine record created: ${machineId}`);
 
-      const machineId = await ctx.runMutation(internal.application.machine.mutation.create.machine, {
-        applicationId: args.applicationId,
-        name: machineName,
-        zone: "",
-        state: "pending",
-      });
+    // Schedule schedule1 phase1
+    await ctx.scheduler.runAfter(0, api.application.machine.action.services.create.schedule1.phase1, {
+      machineId,
+      repository: args.repository,
+    });
 
-      console.log(`📝 Machine record created with ID: ${machineId}, status: pending`);
-
-      await ctx.scheduler.runAfter(0, internal.application.machine.action.services.create.phase1, {
-        machineId,
-        repository: args.repository,
-      });
-
-      console.log(`🚀 Phase 1 scheduled for machine: ${machineId}`);
-
-      return { success: true };
-
-    } catch (error) {
-      console.error("❌ Machine creation setup error:", error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : "Failed to setup machine creation",
-      };
-    }
+    console.log(`✅ Machine creation completed for ${machineId}`);
+    return { success: true };
   },
 });
+

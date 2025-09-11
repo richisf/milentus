@@ -1,18 +1,13 @@
 "use node";
 
 import { DNS } from '@google-cloud/dns';
+import { GoogleCredentials } from '../../create';
 
 export interface DNSRecord {
   type: 'A';
   name: string;    // subdomain.dokimint.com
   content: string; // IP address
   ttl: number;
-}
-
-export interface GoogleCredentials {
-  project_id: string;
-  client_email: string;
-  private_key: string;
 }
 
 // Generate domain and create DNS record for WhiteNode repositories

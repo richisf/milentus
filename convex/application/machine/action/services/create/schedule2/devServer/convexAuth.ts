@@ -53,7 +53,6 @@ export async function setupConvexAuth(sshConnection: SSHConnection, repoPath: st
 
     console.log('✅ Private key and JWKS generated successfully');
 
-
     // Step 2: Set environment variables in Convex
     console.log('🌍 Setting Convex environment variables...');
 

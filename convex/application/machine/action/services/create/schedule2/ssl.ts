@@ -2,9 +2,9 @@
 
 import { SSHConnection } from "@/convex/application/machine/action/services/create";
 
-import { configureNginxSite } from "@/convex/application/machine/action/services/create/ssl/siteConfig";
+import { configureNginxSite } from "@/convex/application/machine/action/services/create/schedule2/ssl/siteConfig";
 
-import { configureWebSocket } from "@/convex/application/machine/action/services/create/ssl/websocket";
+import { configureWebSocket } from "@/convex/application/machine/action/services/create/schedule2/ssl/websocket";
 
 interface SSLConfig {
   domain: string;

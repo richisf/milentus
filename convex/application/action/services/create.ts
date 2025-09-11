@@ -32,7 +32,7 @@ export const create = internalAction({
       }
 
       // Create machine for the user application
-      const machineResult = await ctx.runAction(internal.application.machine.action.create.machine, {
+      const machineResult = await ctx.runAction(internal.application.machine.action.create.machine, { 
         applicationId: args.applicationId,
         repository: repositoryResult.repository as {
           _id: Id<"repository">;

@@ -1,12 +1,12 @@
 "use node";
 
 import { SSHConnection } from "@/convex/application/machine/action/services/create";
-import { setupConvexProject } from "@/convex/application/machine/action/services/create/devServer/convexProject";
-import { setupDevStableScript } from "@/convex/application/machine/action/services/create/devServer/packageManager";
-import { ensureNextConfig } from "@/convex/application/machine/action/services/create/devServer/nextjsConfig";
-import { setupPM2Process } from "@/convex/application/machine/action/services/create/devServer/pm2Manager";
-import { setupConvexAuth } from "@/convex/application/machine/action/services/create/devServer/convexAuth";
-import { setEnvironmentVariable } from "@/convex/application/machine/action/services/create/devServer/envManager";
+import { setupConvexProject } from "@/convex/application/machine/action/services/create/schedule2/devServer/convexProject";
+import { setupDevStableScript } from "@/convex/application/machine/action/services/create/schedule2/devServer/packageManager";
+import { ensureNextConfig } from "@/convex/application/machine/action/services/create/schedule2/devServer/nextjsConfig";
+import { setupPM2Process } from "@/convex/application/machine/action/services/create/schedule2/devServer/pm2Manager";
+import { setupConvexAuth } from "@/convex/application/machine/action/services/create/schedule2/devServer/convexAuth";
+import { setEnvironmentVariable } from "@/convex/application/machine/action/services/create/schedule2/devServer/envManager";
 
 interface DevServerConfig {
   repoPath: string;

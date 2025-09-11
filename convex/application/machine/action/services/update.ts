@@ -4,7 +4,7 @@ import { controlVMInstance } from "@/convex/application/machine/action/services/
 import { suspendDevServer } from "@/convex/application/machine/action/services/update/suspend";
 import { resumeDevServer } from "@/convex/application/machine/action/services/update/resume";
 import { SSHConnection, GoogleCredentials } from "@/convex/application/machine/action/services/create";
-import { setupWhiteNodeDNS } from "@/convex/application/machine/action/services/create/dns";
+import { setupWhiteNodeDNS } from "@/convex/application/machine/action/services/create/schedule1/dns";
 import { cleanupDNSRecord } from "@/convex/application/machine/action/services/delete/dns";
 import { NodeSSH } from 'node-ssh';
 

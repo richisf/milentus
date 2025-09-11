@@ -43,7 +43,7 @@ export async function setupPM2Process(sshConnection: SSHConnection, config: PM2C
           HOST: "0.0.0.0",
           NODE_ENV: "development",
           NODE_OPTIONS: "--max-old-space-size=3072",
-          NEXT_PUBLIC_CONVEX_URL: convexUrl || "http://localhost:3210", // Use production Convex URL or fallback to local dev server
+          NEXT_PUBLIC_CONVEX_URL: convexUrl,
           WATCHPACK_POLLING: "true",
           CHOKIDAR_USEPOLLING: "true",
           CHOKIDAR_INTERVAL: "10",
