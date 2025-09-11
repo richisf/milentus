@@ -5,9 +5,8 @@ import { useRouter } from "next/navigation";
 import { Id } from "@/convex/_generated/dataModel";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import RepositoriesAvatarComponent from "@/components/pages/user/avatar/component";
-import { Create } from "@/components/pages/user/applications/create/component";
-import ApplicationSettings from "@/components/pages/user/applications/avatar/component";  
+import { Create } from "@/components/pages/user/applications/mutations/create/component";
+import { Remove } from "@/components/pages/user/applications/mutations/remove/component";  
 
 interface ApplicationsViewProps {
   applications: Array<{
@@ -67,8 +66,6 @@ export default function Applications({ applications, stableUserId }: Application
   };
 
   const handleApplicationRemoved = () => {
-    // Refresh applications list after removal
-    // This will trigger a re-render and update the applications list
   };
 
   if (applications === undefined) {
@@ -81,10 +78,6 @@ export default function Applications({ applications, stableUserId }: Application
   return (
     <div className="h-full overflow-y-auto">
       <div className="relative">
-        {/* Avatar component in top right */}
-        <div className="absolute top-0 right-0 z-50">
-          <RepositoriesAvatarComponent />
-        </div>
 
         {/* Create application section at top */}
         <div className="pt-20 pb-8">
@@ -121,11 +114,13 @@ export default function Applications({ applications, stableUserId }: Application
                     className="cursor-pointer flex flex-col items-center justify-center text-center min-h-[140px] relative group border-gray-300 bg-[#F7F8F4]"
                     onClick={() => handleSelectApplication(app._id)}
                   >
-                    {/* Settings button in top-right corner */}
+                    {/* Remove button in top-right corner */}
                     <div className="absolute top-2 right-2 z-10">
-                      <ApplicationSettings
-                        application={app}
-                        onApplicationRemoved={handleApplicationRemoved}
+                      <Remove
+                        applicationId={app._id}
+                        applicationName={app.name}
+                        onRemoveSuccess={handleApplicationRemoved}
+                        compact={true}
                       />
                     </div>
 

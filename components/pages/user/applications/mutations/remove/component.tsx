@@ -12,13 +12,15 @@ interface RemoveProps {
   applicationName: string;
   applicationDisplayName?: string;
   onRemoveSuccess?: () => void;
+  compact?: boolean;
 }
 
 export function Remove({
   applicationId,
   applicationName,
   applicationDisplayName,
-  onRemoveSuccess
+  onRemoveSuccess,
+  compact = false
 }: RemoveProps) {
   const removeApplicationAction = useAction(api.application.action.delete.application);
 
@@ -68,6 +70,63 @@ export function Remove({
     setRemoveResponse(null);
   };
 
+  // Compact mode: show small button, then overlay when clicked
+  if (compact) {
+    if (!showConfirmation) {
+      return (
+        <Button
+          onClick={handleInitialRemoveClick}
+          variant="ghost"
+          size="sm"
+          className="text-xs px-2 py-1 h-6 opacity-70 hover:opacity-100"
+        >
+          ✕
+        </Button>
+      );
+    }
+
+    return (
+      <div className="absolute inset-0 bg-white bg-opacity-95 flex items-center justify-center z-20 rounded-lg border">
+        <div className="flex flex-col gap-2 p-3 rounded border border-red-200 bg-red-50 w-full max-w-sm mx-4">
+          <div className="text-xs text-red-700 font-medium">
+            Confirm deletion by typing the application name:
+          </div>
+          <div className="text-xs text-red-600 bg-red-100 px-2 py-1 rounded font-mono">
+            {applicationDisplayName || applicationName}
+          </div>
+          <Input
+            value={confirmationInput}
+            onChange={(e) => setConfirmationInput(e.target.value)}
+            placeholder="Type application name here..."
+            className="text-xs h-8 bg-white border-gray-300 focus-visible:ring-0 focus-visible:border-gray-300"
+            disabled={isRemoving}
+          />
+          <div className="flex gap-2">
+            <Button
+              onClick={handleConfirmRemove}
+              disabled={isRemoving || confirmationInput !== applicationName}
+              size="sm"
+              variant="destructive"
+              className="text-xs h-7 px-2"
+            >
+              {isRemoving ? "Deleting..." : "Delete"}
+            </Button>
+            <Button
+              onClick={handleCancel}
+              disabled={isRemoving}
+              size="sm"
+              variant="outline"
+              className="text-xs h-7 px-2"
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Normal mode: show full button and confirmation flow
   return (
     <div className="flex flex-col gap-1">
       {!showConfirmation ? (

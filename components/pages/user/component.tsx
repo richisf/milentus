@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent } from "@/components/ui/card";
 import ApplicationsView from "@/components/pages/user/applications/component";
+import { SignOut } from "@/components/pages/user/mutations/signout/component";
 
 export function User() {
   const currentUser = useQuery(api.auth.currentUser);
@@ -59,6 +60,11 @@ export function User() {
         }}
       >
         <CardContent className="h-full overflow-y-auto">
+          {/* Sign out button in top right */}
+          <div className="flex justify-end mb-4">
+            <SignOut />
+          </div>
+
           <ApplicationsView
             applications={applications}
             stableUserId={stableUserId}

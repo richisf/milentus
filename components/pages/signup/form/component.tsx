@@ -8,23 +8,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-export function SignIn() {
+export function SignUpForm() {
   const { signIn } = useAuthActions();
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+
   return (
     <form
       className="flex flex-col justify-between h-full w-full"
       onSubmit={(e) => {
         e.preventDefault();
         const formData = new FormData(e.target as HTMLFormElement);
-        formData.set("flow", "signIn");
+        formData.set("flow", "signUp");
         void signIn("password", formData)
           .catch((error) => {
             setError(error.message);
           })
           .then(() => {
-            router.push("/");
+            router.push("/user");
           });
       }}
     >
@@ -46,13 +47,13 @@ export function SignIn() {
           className="text-base w-full"
         />
         <Button type="submit" className="w-full text-base font-medium">
-          Sign in
+          Sign up
         </Button>
       </div>
       {error && (
         <Alert variant="destructive">
           <AlertDescription>
-            Error signing in: {error}
+            Error signing up: {error}
           </AlertDescription>
         </Alert>
       )}
