@@ -1,8 +1,8 @@
 "use node";
 
-import { getAllFilePaths } from "@/convex/application/repository/files/action/services/files";
-import { getMatchingFilesWithContent } from "@/convex/application/repository/files/action/services/file";
-import { dependencies } from "@/convex/application/repository/files/action/services/dependencies";
+import { getAllFilePaths } from "@/convex/application/repository/files/action/services/create/files";
+import { getMatchingFilesWithContent } from "@/convex/application/repository/files/action/services/create/file";
+import { dependencies } from "@/convex/application/repository/files/action/services/create/dependencies";
 
 export interface CreateFilesResult {
   success: boolean;

@@ -1,5 +1,5 @@
-import { extractDependencies } from "@/convex/application/repository/files/action/services/dependencies/finder";
-import { getMatchingFilesWithContent } from "@/convex/application/repository/files/action/services/file";
+import { extractDependencies } from "@/convex/application/repository/files/action/services/create/dependencies/finder";
+import { getMatchingFilesWithContent } from "@/convex/application/repository/files/action/services/create/file";
 
 export interface FileWithDependencies {
   path: string;
