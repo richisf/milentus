@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useAction, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { Default } from "@/components/pages/user/github/callback/default/component";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -109,8 +108,6 @@ export function Callback({ code, state, error: errorParam, errorMessage }: Callb
             <CardDescription>{success}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {!currentUser && <Default />}
-
             <Button onClick={() => router.push('/user')} className="w-full">
               Continue to Dashboard
             </Button>

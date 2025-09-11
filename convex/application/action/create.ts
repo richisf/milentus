@@ -8,7 +8,7 @@ import { Id } from "@/convex/_generated/dataModel";
 export const create = action({
   args: {
     name: v.string(),
-    userId: v.optional(v.string()),
+    userId: v.string(), // Always required for user applications
   },
   returns: v.object({
     success: v.boolean(),
@@ -19,16 +19,28 @@ export const create = action({
     applicationId?: Id<"application">
   }> => {
     try {
+      // Get the user's GitHub account
+      const githubAccount = await ctx.runQuery(internal.githubAccount.query.by_user.githubAccount, {
+        userId: args.userId,
+        fallbackToDefault: false,
+      });
+
+      if (!githubAccount) {
+        throw new Error("No GitHub account found for user");
+      }
+
       // Create the application first (mutation)
       const applicationId = await ctx.runMutation(internal.application.mutation.create.create, {
         name: args.name,
         userId: args.userId,
+        githubAccountId: githubAccount._id,
       });
 
       const actionsResult = await ctx.runAction(internal.application.action.services.create.create, {
         applicationId: applicationId,
         name: args.name,
         userId: args.userId,
+        githubAccountId: githubAccount._id,
       }); 
 
       if (!actionsResult.success) {

@@ -60,7 +60,7 @@ export const files = internalAction({
       }
 
       // Query GitHub account directly by ID
-      const githubAccount = await ctx.runQuery(internal.githubAccount.query.by_user.githubAccount, {
+      const githubAccount = await ctx.runQuery(internal.githubAccount.query.by_id.githubAccount, {
         githubAccountId: application.githubAccountId,
       });
 

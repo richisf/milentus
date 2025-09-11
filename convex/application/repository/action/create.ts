@@ -9,8 +9,9 @@ import { repository as createRepository } from "@/convex/application/repository/
 export const repository = internalAction({
   args: {
     applicationId: v.id("application"), // Repository belongs to an application
-    userId: v.optional(v.string()), // If not provided, creates default repository
-    name: v.string(), // Repository name (application name for user repos, fixed for defaults)
+    userId: v.string(), // Always required for user repositories
+    name: v.string(), // Repository name
+    githubAccountId: v.id("githubAccount"), // Passed down to avoid refetching
   },
   returns: v.object({
     success: v.boolean(),
@@ -37,47 +38,41 @@ export const repository = internalAction({
     }
   }> => {
     try {
+      // Generate repository name for user applications
+      const name = `whitenode-template-${args.name}`;
 
-      let name: string;
+      // Get the default GitHub account for repository creation
+      const defaultgithubAccount = await ctx.runQuery(internal.githubAccount.query.by_user.githubAccount, {
+        userId: undefined,
+        fallbackToDefault: true,
+      });
 
-      if (!args.userId) {
-        name = args.name;
-      } else {
-        name = `whitenode-template-${args.name}`;
+      if (!defaultgithubAccount) {
+        throw new Error("No default GitHub account found");
       }
 
-      if (args.userId) {
+      // Create the repository on GitHub
+      await createRepository(
+        defaultgithubAccount.token,
+        "richisf",
+        "whitenode-template",
+        name,
+      );
 
-        const defaultgithubAccount = await ctx.runQuery(internal.githubAccount.query.by_user.githubAccount, {
-          userId: undefined,
-          fallbackToDefault: true,
-        });
-
-        if (!defaultgithubAccount) {
-          throw new Error("No default GitHub account found");
-        }
-
-        await createRepository(
-          defaultgithubAccount.token,
-          "richisf",
-          "whitenode-template",
-          name,
-        );
-      }
-
+      // Create repository via mutation with explicit githubAccountId
       const repositoryId = await ctx.runMutation(internal.application.repository.mutation.create.repository, {
         name: name,
         applicationId: args.applicationId,
+        githubAccountId: args.githubAccountId,
       });
 
-      // Get the complete repository object to return it
-      const repository = await ctx.runQuery(internal.application.repository.query.by_application.repository, {
+      // Return the repository data
+      const repository = {
+        _id: repositoryId,
+        _creationTime: Date.now(),
         applicationId: args.applicationId,
-      });
-
-      if (!repository) {
-        throw new Error("Repository was created but could not be retrieved");
-      }
+        name: name,
+      };
 
       return { success: true, repositoryId, repository };
     } catch (error) {

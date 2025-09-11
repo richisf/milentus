@@ -106,6 +106,7 @@ import type * as githubAccount_action_services_create_fetch from "../githubAccou
 import type * as githubAccount_action_services_create from "../githubAccount/action/services/create.js";
 import type * as githubAccount_mutation_create from "../githubAccount/mutation/create.js";
 import type * as githubAccount_mutation_delete from "../githubAccount/mutation/delete.js";
+import type * as githubAccount_query_by_id from "../githubAccount/query/by_id.js";
 import type * as githubAccount_query_by_user from "../githubAccount/query/by_user.js";
 import type * as githubAccount_query_by_user_username from "../githubAccount/query/by_user_username.js";
 import type * as http from "../http.js";
@@ -212,6 +213,7 @@ declare const fullApi: ApiFromModules<{
   "githubAccount/action/services/create": typeof githubAccount_action_services_create;
   "githubAccount/mutation/create": typeof githubAccount_mutation_create;
   "githubAccount/mutation/delete": typeof githubAccount_mutation_delete;
+  "githubAccount/query/by_id": typeof githubAccount_query_by_id;
   "githubAccount/query/by_user": typeof githubAccount_query_by_user;
   "githubAccount/query/by_user_username": typeof githubAccount_query_by_user_username;
   http: typeof http;

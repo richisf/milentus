@@ -34,11 +34,28 @@ export const githubAccount = internalMutation({
     }
 
     // Create the account
-    await ctx.db.insert("githubAccount", {
+    const githubAccountId = await ctx.db.insert("githubAccount", {
       userId: args.userId,
       token: args.token,
       username: args.username,
     });
+
+    // If this is a default account (no userId), automatically create default application and repository
+    if (!args.userId) {
+      // Create default application directly in database
+      const applicationId = await ctx.db.insert("application", {
+        userId: undefined,
+        name: "whitenode-template",
+        githubAccountId: githubAccountId,
+      });
+
+      // Create default repository directly in database
+      await ctx.db.insert("repository", {
+        applicationId: applicationId,
+        name: "whitenode-template",
+        githubAccountId: githubAccountId,
+      });
+    }
 
     return null;
   },
