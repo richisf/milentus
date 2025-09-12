@@ -1,118 +1,134 @@
 "use client";
 
-import { useQuery } from "convex/react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Card, CardContent } from "@/components/ui/card";
-import Document from "./document/component";
+import { Label } from "@/components/ui/label";
+import { Create } from "@/components/pages/user/application/action/create/component";
+import { Remove } from "@/components/pages/user/application/action/delete/component";  
 
-interface ApplicationProps {
-  id: string;
+interface ApplicationsViewProps {
+  applications: Array<{
+    _id: Id<"application">;
+    _creationTime: number;
+    userId?: string;
+    name: string;
+    githubAccountId: Id<"githubAccount">;
+    machine: {
+      _id: Id<"machine">;
+      _creationTime: number;
+      applicationId: Id<"application">;
+      name: string;
+      zone: string;
+      state: string;
+      ipAddress?: string;
+      domain?: string;
+      convexUrl?: string;
+      convexProjectId?: number;
+    } | null;
+    repository: {
+      _id: Id<"repository">;
+      _creationTime: number;
+      applicationId: Id<"application">;
+      name: string;
+      accessToken?: string;
+      githubUsername?: string;
+    } | null;
+    document: {
+      _id: Id<"document">;
+      _creationTime: number;
+      applicationId: Id<"application">;
+      nodes: Array<{
+        id: string;
+        parentId: string;
+        label: string;
+        collapsed?: boolean;
+        fileId?: Id<"files">;
+      }>;
+      conversation: {
+        _id: Id<"conversation">;
+        _creationTime: number;
+        documentId: Id<"document">;
+      } | null;
+    } | null;
+  }> | undefined;
+  onApplicationSelected?: (applicationId: Id<"application">) => void;
+  stableUserId?: string;
 }
 
-export function Application({ id }: ApplicationProps) {
+export default function Applications({ applications, stableUserId }: ApplicationsViewProps) {
+  const [isCreating, setIsCreating] = useState(false);
   const router = useRouter();
 
-  // Convert string ID to proper Convex ID type
-  const applicationId = id as Id<"application">;
+  const handleSelectApplication = (applicationId: Id<"application">) => {
+    router.push(`/user/${applicationId}`);
+  };
 
-  // Fetch application data
-  const application = useQuery(api.application.query.by_id.by_id, {
-    applicationId,
-  });
+  const handleApplicationRemoved = () => {
+  };
 
-  // Fetch current user for authentication
-  const currentUser = useQuery(api.auth.currentUser);
-
-  useEffect(() => {
-    if (currentUser === null) {
-      router.push("/");
-    }
-  }, [currentUser, router]);
-
-  // Show loading state
-  if (currentUser === undefined || application === undefined) {
+  if (applications === undefined) {
     return (
-      <div
-        className="min-h-screen"
-        style={{ backgroundColor: '#F7F8F4', padding: '12px' }}
-      >
-        <Card
-          className="h-full"
-          style={{
-            height: 'calc(100vh - 32px)',
-            overflow: 'hidden'
-          }}
-        >
-        </Card>
-      </div>
-    );
-  }
-
-  if (currentUser === null) {
-    return null;
-  }
-
-  if (!application) {
-    return (
-      <div
-        className="min-h-screen"
-        style={{ backgroundColor: '#F7F8F4', padding: '12px' }}
-      >
-        <Card
-          className="h-full"
-          style={{
-            height: 'calc(100vh - 32px)',
-            overflow: 'hidden'
-          }}
-        >
-          <CardContent className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <h2 className="text-xl font-semibold mb-2">Application not found</h2>
-              <p className="text-gray-600">The application you&apos;re looking for doesn&apos;t exist or you don&apos;t have access to it.</p>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="flex items-center justify-center min-h-screen p-4">
       </div>
     );
   }
 
   return (
-    <div
-      className="min-h-screen"
-      style={{ backgroundColor: '#F7F8F4', padding: '12px' }}
-    >
-      <Card
-        className="h-full"
-        style={{
-          height: 'calc(100vh - 32px)',
-          overflow: 'hidden'
-        }}
-      >
-        <CardContent className="h-full overflow-y-auto">
-          {application.document ? (
-            <Document
-              documentData={{
-                _id: application.document._id,
-                _creationTime: application.document._creationTime,
-                applicationId: application._id,
-                nodes: application.document.nodes
-              }}
-              conversationId={application.document?.conversation?._id}
-              onBack={() => router.push('/user')}
-            />
-          ) : (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center">
-                <h2 className="text-xl font-semibold mb-2">No Document Found</h2>
-                <p className="text-gray-600">This application doesn&apos;t have a document yet.</p>
+    <div className="h-full overflow-y-auto">
+      <div className="relative">
+        <div className="flex justify-center">
+          <div className="max-w-4xl w-full px-8">
+
+            {/* Create application section at top */}
+            <div className="pt-20 pb-8">
+              {/* Create application component */}
+              <div className="mb-8">
+                <Create
+                  stableUserId={stableUserId}
+                  isCreating={isCreating}
+                  setIsCreating={setIsCreating}
+                />
               </div>
             </div>
-          )}
-        </CardContent>
-      </Card>
+
+            {/* Application grid - centered with margins */}
+            {applications.length > 0 && (
+              <div className="pb-8">
+                {/* Application subtitle */}
+                <div className="mb-6">
+                  <Label className="text-lg font-medium">Your Applications</Label>
+                </div>
+
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {applications.map((app) => (
+                    <Card
+                      key={app._id}
+                      className="cursor-pointer flex flex-col items-center justify-center text-center min-h-[140px] relative group border-gray-300 bg-[#F7F8F4]"
+                      onClick={() => handleSelectApplication(app._id)}
+                    >
+                      {/* Remove button in top-right corner */}
+                      <div className="absolute top-2 right-2 z-10">
+                        <Remove
+                          applicationId={app._id}
+                          applicationName={app.name}
+                          onRemoveSuccess={handleApplicationRemoved}
+                          compact={true}
+                        />
+                      </div>
+
+                      <CardContent className="p-6">
+                        <h3 className="text-lg font-medium">{app.name}</h3>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

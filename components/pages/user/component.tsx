@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent } from "@/components/ui/card";
-import ApplicationsView from "@/components/pages/user/applications/component";
+import ApplicationsView from "@/components/pages/user/application/component";
 import { SignOut } from "@/components/pages/user/action/signout/component";
 
 export function User() {
