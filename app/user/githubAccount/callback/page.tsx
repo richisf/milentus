@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { Callback } from "@/components/pages/user/github/callback/component";
+import { Callback } from "@/components/pages/user/githubAccount/callback/component";
 
 export default function Page() {
   const searchParams = useSearchParams();

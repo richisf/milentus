@@ -17,27 +17,27 @@ export async function GET(request: NextRequest) {
     if (error) {
       const errorMessage = searchParams.get('error_description') || error;
       return NextResponse.redirect(
-        new URL(`/user/github/callback?error=${error}&error_message=${encodeURIComponent(errorMessage)}`, request.url)
+        new URL(`/user/githubAccount/callback?error=${error}&error_message=${encodeURIComponent(errorMessage)}`, request.url)
       );
     }
 
     // Check for missing code
     if (!code) {
       return NextResponse.redirect(
-        new URL('/user/github/callback?error=missing_code&error_message=Missing authorization code', request.url)
+        new URL('/user/githubAccount/callback?error=missing_code&error_message=Missing authorization code', request.url)
       );
     }
 
     // Check for missing state
     if (!state) {
       return NextResponse.redirect(
-        new URL('/user/github/callback?error=missing_state&error_message=Missing state parameter', request.url)
+        new URL('/user/githubAccount/callback?error=missing_state&error_message=Missing state parameter', request.url)
       );
     }
 
     // Redirect to callback page with code and state for processing
     const baseUrl = new URL(request.url).origin;
-    const redirectUrl = `${baseUrl}/user/github/callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
+    const redirectUrl = `${baseUrl}/user/githubAccount/callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
 
     console.log('Redirecting to:', redirectUrl);
 
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('GitHub OAuth callback error:', error);
     return NextResponse.redirect(
-      new URL('/user/github/callback?error=server_error&error_message=Unexpected server error', request.url)
+      new URL('/user/githubAccount/callback?error=server_error&error_message=Unexpected server error', request.url)
     );
   }
 }
