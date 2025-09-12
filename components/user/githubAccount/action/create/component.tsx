@@ -15,7 +15,6 @@ interface GithubAccountCreateProps {
 export function GithubAccountCreate({ code, state }: GithubAccountCreateProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [processed, setProcessed] = useState(false);
 
@@ -34,13 +33,13 @@ export function GithubAccountCreate({ code, state }: GithubAccountCreateProps) {
         .then((result) => {
           if (!result.success) throw new Error(result.error || 'Failed to connect GitHub account');
 
-          setSuccess('GitHub account successfully connected!');
-          setLoading(false);
-
-          // Clean URL
+          // Clean URL and redirect immediately
           const url = new URL(window.location.href);
           ['code', 'state'].forEach(param => url.searchParams.delete(param));
           window.history.replaceState({}, '', url.toString());
+
+          // Redirect to dashboard immediately
+          router.push('/user');
         })
         .catch((err) => {
           console.error('OAuth error:', err);
@@ -91,24 +90,6 @@ export function GithubAccountCreate({ code, state }: GithubAccountCreateProps) {
     );
   }
 
-  if (success) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <div className="text-green-500 mb-2 text-2xl">✅</div>
-            <CardTitle>GitHub Connected!</CardTitle>
-            <CardDescription>{success}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Button onClick={() => router.push('/user')} className="w-full">
-              Continue to Dashboard
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return null;
 }
