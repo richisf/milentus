@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { Id } from "@/convex/_generated/dataModel";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Create } from "@/components/pages/user/applications/mutations/create/component";
-import { Remove } from "@/components/pages/user/applications/mutations/remove/component";  
+import { Create } from "@/components/pages/user/applications/action/create/component";
+import { Remove } from "@/components/pages/user/applications/action/remove/component";  
 
 interface ApplicationsViewProps {
   applications: Array<{

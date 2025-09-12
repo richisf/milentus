@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent } from "@/components/ui/card";
 import ApplicationsView from "@/components/pages/user/applications/component";
-import { SignOut } from "@/components/pages/user/mutations/signout/component";
+import { SignOut } from "@/components/pages/user/action/signout/component";
 
 export function User() {
   const currentUser = useQuery(api.auth.currentUser);
