@@ -1,20 +1,52 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { GithubAccountCreate } from "./action/create/component";
 
 export function Github() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
+
+  const code = searchParams.get('code');
+  const state = searchParams.get('state');
+  const error = searchParams.get('error');
+  const errorMessage = searchParams.get('error_message');
+
+  // Handle OAuth callback
+  if (code && state) {
+    return <GithubAccountCreate code={code} state={state} />;
+  }
+
+  // Handle OAuth errors from provider
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4" style={{ backgroundColor: '#F7F8F4' }}>
+        <Card className="w-full max-w-md text-center">
+          <CardHeader>
+            <div className="text-destructive mb-2 text-2xl">❌</div>
+            <CardTitle>OAuth Error</CardTitle>
+            <CardDescription>{errorMessage || error}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={() => window.location.href = '/user/githubAccount'} className="w-full">
+              Try Again
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const initiateGithubOAuth = () => {
     setLoading(true);
 
     const state = Math.random().toString(36).substring(2) + Date.now().toString(36);
     const clientId = 'Ov23li8Gt88cHjYDTWlT';
-    const callbackUrl = `${window.location.origin}/user/githubAccount/callback/api`;
+    const callbackUrl = `${window.location.origin}/user/githubAccount`;
     const scope = "user,repo,delete_repo";
 
     const url = `https://github.com/login/oauth/authorize?` +

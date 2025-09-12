@@ -17,27 +17,27 @@ export async function GET(request: NextRequest) {
     if (error) {
       const errorMessage = searchParams.get('error_description') || error;
       return NextResponse.redirect(
-        new URL(`/user/githubAccount/callback?error=${error}&error_message=${encodeURIComponent(errorMessage)}`, request.url)
+        new URL(`/user/githubAccount?error=${error}&error_message=${encodeURIComponent(errorMessage)}`, request.url)
       );
     }
 
     // Check for missing code
     if (!code) {
       return NextResponse.redirect(
-        new URL('/user/githubAccount/callback?error=missing_code&error_message=Missing authorization code', request.url)
+        new URL('/user/githubAccount?error=missing_code&error_message=Missing authorization code', request.url)
       );
     }
 
     // Check for missing state
     if (!state) {
       return NextResponse.redirect(
-        new URL('/user/githubAccount/callback?error=missing_state&error_message=Missing state parameter', request.url)
+        new URL('/user/githubAccount?error=missing_state&error_message=Missing state parameter', request.url)
       );
     }
 
-    // Redirect to callback page with code and state for processing
+    // Redirect to main page with code and state for processing
     const baseUrl = new URL(request.url).origin;
-    const redirectUrl = `${baseUrl}/user/githubAccount/callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
+    const redirectUrl = `${baseUrl}/user/githubAccount?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
 
     console.log('Redirecting to:', redirectUrl);
 

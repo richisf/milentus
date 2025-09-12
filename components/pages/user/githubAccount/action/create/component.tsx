@@ -8,14 +8,12 @@ import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-interface CallbackProps {
-  code: string | null;
-  state: string | null;
-  error: string | null;
-  errorMessage: string | null;
+interface GithubAccountCreateProps {
+  code: string;
+  state: string;
 }
 
-export function Callback({ code, state, error: errorParam, errorMessage }: CallbackProps) {
+export function GithubAccountCreate({ code, state }: GithubAccountCreateProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -27,13 +25,6 @@ export function Callback({ code, state, error: errorParam, errorMessage }: Callb
 
   useEffect(() => {
     if (processed) return;
-
-    // Handle OAuth errors
-    if (errorParam) {
-      setError(errorMessage || errorParam);
-      setProcessed(true);
-      return;
-    }
 
     // Handle OAuth callback
     if (code && state && currentUser !== undefined) {
@@ -64,7 +55,7 @@ export function Callback({ code, state, error: errorParam, errorMessage }: Callb
           setLoading(false);
         });
     }
-  }, [code, state, errorParam, errorMessage, router, creategithubAccount, currentUser, processed]);
+  }, [code, state, router, creategithubAccount, currentUser, processed]);
 
   if (loading) {
     return (

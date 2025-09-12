@@ -5,7 +5,6 @@ import {
 } from "@convex-dev/auth/nextjs/server";
 
 const isGithubOAuthPage = createRouteMatcher(["/githubAccount"]);
-const isGithubOAuthCallback = createRouteMatcher(["/githubAccount/callback"]);
 const isProtectedRoute = createRouteMatcher(["/server"]);
 
 export default convexAuthNextjsMiddleware(async (request, { convexAuth }) => {
@@ -15,13 +14,8 @@ export default convexAuthNextjsMiddleware(async (request, { convexAuth }) => {
   }
 
   // Additional safety checks for OAuth routes
-  if (isGithubOAuthPage(request) || isGithubOAuthCallback(request)) {
+  if (isGithubOAuthPage(request)) {
     return; // Skip all middleware processing for OAuth flows
-  }
-
-  // Skip GitHub callback route by path check as well
-  if (request.nextUrl.pathname.includes('/githubAccount/callback')) {
-    return;
   }
 
   if (isProtectedRoute(request) && !(await convexAuth.isAuthenticated())) {
