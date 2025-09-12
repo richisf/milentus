@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
-import { SignUpForm } from "./form/component";
+import { SignUpForm } from "./action/component";
 
 export function SignUp() {
   const { isAuthenticated } = useConvexAuth();
