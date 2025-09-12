@@ -31,9 +31,6 @@ export function WnAdmin() {
                 {/* Existing codes */}
                 {!allCodes || allCodes.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={2} className="text-center text-gray-500 py-8">
-                      No codes yet - add one below
-                    </TableCell>
                   </TableRow>
                 ) : (
                   allCodes.map((codeEntry: { _id: string; code: string; used: boolean }) => (

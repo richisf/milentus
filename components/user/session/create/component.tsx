@@ -29,7 +29,7 @@ export function SignIn() {
               setTimeout(() => setButtonError(null), 3000);
             })
             .then(() => {
-              router.push("/user?session=true");
+              router.push("/user");
             });
         }}
       >
