@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { buildNumberedStructure, Node } from "./hierarchy/helper";
+import { buildNumberedStructure, Node } from "./utils/hierarchy";
 
 type NodesData = {
   nodes: Node[];
