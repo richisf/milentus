@@ -46,9 +46,10 @@ export function GithubAccountCreate({ code, state }: GithubAccountCreateProps) {
           console.error('OAuth error:', err);
           const errorMessage = err instanceof Error ? err.message : 'Failed to connect GitHub account';
 
-          // If authentication failed, redirect to login
+          // If authentication failed during OAuth callback, show login prompt
           if (errorMessage.includes('Authentication required') || errorMessage.includes('Not signed in')) {
-            router.push('/?error=github_auth_required&message=Please log in to connect your GitHub account');
+            setError('Please log in first to connect your GitHub account');
+            setLoading(false);
             return;
           }
 

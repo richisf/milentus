@@ -9,9 +9,15 @@ const isProtectedRoute = createRouteMatcher([
   "/server"
 ]);
 
+// Allow unauthenticated access to GitHub OAuth page
+const isGithubPage = (request: Request) => {
+  const url = new URL(request.url);
+  return url.pathname === '/user/githubAccount';
+};
+
 export default convexAuthNextjsMiddleware(async (request, { convexAuth }) => {
-  if (isProtectedRoute(request) && !(await convexAuth.isAuthenticated())) {
-    return nextjsMiddlewareRedirect(request, "/user");
+  if (isProtectedRoute(request) && !isGithubPage(request) && !(await convexAuth.isAuthenticated())) {
+    return nextjsMiddlewareRedirect(request, "/");
   }
 });
 

@@ -62,7 +62,7 @@ export function Create({ isCreating, setIsCreating }: CreateApplicationProps) {
   return (
     <div className="flex flex-col gap-3 w-full">
       {/* Application Name */}
-      <div className="text-center">
+      <div className="flex justify-center">
         <Label className="text-lg font-medium">Create Application</Label>
       </div>
 
