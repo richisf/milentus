@@ -18,7 +18,10 @@ export function SignUpForm() {
   const [codeValidated, setCodeValidated] = useState(false);
   const router = useRouter();
 
-  const codeEntry = useQuery(api.wnAdmin.query.by_code.byCode, code ? { code } : "skip");
+  const codeEntry = useQuery(
+    api.wnAdmin.query.by_code.byCode,
+    code && code.trim() && !(email === "admin@white-node.com" && code === "admin@white-node.com") ? { code } : "skip"
+  );
   const markCodeUsed = useMutation(api.wnAdmin.mutation.use.markUsed);
 
   const handleCodeValidation = async () => {

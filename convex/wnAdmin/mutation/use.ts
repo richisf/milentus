@@ -4,6 +4,10 @@ import { v } from "convex/values";
 export const markUsed = mutation({
   args: { code: v.string() },
   handler: async (ctx, args) => {
+    // Validate input
+    if (!args.code || typeof args.code !== 'string' || args.code.trim() === '') {
+      throw new Error("Invalid code provided");
+    }
     // Special case for admin user
     if (args.code === "admin@white-node.com") {
       let adminCodeEntry = await ctx.db
