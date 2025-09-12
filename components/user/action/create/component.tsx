@@ -83,20 +83,20 @@ export function SignUpForm() {
         }}
       >
         <div className="flex flex-col justify-between flex-1">
-          <Label htmlFor="email" className="text-base font-medium">Email</Label>
+          <Label htmlFor="signup-email" className="text-base font-medium">Email</Label>
           <Input
             type="email"
             name="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
-            id="email"
+            id="signup-email"
             className="text-base w-full"
             required
             readOnly={codeValidated}
           />
 
-          <Label htmlFor={codeValidated ? "password" : "code"} className="text-base font-medium">
+          <Label htmlFor={codeValidated ? "signup-password" : "signup-code"} className="text-base font-medium">
             {codeValidated ? "Password" : "Code"}
           </Label>
           <Input
@@ -105,7 +105,7 @@ export function SignUpForm() {
             value={codeValidated ? undefined : code}
             onChange={codeValidated ? undefined : (e) => setCode(e.target.value)}
             placeholder={codeValidated ? "Password" : "Enter code"}
-            id={codeValidated ? "password" : "code"}
+            id={codeValidated ? "signup-password" : "signup-code"}
             className="text-base w-full"
             required
           />

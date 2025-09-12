@@ -33,25 +33,25 @@ export function SignIn() {
         }}
       >
         <div className="flex flex-col justify-between flex-1">
-          <Label htmlFor="email" className="text-base font-medium">Email</Label>
+          <Label htmlFor="signin-email" className="text-base font-medium">Email</Label>
           <Input
             type="email"
             name="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
-            id="email"
+            id="signin-email"
             className="text-base w-full"
             required
           />
-          <Label htmlFor="password" className="text-base font-medium">Password</Label>
+          <Label htmlFor="signin-password" className="text-base font-medium">Password</Label>
           <Input
             type="password"
             name="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
-            id="password"
+            id="signin-password"
             className="text-base w-full"
             required
           />
