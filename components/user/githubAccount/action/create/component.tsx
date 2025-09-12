@@ -44,7 +44,15 @@ export function GithubAccountCreate({ code, state }: GithubAccountCreateProps) {
         })
         .catch((err) => {
           console.error('OAuth error:', err);
-          setError(err instanceof Error ? err.message : 'Failed to connect GitHub account');
+          const errorMessage = err instanceof Error ? err.message : 'Failed to connect GitHub account';
+
+          // If authentication failed, redirect to login
+          if (errorMessage.includes('Authentication required') || errorMessage.includes('Not signed in')) {
+            router.push('/?error=github_auth_required&message=Please log in to connect your GitHub account');
+            return;
+          }
+
+          setError(errorMessage);
           setLoading(false);
         });
     }

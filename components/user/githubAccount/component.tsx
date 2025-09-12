@@ -47,7 +47,7 @@ export function Github({ code, state, error, errorMessage }: GithubProps) {
 
     const state = Math.random().toString(36).substring(2) + Date.now().toString(36);
     const clientId = 'Ov23li8Gt88cHjYDTWlT';
-    const callbackUrl = `${window.location.origin}/user/githubAccount/api`;
+    const callbackUrl = `${window.location.origin}/user/githubAccount`;
     const scope = "user,repo,delete_repo";
 
     const url = `https://github.com/login/oauth/authorize?` +
