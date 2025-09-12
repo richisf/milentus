@@ -23,7 +23,7 @@ export async function fetchRepositoryPath(
     headers: {
       'Authorization': `Bearer ${accessToken}`,
       'Accept': 'application/vnd.github+json',
-      'User-Agent': 'milentus-app'
+      'User-Agent': 'white-node'
     }
   });
 

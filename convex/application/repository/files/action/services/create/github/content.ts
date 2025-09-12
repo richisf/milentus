@@ -11,7 +11,7 @@ export async function fetchFileContent(
     headers: {
       'Authorization': `Bearer ${accessToken}`,
       'Accept': 'application/vnd.github.v3.raw', // return raw file contents
-      'User-Agent': 'milentus-app'
+      'User-Agent': 'white-node'
     }
   });
 
