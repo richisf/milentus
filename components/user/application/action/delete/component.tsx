@@ -90,7 +90,7 @@ export function Remove({
             <div className="text-sm text-gray-700 font-medium" onClick={(e) => e.stopPropagation()}>
               Confirm deletion by typing the application name:
             </div>
-            <div className="text-sm text-red-600 bg-red-100 px-3 py-2 rounded font-mono" onClick={(e) => e.stopPropagation()}>
+            <div className="text-sm text-red-600 bg-red-100 px-3 py-2 rounded" onClick={(e) => e.stopPropagation()}>
               {applicationDisplayName || applicationName}
             </div>
             <Input
@@ -153,7 +153,7 @@ export function Remove({
             <div className="text-sm text-gray-700 font-medium" onClick={(e) => e.stopPropagation()}>
               Confirm deletion by typing the application name:
             </div>
-            <div className="text-sm text-red-600 bg-red-100 px-3 py-2 rounded font-mono" onClick={(e) => e.stopPropagation()}>
+            <div className="text-sm text-red-600 bg-red-100 px-3 py-2 rounded" onClick={(e) => e.stopPropagation()}>
               {applicationDisplayName || applicationName}
             </div>
             <Input

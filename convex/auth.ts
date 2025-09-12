@@ -2,7 +2,6 @@ import { Password } from "@convex-dev/auth/providers/Password";
 import { convexAuth, getAuthUserId } from "@convex-dev/auth/server";
 import { query, mutation } from "@/convex/_generated/server";
 import { v } from "convex/values";
-import { Id } from "@/convex/_generated/dataModel";
 import { VALID_ROLES } from "./lib/permissions";
 
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
@@ -56,8 +55,11 @@ export const getAdminById = query({
     userId: v.optional(v.id("users")),
   },
   handler: async (ctx, args) => {
+    const targetUserId = args.userId || await getAuthUserId(ctx);
 
-    const targetUserId = args.userId || "your_whitenode_admin_id_here" as Id<"users">;
+    if (!targetUserId) {
+      throw new Error("Not signed in or no user ID provided");
+    }
 
     const user = await ctx.db.get(targetUserId);
     if (!user) return null;

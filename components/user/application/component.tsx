@@ -51,7 +51,7 @@ export default function Application() {
             {applications.length > 0 && (
               <div className="pb-8">
 
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                <div className="grid gap-6 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-2">
                   {applications.map((app) => (
                     <Card
                       key={app._id}

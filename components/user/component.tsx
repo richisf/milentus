@@ -1,18 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { Authenticated, Unauthenticated } from "convex/react";
+import { Authenticated, Unauthenticated, useQuery } from "convex/react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import Application from "@/components/user/application/component";
 import { SignOut } from "@/components/user/session/delete/component";
 import { SignIn } from "@/components/user/session/create/component";
 import { SignUpForm } from "@/components/user/action/create/component";
+import { WnAdmin } from "@/components/user/wnAdmin/component";
 import { useIsMobile } from "@/components/hooks/isMobile";
+import { api } from "@/convex/_generated/api";
 import Image from "next/image";
 
 export function User() {
   const isMobile = useIsMobile();
   const [showSignIn, setShowSignIn] = useState(true);
+
+  // Get current user info
+  const user = useQuery(api.auth.getMe);
+  const isAdmin = user?.role === "whitenode-admin";
 
   return (
     <div
@@ -44,7 +51,13 @@ export function User() {
                   <div className="flex justify-end mb-4">
                     <SignOut />
                   </div>
-                  <Application />
+                  {isAdmin ? (
+                    <div className="space-y-8">
+                        <WnAdmin />
+                    </div>
+                  ) : (
+                    <Application />
+                  )}
                 </CardContent>
               </Authenticated>
               <Unauthenticated>
@@ -63,12 +76,13 @@ export function User() {
                       <div className="flex-1 w-full max-w-md">
                         {showSignIn ? <SignIn /> : <SignUpForm />}
                       </div>
-                      <button
+                      <Button
                         onClick={() => setShowSignIn(!showSignIn)}
-                        className="text-sm text-gray-600 hover:text-gray-800 underline underline-offset-2 cursor-pointer transition-colors mt-2"
+                        variant="link"
+                        className="text-sm text-gray-600 hover:text-gray-800 underline underline-offset-2 cursor-pointer transition-colors mt-2 p-0 h-auto"
                       >
                         {showSignIn ? "Sign up" : "Sign in"}
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>

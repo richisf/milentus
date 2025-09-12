@@ -113,7 +113,10 @@ import type * as githubAccount_query_by_user from "../githubAccount/query/by_use
 import type * as githubAccount_query_by_user_username from "../githubAccount/query/by_user_username.js";
 import type * as http from "../http.js";
 import type * as lib_permissions from "../lib/permissions.js";
+import type * as wnAdmin_action_create from "../wnAdmin/action/create.js";
+import type * as wnAdmin_mutation_create from "../wnAdmin/mutation/create.js";
 import type * as wnAdmin_mutation_use from "../wnAdmin/mutation/use.js";
+import type * as wnAdmin_query_all_codes from "../wnAdmin/query/all_codes.js";
 import type * as wnAdmin_query_by_code from "../wnAdmin/query/by_code.js";
 
 /**
@@ -225,7 +228,10 @@ declare const fullApi: ApiFromModules<{
   "githubAccount/query/by_user_username": typeof githubAccount_query_by_user_username;
   http: typeof http;
   "lib/permissions": typeof lib_permissions;
+  "wnAdmin/action/create": typeof wnAdmin_action_create;
+  "wnAdmin/mutation/create": typeof wnAdmin_mutation_create;
   "wnAdmin/mutation/use": typeof wnAdmin_mutation_use;
+  "wnAdmin/query/all_codes": typeof wnAdmin_query_all_codes;
   "wnAdmin/query/by_code": typeof wnAdmin_query_by_code;
 }>;
 export declare const api: FilterApi<

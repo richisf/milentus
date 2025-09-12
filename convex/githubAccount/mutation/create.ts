@@ -1,12 +1,11 @@
 import { v } from "convex/values";
 import { internalMutation } from "@/convex/_generated/server";
 import { internal } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
 import { VALID_ROLES } from "../../lib/permissions";
 
 export const githubAccount = internalMutation({
   args: {
-    userId: v.string(), // Required: Authenticated user ID (matches schema)
+    userId: v.id("users"),
     token: v.string(),
     username: v.string(),
   },
@@ -38,7 +37,7 @@ export const githubAccount = internalMutation({
       username: args.username,
     });
 
-    const user = await ctx.db.get(args.userId as Id<"users">);
+    const user = await ctx.db.get(args.userId);
     if (user?.role === VALID_ROLES.WHITENODE_ADMIN) {
 
       const applicationId = await ctx.db.insert("application", {

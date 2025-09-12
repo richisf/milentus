@@ -114,7 +114,7 @@ export function Claude({ applicationId, nodesData }: ClaudeProps) {
                     <br />
                     <strong>🔍 Status:</strong> No truncation - showing 100% of output
                   </div>
-                  <pre className="text-xs font-mono whitespace-pre-wrap break-words bg-white p-4 rounded border leading-relaxed">
+                  <pre className="text-xs whitespace-pre-wrap break-words bg-white p-4 rounded border leading-relaxed">
                     {claudeOutput}
                   </pre>
                 </div>

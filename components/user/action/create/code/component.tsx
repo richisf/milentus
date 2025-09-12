@@ -49,19 +49,19 @@ export function CodeInput({ onCodeValidated }: CodeInputProps) {
       onSubmit={handleCodeValidation}
     >
       <div className="flex flex-col justify-between flex-1">
-        <Label htmlFor="code" className="text-base font-medium">Referral Code</Label>
+        <Label htmlFor="code" className="font-medium">Referral Code</Label>
         <Input
           type="text"
           value={code}
           onChange={(e) => setCode(e.target.value)}
           placeholder="Enter referral code"
           id="code"
-          className="text-base w-full"
+          className=" w-full"
           required
         />
         <Button
           type="submit"
-          className="w-full text-base font-medium"
+          className="w-full font-medium"
           disabled={!code}
         >
           {buttonError || "Validate Code"}
