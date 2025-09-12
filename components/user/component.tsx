@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Authenticated, Unauthenticated } from "convex/react";
 import { Card, CardContent } from "@/components/ui/card";
 import Application from "@/components/user/application/component";
@@ -11,6 +12,7 @@ import Image from "next/image";
 
 export function User() {
   const isMobile = useIsMobile();
+  const [showSignIn, setShowSignIn] = useState(true);
 
   return (
     <div
@@ -48,7 +50,7 @@ export function User() {
               <Unauthenticated>
                 <div className="p-4 flex items-center justify-center h-full">
                   <div className="flex items-start gap-16">
-                    <div className="h-56 flex items-start justify-center">
+                    <div className="h-64 flex items-start justify-center">
                       <Image
                         src="/name.svg"
                         alt="White Node Logo"
@@ -57,13 +59,16 @@ export function User() {
                         className="h-full w-auto object-contain"
                       />
                     </div>
-                    <div className="flex items-start gap-8">
-                      <div className="h-56 max-w-md">
-                        <SignIn />
+                    <div className="h-64 flex flex-col items-center justify-center">
+                      <div className="flex-1 w-full max-w-md">
+                        {showSignIn ? <SignIn /> : <SignUpForm />}
                       </div>
-                      <div className="h-56 max-w-md">
-                        <SignUpForm />
-                      </div>
+                      <button
+                        onClick={() => setShowSignIn(!showSignIn)}
+                        className="text-sm text-gray-600 hover:text-gray-800 underline underline-offset-2 cursor-pointer transition-colors mt-2"
+                      >
+                        {showSignIn ? "Sign up" : "Sign in"}
+                      </button>
                     </div>
                   </div>
                 </div>
