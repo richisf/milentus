@@ -11,7 +11,6 @@ export const repository = internalAction({
     applicationId: v.id("application"), // Repository belongs to an application
     userId: v.string(), // Always required for user repositories
     name: v.string(), // Repository name
-    githubAccountId: v.id("githubAccount"), // Passed down to avoid refetching
   },
   returns: v.object({
     success: v.boolean(),
@@ -41,29 +40,27 @@ export const repository = internalAction({
       // Generate repository name for user applications
       const name = `whitenode-template-${args.name}`;
 
-      // Get the default GitHub account for repository creation
-      const defaultgithubAccount = await ctx.runQuery(internal.githubAccount.query.by_user.githubAccount, {
-        userId: undefined,
-        fallbackToDefault: true,
+      // Get the user's GitHub account for repository creation
+      const userGithubAccount = await ctx.runQuery(internal.githubAccount.query.by_user.githubAccount, {
+        userId: args.userId
       });
 
-      if (!defaultgithubAccount) {
-        throw new Error("No default GitHub account found");
+      if (!userGithubAccount) {
+        throw new Error("No GitHub account found for user - please connect GitHub first");
       }
 
       // Create the repository on GitHub
       await createRepository(
-        defaultgithubAccount.token,
+        userGithubAccount.token,
         "richisf",
         "whitenode-template",
         name,
       );
 
-      // Create repository via mutation with explicit githubAccountId
+      // Create repository via mutation
       const repositoryId = await ctx.runMutation(internal.application.repository.mutation.create.repository, {
         name: name,
         applicationId: args.applicationId,
-        githubAccountId: args.githubAccountId,
       });
 
       // Return the repository data

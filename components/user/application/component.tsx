@@ -14,12 +14,8 @@ export default function Application() {
   const [isCreating, setIsCreating] = useState(false);
   const router = useRouter();
 
-  const currentUser = useQuery(api.auth.currentUser);
-  const stableUserId = currentUser?.subject ? currentUser.subject.split('|')[0] : undefined;
-
-  const applications = useQuery(api.application.query.by_user.applications, {
-    userId: stableUserId,
-  });
+  // No longer need to pass userId - backend gets current user automatically
+  const applications = useQuery(api.application.query.by_user.applications);
 
   const handleSelectApplication = (applicationId: Id<"application">) => {
     router.push(`/user/${applicationId}`);
@@ -46,7 +42,6 @@ export default function Application() {
               {/* Create application component */}
               <div className="mb-8">
                 <Create
-                  stableUserId={stableUserId}
                   isCreating={isCreating}
                   setIsCreating={setIsCreating}
                 />

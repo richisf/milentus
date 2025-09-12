@@ -11,7 +11,6 @@ export const repository = internalQuery({
       _creationTime: v.float64(),
       applicationId: v.id("application"),
       name: v.string(),
-      githubAccountId: v.id("githubAccount"),
       accessToken: v.optional(v.string()),
       githubUsername: v.optional(v.string()),
     }),

@@ -2,6 +2,8 @@ import { v } from "convex/values";
 import { query, internalQuery } from "@/convex/_generated/server";
 import { internal } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { getAuthUserId } from "@convex-dev/auth/server";
+import { checkPermission, VALID_ROLES } from "../../lib/permissions";
 
 // Define types for the return structure
 type MachineData = {
@@ -40,7 +42,6 @@ type RepositoryData = {
   _creationTime: number;
   applicationId: Id<"application">;
   name: string;
-  githubAccountId: Id<"githubAccount">;
   accessToken?: string;
   githubUsername?: string;
 } | null;
@@ -84,7 +85,6 @@ export const by_id = query({
       _creationTime: v.float64(),
       applicationId: v.id("application"),
       name: v.string(),
-      githubAccountId: v.id("githubAccount"),
       accessToken: v.optional(v.string()),
       githubUsername: v.optional(v.string()),
     }), v.null()),
@@ -107,6 +107,14 @@ export const by_id = query({
     }), v.null()),
   }), v.null()),
   handler: async (ctx, args): Promise<ApplicationWithDetails | null> => {
+    // Verify user is authenticated
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not signed in");
+
+    // Check if user has read permissions
+    const hasAccess = await checkPermission(ctx, userId, VALID_ROLES.READ);
+    if (!hasAccess) throw new Error("Insufficient permissions");
+
     const application = await ctx.db.get(args.applicationId);
     if (!application) {
       return null;

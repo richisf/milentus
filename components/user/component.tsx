@@ -1,17 +1,15 @@
 "use client";
 
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
+import { Authenticated, Unauthenticated } from "convex/react";
 import { Card, CardContent } from "@/components/ui/card";
 import Application from "@/components/user/application/component";
 import { SignOut } from "@/components/user/session/delete/component";
 import { SignIn } from "@/components/user/session/create/component";
-import { SignUpForm } from "@/components/user/action/create/component";
 import { useIsMobile } from "@/components/hooks/isMobile";
 import Image from "next/image";
 
-export function User({ code }: { code: string | null }) {
-  const currentUser = useQuery(api.auth.currentUser);
+export function User() {
+
   const isMobile = useIsMobile();
 
   return (
@@ -37,21 +35,20 @@ export function User({ code }: { code: string | null }) {
                 className="h-32 w-auto object-contain"
               />
             </div>
-          ) : code ? (
-            <SignUpForm />
-          ) : currentUser === undefined ? (
-            null
-          ) : currentUser === null ? (
-            <SignIn />
           ) : (
-            <CardContent className="h-full overflow-y-auto">
-              {/* Sign out button in top right */}
-              <div className="flex justify-end mb-4">
-                <SignOut />
-              </div>
-
-              <Application />
-            </CardContent>
+            <>
+              <Authenticated>
+                <CardContent className="h-full overflow-y-auto">
+                  <div className="flex justify-end mb-4">
+                    <SignOut />
+                  </div>
+                  <Application />
+                </CardContent>
+              </Authenticated>
+              <Unauthenticated>
+                <SignIn />
+              </Unauthenticated>
+            </>
           )}
         </Card>
       </div>

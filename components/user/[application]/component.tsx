@@ -2,7 +2,6 @@
 
 import { useQuery } from "convex/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,17 +22,8 @@ export function Application({ id }: ApplicationProps) {
     applicationId,
   });
 
-  // Fetch current user for authentication
-  const currentUser = useQuery(api.auth.currentUser);
-
-  useEffect(() => {
-    if (currentUser === null) {
-      router.push("/");
-    }
-  }, [currentUser, router]);
-
   // Show loading state
-  if (currentUser === undefined || application === undefined) {
+  if (application === undefined) {
     return (
       <div
         className="min-h-screen"
@@ -49,10 +39,6 @@ export function Application({ id }: ApplicationProps) {
         </Card>
       </div>
     );
-  }
-
-  if (currentUser === null) {
-    return null;
   }
 
   if (!application) {

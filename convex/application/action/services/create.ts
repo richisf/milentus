@@ -19,19 +19,17 @@ export const create = internalAction({
     success: boolean
   }> => {
     try {
-      // Create repository for the user application
+
       const repositoryResult = await ctx.runAction(internal.application.repository.action.create.repository, {
         applicationId: args.applicationId,
         userId: args.userId,
         name: args.name,
-        githubAccountId: args.githubAccountId,
       });
 
       if (!repositoryResult.success) {
         throw new Error(`Repository creation failed`);
       }
 
-      // Create machine for the user application
       const machineResult = await ctx.runAction(internal.application.machine.action.create.machine, { 
         applicationId: args.applicationId,
         repository: repositoryResult.repository as {
@@ -48,14 +46,12 @@ export const create = internalAction({
         throw new Error(`Repository created but machine creation failed`);
       }
 
-      // Create the document for the application
       const documentResult = await ctx.runAction(internal.application.document.action.create.document, {
         applicationId: args.applicationId,
       });
 
       if (!documentResult.success) {
         console.warn(`Repository and machine created but document creation failed: ${documentResult.error}`);
-        // Don't throw here as document creation failure shouldn't block application creation
       }
 
       return {

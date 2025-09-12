@@ -10,8 +10,7 @@ export const githubAccount = internalMutation({
   handler: async (ctx, args) => {
 
     const githubAccount = await ctx.runQuery(internal.githubAccount.query.by_user.githubAccount, {
-      userId: args.userId,
-      fallbackToDefault: false
+      userId: args.userId
     });
 
     if (!githubAccount) {

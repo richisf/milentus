@@ -1,12 +1,26 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
-import { authTables } from "@convex-dev/auth/server";
 
 export default defineSchema({
-  ...authTables,
+
+  users: defineTable({
+    name: v.optional(v.string()),
+    image: v.optional(v.string()),
+    email: v.optional(v.string()),
+    emailVerificationTime: v.optional(v.float64()),
+    phone: v.optional(v.string()),
+    phoneVerificationTime: v.optional(v.float64()),
+    isAnonymous: v.optional(v.boolean()),
+
+    role: v.optional(
+      v.union(v.literal("read"), v.literal("write"), v.literal("admin"), v.literal("whitenode-admin")),
+    ),
+  })
+    .index("email", ["email"])
+    .index("phone", ["phone"]),
 
   githubAccount: defineTable({
-    userId: v.optional(v.string()), // user subject string or null for default account
+    userId: v.string(),
     token: v.string(),
     username: v.string(),
   })
@@ -14,9 +28,9 @@ export default defineSchema({
     .index("by_user_and_username", ["userId", "username"]),
 
   application: defineTable({
-    userId: v.optional(v.string()), // user subject string or null for default application
+    userId: v.string(),
     name: v.string(),
-    githubAccountId: v.id("githubAccount"), // Required: Consistent hierarchical link
+    githubAccountId: v.id("githubAccount"),
   })
     .index("by_user", ["userId"])
     .index("by_user_and_name", ["userId", "name"])
@@ -25,7 +39,6 @@ export default defineSchema({
     repository: defineTable({
       applicationId: v.id("application"),
       name: v.string(),
-      githubAccountId: v.id("githubAccount"), // Required: Inherits from application
     })
       .index("by_application", ["applicationId"]),
 
@@ -79,3 +92,4 @@ export default defineSchema({
         .index("by_conversation", ["conversationId"])
         .index("by_conversation_order", ["conversationId", "order"]),
   });
+

@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAction, useQuery } from "convex/react";
+import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -20,22 +19,16 @@ export function GithubAccountCreate({ code, state }: GithubAccountCreateProps) {
   const [loading, setLoading] = useState(false);
   const [processed, setProcessed] = useState(false);
 
-  const currentUser = useQuery(api.auth.currentUser);
   const creategithubAccount = useAction(api.githubAccount.action.create.githubAccount);
 
   useEffect(() => {
     if (processed) return;
 
-    // Handle OAuth callback
-    if (code && state && currentUser !== undefined) {
+    if (code && state) {
       setProcessed(true);
       setLoading(true);
 
-      // Pass userId only if authenticated, otherwise create default account
-      const userId = currentUser ? (currentUser.subject as Id<"users">) : undefined;
-
       creategithubAccount({
-        userId,
         code,
       })
         .then((result) => {
@@ -55,7 +48,7 @@ export function GithubAccountCreate({ code, state }: GithubAccountCreateProps) {
           setLoading(false);
         });
     }
-  }, [code, state, router, creategithubAccount, currentUser, processed]);
+  }, [code, state, router, creategithubAccount, processed]);
 
   if (loading) {
     return (

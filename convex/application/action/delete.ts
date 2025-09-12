@@ -3,6 +3,8 @@
 import { action } from "@/convex/_generated/server";
 import { v } from "convex/values";
 import { internal } from "@/convex/_generated/api";
+import { getAuthUserId } from "@convex-dev/auth/server";
+import { checkPermission, VALID_ROLES } from "../../lib/permissions";
 
 export const application = action({
   args: {
@@ -17,6 +19,14 @@ export const application = action({
     error?: string
   }> => {
     try {
+      // Get the current authenticated user
+      const userId = await getAuthUserId(ctx);
+      if (!userId) throw new Error("Not signed in");
+
+      // Check if user has admin permissions to delete applications
+      const hasAccess = await checkPermission(ctx, userId, VALID_ROLES.ADMIN);
+      if (!hasAccess) throw new Error("Insufficient permissions - admin access required");
+
       // Get repository data to pass to services
       const repository = await ctx.runQuery(internal.application.repository.query.by_application.repository, {
         applicationId: args.applicationId,

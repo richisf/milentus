@@ -1,10 +1,12 @@
 import { v } from "convex/values";
 import { internalMutation } from "@/convex/_generated/server";
 import { internal } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
+import { VALID_ROLES } from "../../lib/permissions";
 
 export const githubAccount = internalMutation({
   args: {
-    userId: v.optional(v.id("users")), // null for default accounts, set for personal accounts
+    userId: v.string(), // Required: Authenticated user ID (matches schema)
     token: v.string(),
     username: v.string(),
   },
@@ -12,15 +14,11 @@ export const githubAccount = internalMutation({
   handler: async (ctx, args) => {
     // Check 1: Prevent duplicate user accounts
     const existingUserAccount = await ctx.runQuery(internal.githubAccount.query.by_user.githubAccount, {
-      userId: args.userId,
-      fallbackToDefault: !args.userId // Only fallback to default when creating default account
+      userId: args.userId
     });
 
     if (existingUserAccount) {
-      const errorMessage = args.userId
-        ? "User already has a GitHub account"
-        : "Default GitHub account already exists";
-      throw new Error(errorMessage);
+      throw new Error("User already has a GitHub account");
     }
 
     // Check 2: Prevent username conflicts
@@ -40,20 +38,20 @@ export const githubAccount = internalMutation({
       username: args.username,
     });
 
-    // If this is a default account (no userId), automatically create default application and repository
-    if (!args.userId) {
-      // Create default application directly in database
+    // Check if this is a whitenode-admin user - if so, create template application
+    const user = await ctx.db.get(args.userId as Id<"users">);
+    if (user?.role === VALID_ROLES.WHITENODE_ADMIN) {
+      // Create whitenode-template application for whitenode-admin
       const applicationId = await ctx.db.insert("application", {
-        userId: undefined,
+        userId: args.userId,
         name: "whitenode-template",
         githubAccountId: githubAccountId,
       });
 
-      // Create default repository directly in database
+      // Create whitenode-template repository for whitenode-admin
       await ctx.db.insert("repository", {
         applicationId: applicationId,
-        name: "whitenode-template",
-        githubAccountId: githubAccountId,
+        name: "whitenode-template"
       });
     }
 

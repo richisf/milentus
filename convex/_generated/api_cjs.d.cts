@@ -112,6 +112,7 @@ import type * as githubAccount_query_by_id from "../githubAccount/query/by_id.js
 import type * as githubAccount_query_by_user from "../githubAccount/query/by_user.js";
 import type * as githubAccount_query_by_user_username from "../githubAccount/query/by_user_username.js";
 import type * as http from "../http.js";
+import type * as lib_permissions from "../lib/permissions.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -221,6 +222,7 @@ declare const fullApi: ApiFromModules<{
   "githubAccount/query/by_user": typeof githubAccount_query_by_user;
   "githubAccount/query/by_user_username": typeof githubAccount_query_by_user_username;
   http: typeof http;
+  "lib/permissions": typeof lib_permissions;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

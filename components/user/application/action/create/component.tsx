@@ -20,12 +20,12 @@ type CreateResult = {
 };
 
 interface CreateApplicationProps {
-  stableUserId?: string;
   isCreating: boolean;
   setIsCreating: (creating: boolean) => void;
 }
 
-export function Create({ stableUserId, isCreating, setIsCreating }: CreateApplicationProps) {
+export function Create({ isCreating, setIsCreating }: CreateApplicationProps) {
+
   const createApplication = useAction(api.application.action.create.create);
 
   const [appName, setAppName] = useState("");
@@ -37,18 +37,12 @@ export function Create({ stableUserId, isCreating, setIsCreating }: CreateApplic
       return;
     }
 
-    if (!stableUserId) {
-      setResult({ success: false, error: "Please sign in again." });
-      return;
-    }
-
     setIsCreating(true);
     setResult(null);
 
     try {
       const response = await createApplication({
-        name: appName.trim(),
-        userId: stableUserId
+        name: appName.trim()
       });
 
       setResult(response);

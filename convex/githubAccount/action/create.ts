@@ -3,12 +3,12 @@
 import { action } from "@/convex/_generated/server";
 import { v } from "convex/values";
 import { internal } from "@/convex/_generated/api";
-import { createGithubAccount } from "@/convex/githubAccount/action/services/create";   
+import { createGithubAccount } from "@/convex/githubAccount/action/services/create";
+import { getAuthUserId } from "@convex-dev/auth/server";   
 
 export const githubAccount = action({
   args: {
-    userId: v.optional(v.id("users")), // Optional - if not provided, creates default account
-    code: v.string(), // OAuth authorization code instead of token
+    code: v.string(),
   },
   returns: v.object({
     success: v.boolean(),
@@ -17,10 +17,16 @@ export const githubAccount = action({
   }),
   handler: async (ctx, args) => {
     try {
+
+      const currentUserId = await getAuthUserId(ctx);
+      if (!currentUserId) {
+        throw new Error("Authentication required");
+      }
+
       const accountData = await createGithubAccount(args.code);
 
       await ctx.runMutation(internal.githubAccount.mutation.create.githubAccount, {
-        userId: args.userId,
+        userId: currentUserId,
         token: accountData.token,
         username: accountData.userData.login,
       });

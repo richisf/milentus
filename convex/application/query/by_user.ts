@@ -2,6 +2,8 @@ import { v } from "convex/values";
 import { query } from "@/convex/_generated/server";
 import { internal } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { getAuthUserId } from "@convex-dev/auth/server";
+import { checkPermission, VALID_ROLES } from "../../lib/permissions";
 
 // Define types for the return structure
 type MachineData = {
@@ -40,7 +42,6 @@ type RepositoryData = {
   _creationTime: number;
   applicationId: Id<"application">;
   name: string;
-  githubAccountId: Id<"githubAccount">;
   accessToken?: string;
   githubUsername?: string;
 } | null;
@@ -59,9 +60,7 @@ type ApplicationWithDetails = {
 };
 
 export const applications = query({
-  args: {
-    userId: v.optional(v.string()), // user subject string or null for default applications
-  },
+  args: {}, // No longer need userId parameter - backend gets current user automatically
   returns: v.array(v.object({
     _id: v.id("application"),
     _creationTime: v.number(),
@@ -110,28 +109,43 @@ export const applications = query({
         _creationTime: v.number(),
         applicationId: v.id("application"),
         name: v.string(),
-        githubAccountId: v.id("githubAccount"),
         accessToken: v.optional(v.string()),
         githubUsername: v.optional(v.string()),
       }),
       v.null()
     ),
   })),
-  handler: async (ctx, args): Promise<ApplicationWithDetails[]> => {
-    // Query all applications for the specified user using the by_user index
-    const applications: Array<{
+  handler: async (ctx): Promise<ApplicationWithDetails[]> => {
+    // Verify user is authenticated
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not signed in");
+
+    // Check if user has read permissions
+    const hasAccess = await checkPermission(ctx, userId, VALID_ROLES.READ);
+    if (!hasAccess) throw new Error("Insufficient permissions");
+
+    const currentUserId = userId;
+
+    const userIdsToQuery = [currentUserId];
+
+    const allApplications: Array<{
       _id: Id<"application">;
       _creationTime: number;
       userId?: string;
       name: string;
-    }> = await ctx.db
-      .query("application")
-      .withIndex("by_user", (q) => q.eq("userId", args.userId))
-      .collect();
+    }> = [];
+
+    for (const userId of userIdsToQuery) {
+      const userApplications = await ctx.db
+        .query("application")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .collect();
+      allApplications.push(...userApplications);
+    }
 
     // For each application, fetch the associated machine, document, and repository
     const applicationsWithDetails: ApplicationWithDetails[] = await Promise.all(
-      applications.map(async (app): Promise<ApplicationWithDetails> => {
+      allApplications.map(async (app): Promise<ApplicationWithDetails> => {
         const machinePromise: Promise<MachineData> = ctx.runQuery(internal.application.machine.query.by_application.machine, {
           applicationId: app._id,
         });
