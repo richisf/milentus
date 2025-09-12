@@ -70,7 +70,7 @@ export function Create({ isCreating, setIsCreating }: CreateApplicationProps) {
       <div className="relative">
         <Input
           type="text"
-          placeholder="Enter application name"
+          placeholder="Name"
           className="placeholder:text-gray-400 placeholder:text-sm pr-12"
           value={appName}
           onChange={(e) => setAppName(e.target.value)}
