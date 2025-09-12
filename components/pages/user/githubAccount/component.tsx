@@ -1,20 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { GithubAccountCreate } from "./action/create/component";
 
-export function Github() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [loading, setLoading] = useState(false);
+interface GithubProps {
+  code: string | null;
+  state: string | null;
+  error: string | null;
+  errorMessage: string | null;
+}
 
-  const code = searchParams.get('code');
-  const state = searchParams.get('state');
-  const error = searchParams.get('error');
-  const errorMessage = searchParams.get('error_message');
+export function Github({ code, state, error, errorMessage }: GithubProps) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   // Handle OAuth callback
   if (code && state) {
