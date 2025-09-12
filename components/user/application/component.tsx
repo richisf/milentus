@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useQuery } from "convex/react";
 import { Id } from "@/convex/_generated/dataModel";
 import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { api } from "@/convex/_generated/api";
 import { Create } from "@/components/user/application/action/create/component";
 import { Remove } from "@/components/user/application/action/delete/component";  
@@ -51,10 +50,6 @@ export default function Application() {
             {/* Application grid - centered with margins */}
             {applications.length > 0 && (
               <div className="pb-8">
-                {/* Application subtitle */}
-                <div className="mb-6">
-                  <Label className="text-lg font-medium">Your Applications</Label>
-                </div>
 
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {applications.map((app) => (
