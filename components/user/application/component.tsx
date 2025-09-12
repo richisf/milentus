@@ -2,64 +2,24 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQuery } from "convex/react";
 import { Id } from "@/convex/_generated/dataModel";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Create } from "@/components/pages/user/application/action/create/component";
-import { Remove } from "@/components/pages/user/application/action/delete/component";  
+import { api } from "@/convex/_generated/api";
+import { Create } from "@/components/user/application/action/create/component";
+import { Remove } from "@/components/user/application/action/delete/component";  
 
-interface ApplicationsViewProps {
-  applications: Array<{
-    _id: Id<"application">;
-    _creationTime: number;
-    userId?: string;
-    name: string;
-    githubAccountId: Id<"githubAccount">;
-    machine: {
-      _id: Id<"machine">;
-      _creationTime: number;
-      applicationId: Id<"application">;
-      name: string;
-      zone: string;
-      state: string;
-      ipAddress?: string;
-      domain?: string;
-      convexUrl?: string;
-      convexProjectId?: number;
-    } | null;
-    repository: {
-      _id: Id<"repository">;
-      _creationTime: number;
-      applicationId: Id<"application">;
-      name: string;
-      accessToken?: string;
-      githubUsername?: string;
-    } | null;
-    document: {
-      _id: Id<"document">;
-      _creationTime: number;
-      applicationId: Id<"application">;
-      nodes: Array<{
-        id: string;
-        parentId: string;
-        label: string;
-        collapsed?: boolean;
-        fileId?: Id<"files">;
-      }>;
-      conversation: {
-        _id: Id<"conversation">;
-        _creationTime: number;
-        documentId: Id<"document">;
-      } | null;
-    } | null;
-  }> | undefined;
-  onApplicationSelected?: (applicationId: Id<"application">) => void;
-  stableUserId?: string;
-}
-
-export default function Applications({ applications, stableUserId }: ApplicationsViewProps) {
+export default function Application() {
   const [isCreating, setIsCreating] = useState(false);
   const router = useRouter();
+
+  const currentUser = useQuery(api.auth.currentUser);
+  const stableUserId = currentUser?.subject ? currentUser.subject.split('|')[0] : undefined;
+
+  const applications = useQuery(api.application.query.by_user.applications, {
+    userId: stableUserId,
+  });
 
   const handleSelectApplication = (applicationId: Id<"application">) => {
     router.push(`/user/${applicationId}`);

@@ -1,11 +1,11 @@
 "use client";
 
-import { User } from "@/components/pages/user/component";
+import { useSearchParams } from "next/navigation";
+import { User } from "@/components/user/component";
 
 export default function Page() {
-  return (
-    <>
-      <User />
-    </>
-  );
+  const searchParams = useSearchParams();
+  const code = searchParams.get('code');
+
+  return <User code={code} />;
 }

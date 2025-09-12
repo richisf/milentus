@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { Application } from "@/components/pages/user/[application]/component";
+import { Application } from "@/components/user/[application]/component";
 
 export default function ApplicationPage() {
   

@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { Github } from "@/components/pages/user/githubAccount/component";
+import { Github } from "@/components/user/githubAccount/component";
 
 export default function Page() {
   const searchParams = useSearchParams();

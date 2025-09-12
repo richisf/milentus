@@ -5,15 +5,15 @@ import { Id } from "@/convex/_generated/dataModel";
 import { Cog6ToothIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import Export from "@/components/pages/user/[application]/document/avatar/json/export/component";
-import Import from "@/components/pages/user/[application]/document/avatar/json/import/component";
-import Extension from "@/components/pages/user/[application]/document/avatar/json/extension/component";
-import Nesting from "@/components/pages/user/[application]/document/avatar/view/nesting/component";
-import Expand from "@/components/pages/user/[application]/document/avatar/view/expand/component";
-import { Files } from "@/components/pages/user/[application]/document/avatar/files/component";
-import { Claude } from "@/components/pages/user/[application]/document/avatar/claude/component";
-import { Pull } from "@/components/pages/user/[application]/document/avatar/pull/component";
-import Remove from "@/components/pages/user/[application]/document/avatar/remove/component";
+import Export from "@/components/user/[application]/document/avatar/json/export/component";
+import Import from "@/components/user/[application]/document/avatar/json/import/component";
+import Extension from "@/components/user/[application]/document/avatar/json/extension/component";
+import Nesting from "@/components/user/[application]/document/avatar/view/nesting/component";
+import Expand from "@/components/user/[application]/document/avatar/view/expand/component";
+import { Files } from "@/components/user/[application]/document/avatar/files/component";
+import { Claude } from "@/components/user/[application]/document/avatar/claude/component";
+import { Pull } from "@/components/user/[application]/document/avatar/pull/component";
+import Remove from "@/components/user/[application]/document/avatar/remove/component";
 
 type Node = {
   id: string;
