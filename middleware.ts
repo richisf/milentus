@@ -4,23 +4,27 @@ import {
   nextjsMiddlewareRedirect,
 } from "@convex-dev/auth/nextjs/server";
 
-const isProtectedRoute = createRouteMatcher([
-  "/user/(.*)",
-  "/server"
-]);
-
-// Allow unauthenticated access to GitHub OAuth page
-const isGithubPage = (request: Request) => {
-  const url = new URL(request.url);
-  return url.pathname === '/user/githubAccount';
-};
+const isGithubOAuthPage = createRouteMatcher(["/user/githubAccount"]);
+const isProtectedRoute = createRouteMatcher(["/server"]);
 
 export default convexAuthNextjsMiddleware(async (request, { convexAuth }) => {
-  if (isProtectedRoute(request) && !isGithubPage(request) && !(await convexAuth.isAuthenticated())) {
+  // Completely skip ALL GitHub OAuth routes - don't even check authentication
+  if (request.nextUrl.pathname.startsWith('/user/githubAccount')) {
+    return; // Skip all middleware processing for any GitHub OAuth routes
+  }
+
+  // Additional safety checks for OAuth routes
+  if (isGithubOAuthPage(request)) {
+    return; // Skip all middleware processing for OAuth flows
+  }
+
+  if (isProtectedRoute(request) && !(await convexAuth.isAuthenticated())) {
     return nextjsMiddlewareRedirect(request, "/");
   }
 });
 
 export const config = {
-  matcher: ["/((?!.*\\.|_next).*)", "/(api|trpc)(.*)"],
+  // The following matcher runs middleware on all routes
+  // except static assets, OAuth routes, and the root page.
+  matcher: ["/((?!.*\\.|_next|user/github).+)", "/(api|trpc)(.*)"],
 };
