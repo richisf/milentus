@@ -7,12 +7,11 @@ import { useQuery, useMutation } from "convex/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { api } from "@/convex/_generated/api";
 
 export function SignUpForm() {
   const { signIn } = useAuthActions();
-  const [error, setError] = useState<string | null>(null);
+  const [buttonError, setButtonError] = useState<string | null>(null);
   const [code, setCode] = useState("");
   const [email, setEmail] = useState("");
   const [codeValidated, setCodeValidated] = useState(false);
@@ -25,41 +24,45 @@ export function SignUpForm() {
   const markCodeUsed = useMutation(api.wnAdmin.mutation.use.markUsed);
 
   const handleCodeValidation = async () => {
-    setError(null);
+    setButtonError(null);
 
     // Special case for admin user
     if (email === "admin@white-node.com" && code === "admin@white-node.com") {
       try {
         await markCodeUsed({ code });
         setCodeValidated(true);
-      } catch (error) {
-        setError(error instanceof Error ? error.message : "Failed to validate code");
+      } catch {
+        setButtonError("Not found");
+        setTimeout(() => setButtonError(null), 3000);
       }
       return;
     }
 
     // Regular code validation
     if (!codeEntry) {
-      setError("Invalid referral code");
+      setButtonError("Not found");
+      setTimeout(() => setButtonError(null), 3000);
       return;
     }
 
     if (codeEntry.used) {
-      setError("Referral code has already been used");
+      setButtonError("Not found");
+      setTimeout(() => setButtonError(null), 3000);
       return;
     }
 
     try {
       await markCodeUsed({ code });
       setCodeValidated(true);
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Failed to validate code");
+    } catch {
+      setButtonError("Not found");
+      setTimeout(() => setButtonError(null), 3000);
     }
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setButtonError(null);
 
     const formData = new FormData(e.target as HTMLFormElement);
     formData.set("flow", "signUp");
@@ -67,8 +70,9 @@ export function SignUpForm() {
     try {
       await signIn("password", formData);
       router.push("/user");
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Failed to sign up");
+    } catch {
+      setButtonError("Not found");
+      setTimeout(() => setButtonError(null), 3000);
     }
   };
 
@@ -119,7 +123,7 @@ export function SignUpForm() {
               className="w-full text-base font-medium"
               disabled={!code || !email}
             >
-              Validate Code
+              {buttonError || "Validate Code"}
             </Button>
           ) : (
             <Button type="submit" className="w-full text-base font-medium">
@@ -127,13 +131,6 @@ export function SignUpForm() {
             </Button>
           )}
         </div>
-        {error && (
-          <Alert variant="destructive">
-            <AlertDescription>
-              {codeValidated ? `Error signing up: ${error}` : error}
-            </AlertDescription>
-          </Alert>
-        )}
       </form>
     </div>
   );

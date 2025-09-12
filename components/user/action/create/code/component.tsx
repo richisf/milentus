@@ -5,7 +5,6 @@ import { useQuery, useMutation } from "convex/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { api } from "@/convex/_generated/api";
 
 interface CodeInputProps {
@@ -13,7 +12,7 @@ interface CodeInputProps {
 }
 
 export function CodeInput({ onCodeValidated }: CodeInputProps) {
-  const [error, setError] = useState<string | null>(null);
+  const [buttonError, setButtonError] = useState<string | null>(null);
   const [code, setCode] = useState("");
 
   const codeEntry = useQuery(api.wnAdmin.query.by_code.byCode, code ? { code } : "skip");
@@ -21,23 +20,26 @@ export function CodeInput({ onCodeValidated }: CodeInputProps) {
 
   const handleCodeValidation = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setButtonError(null);
 
     if (!codeEntry) {
-      setError("Invalid referral code");
+      setButtonError("Not found");
+      setTimeout(() => setButtonError(null), 3000);
       return;
     }
 
     if (codeEntry.used) {
-      setError("Referral code has already been used");
+      setButtonError("Not found");
+      setTimeout(() => setButtonError(null), 3000);
       return;
     }
 
     try {
       await markCodeUsed({ code });
       onCodeValidated();
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Failed to validate code");
+    } catch {
+      setButtonError("Not found");
+      setTimeout(() => setButtonError(null), 3000);
     }
   };
 
@@ -62,16 +64,9 @@ export function CodeInput({ onCodeValidated }: CodeInputProps) {
           className="w-full text-base font-medium"
           disabled={!code}
         >
-          Validate Code
+          {buttonError || "Validate Code"}
         </Button>
       </div>
-      {error && (
-        <Alert variant="destructive">
-          <AlertDescription>
-            {error}
-          </AlertDescription>
-        </Alert>
-      )}
     </form>
   );
 }

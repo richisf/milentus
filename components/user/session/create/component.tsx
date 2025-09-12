@@ -6,11 +6,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
   
 export function SignIn() {
   const { signIn } = useAuthActions();
-  const [error, setError] = useState<string | null>(null);
+  const [buttonError, setButtonError] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
@@ -21,11 +20,13 @@ export function SignIn() {
         className="flex flex-col justify-between h-full w-full"
         onSubmit={(e) => {
           e.preventDefault();
+          setButtonError(null);
           const formData = new FormData(e.target as HTMLFormElement);
           formData.set("flow", "signIn");
           void signIn("password", formData)
-            .catch((error) => {
-              setError(error.message);
+            .catch(() => {
+              setButtonError("Not found");
+              setTimeout(() => setButtonError(null), 3000);
             })
             .then(() => {
               router.push("/user?session=true");
@@ -60,16 +61,9 @@ export function SignIn() {
             className="w-full text-base font-medium"
             disabled={!email || !password}
           >
-            Sign in
+            {buttonError || "Sign in"}
           </Button>
         </div>
-        {error && (
-          <Alert variant="destructive">
-            <AlertDescription>
-              Error signing in: {error}
-            </AlertDescription>
-          </Alert>
-        )}
       </form>
     </div>
   );
