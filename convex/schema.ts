@@ -19,6 +19,13 @@ export default defineSchema({
     .index("email", ["email"])
     .index("phone", ["phone"]),
 
+  wnAdmin: defineTable({
+    code: v.string(),
+    used: v.boolean(),
+  })
+    .index("by_code", ["code"])
+    .index("by_used", ["used"]),
+
   githubAccount: defineTable({
     userId: v.string(),
     token: v.string(),

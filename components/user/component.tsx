@@ -5,11 +5,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import Application from "@/components/user/application/component";
 import { SignOut } from "@/components/user/session/delete/component";
 import { SignIn } from "@/components/user/session/create/component";
+import { SignUpForm } from "@/components/user/action/create/component";
 import { useIsMobile } from "@/components/hooks/isMobile";
 import Image from "next/image";
 
 export function User() {
-
   const isMobile = useIsMobile();
 
   return (
@@ -46,7 +46,27 @@ export function User() {
                 </CardContent>
               </Authenticated>
               <Unauthenticated>
-                <SignIn />
+                <div className="p-4 flex items-center justify-center h-full">
+                  <div className="flex items-start gap-16">
+                    <div className="h-56 flex items-start justify-center">
+                      <Image
+                        src="/name.svg"
+                        alt="White Node Logo"
+                        width={2827}
+                        height={1040}
+                        className="h-full w-auto object-contain"
+                      />
+                    </div>
+                    <div className="flex items-start gap-8">
+                      <div className="h-56 max-w-md">
+                        <SignIn />
+                      </div>
+                      <div className="h-56 max-w-md">
+                        <SignUpForm />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </Unauthenticated>
             </>
           )}

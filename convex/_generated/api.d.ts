@@ -113,6 +113,8 @@ import type * as githubAccount_query_by_user from "../githubAccount/query/by_use
 import type * as githubAccount_query_by_user_username from "../githubAccount/query/by_user_username.js";
 import type * as http from "../http.js";
 import type * as lib_permissions from "../lib/permissions.js";
+import type * as wnAdmin_mutation_use from "../wnAdmin/mutation/use.js";
+import type * as wnAdmin_query_by_code from "../wnAdmin/query/by_code.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -223,6 +225,8 @@ declare const fullApi: ApiFromModules<{
   "githubAccount/query/by_user_username": typeof githubAccount_query_by_user_username;
   http: typeof http;
   "lib/permissions": typeof lib_permissions;
+  "wnAdmin/mutation/use": typeof wnAdmin_mutation_use;
+  "wnAdmin/query/by_code": typeof wnAdmin_query_by_code;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

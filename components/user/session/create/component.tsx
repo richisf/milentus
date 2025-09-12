@@ -7,72 +7,70 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import Image from "next/image";
-
+  
 export function SignIn() {
   const { signIn } = useAuthActions();
   const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const router = useRouter();
 
   return (
-    <div className="p-4 flex items-center justify-center h-full">
-      <div className="flex items-start gap-28">
-        <div className="h-56 flex items-start justify-center">
-          <Image
-            src="/name.svg"
-            alt="White Node Logo"
-            width={2827}
-            height={1040}
-            className="h-full w-auto object-contain"
+    <div className="h-56 max-w-md flex flex-col justify-between">
+      <form
+        className="flex flex-col justify-between h-full w-full"
+        onSubmit={(e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target as HTMLFormElement);
+          formData.set("flow", "signIn");
+          void signIn("password", formData)
+            .catch((error) => {
+              setError(error.message);
+            })
+            .then(() => {
+              router.push("/user?session=true");
+            });
+        }}
+      >
+        <div className="flex flex-col justify-between flex-1">
+          <Label htmlFor="email" className="text-base font-medium">Email</Label>
+          <Input
+            type="email"
+            name="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+            id="email"
+            className="text-base w-full"
+            required
           />
+          <Label htmlFor="password" className="text-base font-medium">Password</Label>
+          <Input
+            type="password"
+            name="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            id="password"
+            className="text-base w-full"
+            required
+          />
+          <Button
+            type="submit"
+            className="w-full text-base font-medium"
+            disabled={!email || !password}
+          >
+            Sign in
+          </Button>
         </div>
-          <div className="h-56 max-w-md flex flex-col justify-between">
-            <form
-              className="flex flex-col justify-between h-full w-full"
-              onSubmit={(e) => {
-                e.preventDefault();
-                const formData = new FormData(e.target as HTMLFormElement);
-                formData.set("flow", "signIn");
-                void signIn("password", formData)
-                  .catch((error) => {
-                    setError(error.message);
-                  })
-                  .then(() => {
-                    router.push("/user?session=true");
-                  });
-              }}
-            >
-              <div className="flex flex-col justify-between flex-1">
-                <Label htmlFor="email" className="text-base font-medium">Email</Label>
-                <Input
-                  type="email"
-                  name="email"
-                  placeholder="Email"
-                  id="email"
-                  className="text-base w-full"
-                />
-                <Label htmlFor="password" className="text-base font-medium">Password</Label>
-                <Input
-                  type="password"
-                  name="password"
-                  placeholder="Password"
-                  id="password"
-                  className="text-base w-full"
-                />
-                <Button type="submit" className="w-full text-base font-medium">
-                  Sign in
-                </Button>
-              </div>
-              {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>
-                    Error signing in: {error}
-                  </AlertDescription>
-                </Alert>
-              )}
-            </form>
-          </div>
-        </div>
+        {error && (
+          <Alert variant="destructive">
+            <AlertDescription>
+              Error signing in: {error}
+            </AlertDescription>
+          </Alert>
+        )}
+      </form>
     </div>
   );
 }

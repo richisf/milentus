@@ -38,17 +38,15 @@ export const githubAccount = internalMutation({
       username: args.username,
     });
 
-    // Check if this is a whitenode-admin user - if so, create template application
     const user = await ctx.db.get(args.userId as Id<"users">);
     if (user?.role === VALID_ROLES.WHITENODE_ADMIN) {
-      // Create whitenode-template application for whitenode-admin
+
       const applicationId = await ctx.db.insert("application", {
         userId: args.userId,
         name: "whitenode-template",
         githubAccountId: githubAccountId,
       });
 
-      // Create whitenode-template repository for whitenode-admin
       await ctx.db.insert("repository", {
         applicationId: applicationId,
         name: "whitenode-template"
