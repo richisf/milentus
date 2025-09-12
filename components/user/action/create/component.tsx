@@ -14,6 +14,7 @@ export function SignUpForm() {
   const [buttonError, setButtonError] = useState<string | null>(null);
   const [code, setCode] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [codeValidated, setCodeValidated] = useState(false);
   const router = useRouter();
 
@@ -109,8 +110,14 @@ export function SignUpForm() {
           <Input
             type={codeValidated ? "password" : "text"}
             name={codeValidated ? "password" : "code"}
-            value={codeValidated ? undefined : code}
-            onChange={codeValidated ? undefined : (e) => setCode(e.target.value)}
+            value={codeValidated ? password : code}
+            onChange={(e) => {
+              if (codeValidated) {
+                setPassword(e.target.value);
+              } else {
+                setCode(e.target.value);
+              }
+            }}
             placeholder={codeValidated ? "Password" : "Enter code"}
             id={codeValidated ? "signup-password" : "signup-code"}
             className="text-base w-full"
@@ -126,7 +133,11 @@ export function SignUpForm() {
               {buttonError || "Validate Code"}
             </Button>
           ) : (
-            <Button type="submit" className="w-full text-base font-medium">
+            <Button
+              type="submit"
+              className="w-full text-base font-medium"
+              disabled={!password || !email}
+            >
               Sign up
             </Button>
           )}
